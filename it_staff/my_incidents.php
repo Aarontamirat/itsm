@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                             <option value="Not Fixed" <?= $incident['status'] === 'Not Fixed' ? 'selected' : '' ?>>Not Fixed</option>
                                         </select>
                                         <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Update</button>
-                                        <a href="faq_submit.php?incident=<?= $incident['id'] ?>" class="text-xs text-green-600 underline">Add to FAQ</a>
+                                        <a href="../faq_submit.php?incident=<?= $incident['id'] ?>" class="text-xs text-green-600 underline">Add to FAQ</a>
                                     </form>
                                 </td>
                             </tr>

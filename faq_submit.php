@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$title, $category, $solution, $staff_id, $linked_incident]);
 
         $_SESSION['success'] = "FAQ added successfully.";
-        header("Location: my_incidents.php");
+        header("Location: it_staff/my_incidents.php");
         exit;
     } else {
         $_SESSION['error'] = "All fields are required.";
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save to FAQ</button>
-                <a href="my_incidents.php" class="ml-4 text-gray-600 underline">Cancel</a>
+                <a href="it_staff/my_incidents.php" class="ml-4 text-gray-600 underline">Cancel</a>
             </div>
         </form>
     </div>

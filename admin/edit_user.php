@@ -19,6 +19,17 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
+// Fetch allusers
+$stmt2 = $pdo->prepare("SELECT * FROM users");
+$stmt2->execute([]);
+$users = $stmt2->fetchAll();
+
+// Fetch user per role
+$stmt3 = $pdo->prepare("SELECT * FROM users WHERE role = 'admin'");
+$stmt3->execute([]);
+$admin_users = $stmt3->fetchAll();
+
+
 if (!$user) {
     die("User not found.");
 }
@@ -33,7 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($name)) $errors[] = 'Name is required.';
     if (empty($email)) $errors[] = 'Email is required.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Invalid email format.';
-    if (!in_array($role, ['admin', 'it_staff', 'end_user'])) $errors[] = 'Invalid role.';
+    if (!in_array($role, ['admin', 'staff', 'user'])) $errors[] = 'Invalid role.';
+
+    if (count($admin_users) <= 1 && $role !== 'admin' && $user['role'] == 'admin') $errors[] = 'At least one admin user is required.';
 
     if (empty($errors)) {
         $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?");
@@ -67,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </ul>
         </div>
         <?php endif; ?>
-
+<p><?php echo count($admin_users); ?></p>
         <form method="POST" class="space-y-4">
             <div>
                 <label class="block">Name</label>
@@ -85,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="block">Role</label>
                 <select name="role" class="w-full p-2 border rounded" required>
                     <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                    <option value="it_staff" <?= $user['role'] === 'it_staff' ? 'selected' : '' ?>>IT Staff</option>
-                    <option value="end_user" <?= $user['role'] === 'end_user' ? 'selected' : '' ?>>End User</option>
+                    <option value="staff" <?= $user['role'] === 'staff' ? 'selected' : '' ?>>IT Staff</option>
+                    <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>End User</option>
                 </select>
             </div>
 

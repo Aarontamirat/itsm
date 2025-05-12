@@ -84,6 +84,7 @@ $faqs = $dataStmt->fetchAll();
     </form>
     <button onclick="closeFaqModal()" class="absolute top-2 right-2 text-gray-500 text-xl">&times;</button>
   </div>
+  
 </div>
 
 <!-- FAQ LIST SEARCH -->
@@ -150,7 +151,7 @@ $faqs = $dataStmt->fetchAll();
         <?php endif; ?>
     </div>
 
-    <!-- Javascript for FAQ submmiting modal -->
+    <!-- JavaScript for FAQ submmiting modal -->
     <script>
   function openFaqModal() {
     document.getElementById('faqModal').classList.remove('hidden');
@@ -160,6 +161,23 @@ $faqs = $dataStmt->fetchAll();
     document.getElementById('faqModal').classList.add('hidden');
   }
 </script>
+
+<!-- JavaScript for editing FAQs modal -->
+<script>
+function openEditFaqModal(id, faq) {
+  document.getElementById('edit_id').value = id;
+  document.getElementById('edit_title').value = faq.title;
+  document.getElementById('edit_category').value = faq.category;
+  document.getElementById('edit_solution').value = faq.solution;
+  document.getElementById('edit_incident').value = faq.linked_incident || '';
+  document.getElementById('editFaqModal').classList.remove('hidden');
+}
+
+function closeEditFaqModal() {
+  document.getElementById('editFaqModal').classList.add('hidden');
+}
+</script>
+
 
 </body>
 </html>

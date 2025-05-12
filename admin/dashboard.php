@@ -20,8 +20,18 @@ if (count($notifications) > 0) {
 </head>
 
 <body class="bg-gray-100 py-10">
-    <!-- dont delete -->
-    <a href="add_user.php" class="text-blue-600 underline">➕ Add New User</a>
+    <!-- assign page link -->
+<a href="assign_incidents.php" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Assign</a>
+
+<!-- Generate reports -->
+<h2 class="text-2xl font-semibold mb-4">Generate Reports</h2>
+<div class="space-x-4">
+    <a href="generate_incident_report.php" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Generate Incident Report</a>
+    <a href="generate_user_report.php" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Generate User Report</a>
+</div>
+
+
+
 </body>
 
 </html>

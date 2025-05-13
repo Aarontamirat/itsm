@@ -10,5 +10,5 @@ $id = $_POST['id'];
 $stmt = $pdo->prepare("DELETE FROM faqs WHERE id = ?");
 $stmt->execute([$id]);
 
-header("Location: faq.php");
+header("Location: faq_list.php");
 exit;

@@ -43,6 +43,18 @@ $staff = $staffStmt->fetchAll();
 </head>
 
 <body class="bg-gray-100 p-6">
+
+    <!-- css -->
+    <style>
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+</style>
+
     <div class="max-w-5xl mx-auto bg-white p-6 shadow rounded">
 
         <!-- exports -->
@@ -56,14 +68,32 @@ $staff = $staffStmt->fetchAll();
         </form>
 
         <?php
-        $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
-        $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
-        $stmt->execute([$search]);
-        $incidents = $stmt->fetchAll();
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
+            // Handle search
+            $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
+            $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
+            $stmt->execute([$search]);
+            $incidents = $stmt->fetchAll();
+        }
         ?>
 
         <!-- table -->
         <h2 class="text-2xl font-bold mb-4">Incident Management</h2>
+
+                    <!-- form submission message -->
+                             <?php if (isset($_GET['success'])): ?>
+                            <div id="successMsg" class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4 animate-slide-in">
+                                <?= htmlspecialchars($_GET['success']) ?>
+                            </div>
+                            <script>
+                                // Auto-hide after 3 seconds
+                                setTimeout(() => {
+                                document.getElementById('successMsg').style.display = 'none';
+                                }, 3000);
+                            </script>
+                            <?php endif; ?>
+
+
         <table class="w-full border mt-4">
             <thead>
                 <tr class="bg-gray-200 text-left">
@@ -92,21 +122,27 @@ $staff = $staffStmt->fetchAll();
                                 <option value="<?= $member['id'] ?>"><?= $member['name'] ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">Assign</button>
+                            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded"><?= $incident['assigned_to'] == '0' ? 'Assign' : 'Reassign' ?></button>
                         </form>
-                        <form action="update_status.php" method="POST" class="inline-block ml-2">
+                        <form action="update_incident_status.php" method="POST" class="inline-block ml-2">
                             <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
                             <select name="status" class="p-2 border rounded">
                                 <option value="pending" <?= $incident['status'] === 'pending' ? 'selected' : '' ?>>
                                     Pending</option>
-                                <option value="in_progress"
-                                    <?= $incident['status'] === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                                <option value="resolved" <?= $incident['status'] === 'resolved' ? 'selected' : '' ?>>
-                                    Resolved</option>
+                                <option value="assigned"
+                                    <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>Assigned</option>
+                                <option value="fixed" <?= $incident['status'] === 'fixed' ? 'selected' : '' ?>>
+                                    Fixed</option>
+                                <option value="rejected" <?= $incident['status'] === 'rejected' ? 'selected' : '' ?>>
+                                    Rejected</option>
                             </select>
                             <button type="submit" class="bg-yellow-600 text-white px-3 py-1 rounded">Update
                                 Status</button>
                         </form>
+                        <a href="incident_history.php?id=<?= $incident['id'] ?>" 
+   class="text-blue-600 hover:underline text-sm">
+  View History
+</a>
                     </td>
                 </tr>
                 <?php endforeach ?>

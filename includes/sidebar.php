@@ -2,7 +2,7 @@
 <!-- <aside class="w-64 bg-white shadow-md p-4 fixed h-full transition-transform duration-300 ease-in-out">
   <h2 class="text-xl font-bold text-blue-600 mb-6">IT Support System</h2>
   <nav class="space-y-4"> -->
-    <?php if ($_SESSION['role'] === 'admin'): ?>
+    <?php // if ($_SESSION['role'] === 'admin'): ?>
   <!-- Admin links -->
     <!-- <a href="dashboard.php" class="block text-gray-700 hover:text-blue-600 transition">🏠 Dashboard</a>
     <a href="users.php" class="block text-gray-700 hover:text-blue-600 transition">👥 Users</a>
@@ -25,27 +25,39 @@
     </button>
   </div>
   <nav class="space-y-4 px-4">
-    <a href="admin_dashboard.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <!-- For Admin -->
+    <?php if ($_SESSION['role'] === 'admin'): ?>
+    <<a href="/admin-dashboard" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>🏠</span><span class="nav-text">Dashboard</span>
     </a>
-    <a href="users.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+     <a href="/users" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>👥</span><span class="nav-text">Users</span>
     </a>
-    <a href="incidents.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="/incidents" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📝</span><span class="nav-text">Incidents</span>
     </a>
-    <a href="faq.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="/faq" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>❓</span><span class="nav-text">FAQs</span>
     </a>
     <a href="reports.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📊</span><span class="nav-text">Reports</span>
     </a>
-    <a href="audit_logs.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="/incident-history" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📁</span><span class="nav-text">Audit Logs</span>
     </a>
     <a href="logout.php" class="flex items-center space-x-2 text-red-600 hover:text-red-800 transition">
       <span>🚪</span><span class="nav-text">Logout</span>
     </a>
+    <?php endif; ?>
+
+    <!-- For IT Staff -->
+    <?php if ($_SESSION['role'] === 'it_staff'): ?>
+      <a href="/it-dashboard" class="block hover:bg-gray-700 p-2 rounded">Dashboard</a>
+    <?php endif; ?>
+
+    <!-- For End User -->
+    <?php if ($_SESSION['role'] === 'end_user'): ?>
+      <a href="/user-dashboard" class="block hover:bg-gray-700 p-2 rounded">Dashboard</a>
     <?php endif; ?>
   </nav>
 </aside>

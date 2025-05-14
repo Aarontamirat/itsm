@@ -54,11 +54,14 @@ if (count($notifications) > 0) {
 
     <!-- Charts -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <a href="/admin-dashboard">Dashboard</a>
   <!-- User Roles Pie Chart -->
   <div class="bg-white max-w-96 dark:bg-gray-800 p-4 rounded shadow">
     <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">User Roles</h2>
     <canvas id="userChart" height="200"></canvas>
   </div>
+
+  
 
   <!-- Incident Status Bar Chart -->
   <div class="bg-white max-w-96 dark:bg-gray-800 p-4 rounded shadow">

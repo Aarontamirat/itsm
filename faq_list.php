@@ -8,13 +8,6 @@ if (!isset($_SESSION['role'])) {
     exit;
 }
 
-// Check if user is admin or IT staff
-if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'staff'): ?>
-    <button onclick="openFaqModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      + Submit New FAQ
-    </button>
-  <?php endif; 
-
 // Handle FAQ submission
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $category = isset($_GET['category']) ? trim($_GET['category']) : '';
@@ -56,10 +49,25 @@ $faqs = $dataStmt->fetchAll();
     <title>FAQ Knowledge Base</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-100">
+
+
+<!-- header and sidebar -->
+      <?php include 'includes/sidebar.php'; ?>
+  <div class="flex-1 ml-20">
+    <?php include 'includes/header.php'; ?>
+
+
     <div class="max-w-5xl mx-auto bg-white p-6 rounded shadow">
         <h2 class="text-2xl font-bold mb-4">📚 FAQ Knowledge Base</h2>
 
+       <?php // Check if user is admin or IT staff
+if ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'staff'): ?>
+    <button onclick="openFaqModal()" class="bg-blue-600 text-white px-4 py-2 my-2 rounded hover:bg-blue-700">
+      + Submit New FAQ
+    </button>
+  <?php endif; 
+?>
 <!-- FAQ Modal to submit new FAQs by Admin and IT_Staff -->
         <div id="faqModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
   <div class="bg-white w-full max-w-lg p-6 rounded shadow-lg relative">

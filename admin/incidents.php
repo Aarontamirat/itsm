@@ -42,7 +42,7 @@ $staff = $staffStmt->fetchAll();
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-100">
 
     <!-- css -->
     <style>
@@ -55,14 +55,19 @@ $staff = $staffStmt->fetchAll();
 }
 </style>
 
-    <div class="max-w-5xl mx-auto bg-white p-6 shadow rounded">
+<!-- header and sidebar -->
+      <?php include '../includes/sidebar.php'; ?>
+  <div class="flex-1 ml-20">
+    <?php include '../includes/header.php'; ?>
+
+    <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
 
         <!-- exports -->
         <a href="export_csv.php" class="bg-blue-600 text-white px-4 py-2 rounded">Export CSV</a>
         <a href="export_pdf.php" class="bg-red-600 text-white px-4 py-2 rounded">Export PDF</a>
 
         <!-- search form -->
-        <form method="GET" class="mb-4">
+        <form method="GET" class="my-4">
             <input type="text" name="search" placeholder="Search incidents..." class="p-2 border rounded" />
             <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
         </form>

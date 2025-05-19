@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- header and sidebar -->
       <?php include '../includes/sidebar.php'; ?>
   <div class="flex-1 ml-20">
-    <?php include '../includes/header.php'; ?>
+    <?php include '../header.php'; ?>
 
     <div class="max-w-md mx-auto bg-white p-6 mt-4 shadow rounded">
         <h2 class="text-xl font-bold mb-4">Add New User</h2>

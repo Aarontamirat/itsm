@@ -9,9 +9,9 @@
 </head>
 <body class="flex bg-gray-100 dark:bg-gray-900">
 
-  <?php include 'includes/user_sidebar.php'; ?>
+  <?php include '../includes/sidebar.php'; ?>
   <div class="flex-1 ml-64">
-    <?php include 'includes/header.php'; ?>
+    <?php include '../header.php'; ?>
     <main class="p-6 text-gray-800 dark:text-gray-200">
       <h1 class="text-2xl font-bold">Welcome, User</h1>
       <!-- Add your charts and content here -->

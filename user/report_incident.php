@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div>
                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Submit Incident</button>
-                <a href="dashboard.php" class="ml-3 text-gray-600">Cancel</a>
+                <a href="user_dashboard.php" class="ml-3 text-gray-600">Cancel</a>
             </div>
         </form>
     </div>

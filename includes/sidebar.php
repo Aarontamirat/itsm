@@ -27,25 +27,26 @@
   <nav class="space-y-4 px-4">
     <!-- For Admin -->
     <?php if ($_SESSION['role'] === 'admin'): ?>
-    <<a href="/admin-dashboard" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    
+    <a href="../admin/admin_dashboard.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>🏠</span><span class="nav-text">Dashboard</span>
     </a>
-     <a href="/users" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+     <a href="../admin/users.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>👥</span><span class="nav-text">Users</span>
     </a>
-    <a href="/incidents" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="../admin/incidents.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📝</span><span class="nav-text">Incidents</span>
     </a>
-    <a href="/faq" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="../faq_list.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>❓</span><span class="nav-text">FAQs</span>
     </a>
-    <a href="reports.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="../admin/reports.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📊</span><span class="nav-text">Reports</span>
     </a>
-    <a href="/incident-history" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+    <a href="../admin/incident-history.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📁</span><span class="nav-text">Audit Logs</span>
     </a>
-    <a href="logout.php" class="flex items-center space-x-2 text-red-600 hover:text-red-800 transition">
+    <a href="../logout.php" class="flex items-center space-x-2 text-red-600 hover:text-red-800 transition">
       <span>🚪</span><span class="nav-text">Logout</span>
     </a>
     <?php endif; ?>

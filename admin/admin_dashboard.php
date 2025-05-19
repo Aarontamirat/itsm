@@ -1,19 +1,8 @@
 <?php
 session_start();
 require_once '../config/db.php';
-// include 'includes/header.php';
-// include 'includes/sidebar.php';
 
-$stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = 1 AND seen = FALSE");
-$stmt->execute();
-$notifications = $stmt->fetchAll();
-
-if (count($notifications) > 0) {
-    $NotificationCount = count($notifications);
-} else {
-    $NotificationCount = 0;
-}
-
+$directoryName = basename(__DIR__);
 
 ?>
 <!-- admin_dashboard.php -->
@@ -30,10 +19,11 @@ if (count($notifications) > 0) {
 
   <?php include '../includes/sidebar.php'; ?>
   <div class="flex-1 ml-20">
-    <?php include '../includes/header.php'; ?>
+    <?php include '../header.php'; ?>
 
   <!-- Main Content -->
   <main class="ml-60 p-6 flex-1">
+
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Overview</h1>
 
     <!-- Cards for quick stats -->
@@ -54,7 +44,6 @@ if (count($notifications) > 0) {
 
     <!-- Charts -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <a href="/admin-dashboard">Dashboard</a>
   <!-- User Roles Pie Chart -->
   <div class="bg-white max-w-96 dark:bg-gray-800 p-4 rounded shadow">
     <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">User Roles</h2>

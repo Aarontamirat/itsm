@@ -58,7 +58,7 @@ $staff = $staffStmt->fetchAll();
 <!-- header and sidebar -->
       <?php include '../includes/sidebar.php'; ?>
   <div class="flex-1 ml-20">
-    <?php include '../includes/header.php'; ?>
+    <?php include '../header.php'; ?>
 
     <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
 

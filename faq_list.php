@@ -55,10 +55,11 @@ $faqs = $dataStmt->fetchAll();
 <!-- header and sidebar -->
       <?php include 'includes/sidebar.php'; ?>
   <div class="flex-1 ml-20">
-    <?php include 'includes/header.php'; ?>
+    <?php include 'header.php'; ?>
 
 
     <div class="max-w-5xl mx-auto bg-white p-6 rounded shadow">
+
         <h2 class="text-2xl font-bold mb-4">📚 FAQ Knowledge Base</h2>
 
        <?php // Check if user is admin or IT staff

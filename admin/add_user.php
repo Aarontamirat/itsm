@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $role  = $_POST['role'];
     $password = $_POST['password'];
+    $branch_id = $_POST['branch_id'];
 
     // Basic validation
     if (empty($name)) $errors[] = 'Name is required.';
@@ -27,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->execute([$name, $email, $hashed_password, $role]);
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, branch_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([$name, $email, $hashed_password, $role, $branch_id]);
 
         $_SESSION['success'] = "User created successfully.";
         header("Location: users.php");
@@ -74,6 +75,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block">Email</label>
                 <input type="email" name="email" class="w-full p-2 border rounded" required>
+            </div>
+
+            <div>
+            <label class="block" for="branch_id">Branch</label>
+            <select name="branch_id" id="branch_id" required class="w-full border rounded p-2">
+                <option value="">-- Select Branch --</option>
+            <?php
+                $branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
+                foreach ($branches as $branch) {
+                echo "<option value='{$branch['id']}'>{$branch['name']}</option>";
+                }
+            ?>
+            </select>
             </div>
 
             <div>

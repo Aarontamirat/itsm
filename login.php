@@ -14,6 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['name'] = $user['name'];
+        $_SESSION['branch_id'] = $user['branch_id'];
+
+        // check if password was reset
+        if ($user['force_password_change']) {
+        header("Location: change_password.php");
+        exit;
+    }
 
         // Redirect based on role
         switch ($user['role']) {
@@ -38,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
 
 <head>
-    <title>Register Admin</title>
+    <title>IT Support System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 

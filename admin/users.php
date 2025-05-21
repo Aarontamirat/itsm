@@ -47,6 +47,14 @@ $users = $stmt->fetchAll();
             <a href="add_user.php" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add New User</a>
         </div>
 
+        <!-- Password reset message -->
+        <?php if (isset($_SESSION['success'])): ?>
+        <div class="p-3 bg-green-100 text-green-800 rounded mb-4"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['error'])): ?>
+        <div class="p-3 bg-red-100 text-red-800 rounded mb-4"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+        <?php endif; ?>
+
         <!-- User Table -->
         <table class="w-full border">
             <thead>
@@ -65,11 +73,19 @@ $users = $stmt->fetchAll();
                         <td class="p-2"><?= htmlspecialchars($user['name']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($user['email']) ?></td>
                         <td class="p-2 capitalize"><?= htmlspecialchars($user['role']) ?></td>
-                        <td class="p-2">
+                        <td class="p-2 flex space-x-2">
                             <a href="edit_user.php?id=<?= $user['id'] ?>"
                                 class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</a>
                             <a href="delete_user.php?id=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')"
                                 class="bg-red-600 text-white px-2 py-1 rounded ml-2">Delete</a>
+
+                            <!-- Reset password form -->
+                            <form method="POST" action="reset_password.php" onsubmit="return confirm('Reset password for this user?');">
+                                <input type="hidden" name="user_id" value="<?= $user['id']; ?>">
+                                <button type="submit" class="bg-orange-500 text-white px-2 py-1 rounded">
+                                Reset Password
+                                </button>
+                            </form>
                         </td>
                     </tr>
                 <?php endforeach; ?>

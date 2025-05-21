@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description']);
     $priority = $_POST['priority'];
     $user_id = $_SESSION['user_id'];
+    $branch_id = $_SESSION['branch_id'];
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($description)) $errors[] = 'Description is required.';
@@ -22,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         // Insert incident
-        $stmt = $pdo->prepare("INSERT INTO incidents (title, description, priority, status, submitted_by, created_at) VALUES (?, ?, ?, 'Pending', ?, NOW())");
-        $stmt->execute([$title, $description, $priority, $user_id]);
+        $stmt = $pdo->prepare("INSERT INTO incidents (title, description, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, 'Pending', ?, ?, NOW())");
+        $stmt->execute([$title, $description, $priority, $user_id, $branch_id]);
         $incident_id = $pdo->lastInsertId();
 
         // Handle file upload
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Inside incident submission logic
         $notificationStmt = $pdo->prepare("INSERT INTO notifications (message, user_id) VALUES (?, ?)");
-        $notificationStmt->execute(["New incident submitted by user ID: $user_id", 1]);  // Admin's user_id = 1
+        $notificationStmt->execute(["New incident submitted by user ID: $user_id from: $branch_id", 1]);  // Admin's user_id = 1
 
         $message = "Incident submitted successfully!";
     }
@@ -73,16 +74,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="mb-4 text-green-600"><?= $message ?></div>
         <?php endif; ?>
         <form method="POST" enctype="multipart/form-data" class="space-y-4">
+
+        <!-- incident title -->
             <div>
                 <label class="block">Title</label>
                 <input type="text" name="title" class="w-full p-2 border rounded" required>
             </div>
 
+            <!-- incident desciption -->
             <div>
                 <label class="block">Description</label>
                 <textarea name="description" class="w-full p-2 border rounded" rows="4" required></textarea>
             </div>
 
+            <!-- incident priority -->
             <div>
                 <label class="block">Priority</label>
                 <select name="priority" class="w-full p-2 border rounded" required>
@@ -92,11 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
 
+            <!-- incident file upload -->
             <div>
                 <label class="block">Optional File Upload</label>
                 <input type="file" name="file" class="w-full">
             </div>
 
+            <!-- submit button -->
             <div>
                 <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Submit Incident</button>
                 <a href="user_dashboard.php" class="ml-3 text-gray-600">Cancel</a>

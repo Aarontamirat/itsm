@@ -44,8 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
     <title>My Assigned Incidents</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 p-6">
-    <div class="max-w-5xl mx-auto bg-white p-6 shadow rounded">
+<body class="bg-gray-50">
+
+<!-- header and sidebar -->
+      <?php include '../includes/sidebar.php'; ?>
+    <?php include '../header.php'; ?>
+
+
+    <div class="max-w-7xl ms-auto bg-white p-6 mt-4 shadow rounded">
         <h2 class="text-2xl font-bold mb-4">My Assigned Incidents</h2>
 
         <?php if (isset($_SESSION['success'])): ?>
@@ -90,8 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                             <option value="Fixed" <?= $incident['status'] === 'Fixed' ? 'selected' : '' ?>>Fixed</option>
                                             <option value="Not Fixed" <?= $incident['status'] === 'Not Fixed' ? 'selected' : '' ?>>Not Fixed</option>
                                         </select>
-                                        <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Update</button>
-                                        <a href="../faq_submit.php?incident=<?= $incident['id'] ?>" class="text-xs text-green-600 underline">Add to FAQ</a>
+                                        <div class="flex justify-between items-center gap-2">
+                                            <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Update</button>
+                                            <a href="faq_submit.php?incident=<?= $incident['id'] ?>" class="bg-green-600 text-white px-2 py-1 rounded text-sm">Solution</a>
+                                        </div>
                                     </form>
                                 </td>
                             </tr>

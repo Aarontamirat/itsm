@@ -13,7 +13,6 @@ $defaultPassword = 'pass@123'; // or generate random secure password
 $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
 
 try {
-    // $stmt = $pdo->prepare("UPDATE users SET password = :password WHERE id = :id");
     $stmt = $pdo->prepare("UPDATE users SET password = :password, force_password_change = 1 WHERE id = :id");
     $stmt->execute([
         ':password' => $hashedPassword,

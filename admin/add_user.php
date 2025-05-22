@@ -14,22 +14,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name  = trim($_POST['name']);
     $email = trim($_POST['email']);
     $role  = $_POST['role'];
-    $password = $_POST['password'];
     $branch_id = $_POST['branch_id'];
 
     // Basic validation
     if (empty($name)) $errors[] = 'Name is required.';
     if (empty($email)) $errors[] = 'Email is required.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Email is invalid.';
-    if (empty($role) || !in_array($role, ['admin', 'it_staff', 'end_user'])) $errors[] = 'Invalid role selected.';
-    if (strlen($password) < 6) $errors[] = 'Password must be at least 6 characters.';
+    if (empty($role) || !in_array($role, ['admin', 'staff', 'user'])) $errors[] = 'Invalid role selected.';
+    if (empty($branch_id)) $errors[] = 'Branch is required.';
+    if (strlen($name) < 3) $errors[] = 'Name must be at least 3 characters long.';
+    if (strlen($name) > 50) $errors[] = 'Name must not exceed 50 characters.';
+    if (strlen($email) < 5) $errors[] = 'Email must be at least 5 characters long.';
+    if (strlen($email) > 100) $errors[] = 'Email must not exceed 100 characters.';
+    // if email already exists
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->rowCount() > 0) {
+        $errors[] = 'Email already exists.';
+    }
 
     // If no errors, insert user
     if (empty($errors)) {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $defaultPassword = 'pass@123'; // default password
+        $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
 
         $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, branch_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$name, $email, $hashed_password, $role, $branch_id]);
+        $stmt->execute([$name, $email, $hashedPassword, $role, $branch_id]);
 
         $_SESSION['success'] = "User created successfully.";
         header("Location: users.php");
@@ -67,16 +77,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="space-y-4">
+            <!-- name -->
             <div>
                 <label class="block">Name</label>
                 <input type="text" name="name" class="w-full p-2 border rounded" required>
             </div>
 
+            <!-- email -->
             <div>
                 <label class="block">Email</label>
                 <input type="email" name="email" class="w-full p-2 border rounded" required>
             </div>
 
+            <!-- branch -->
             <div>
             <label class="block" for="branch_id">Branch</label>
             <select name="branch_id" id="branch_id" required class="w-full border rounded p-2">
@@ -90,21 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
             </div>
 
+            <!-- role -->
             <div>
                 <label class="block">Role</label>
                 <select name="role" class="w-full p-2 border rounded" required>
                     <option value="">-- Select Role --</option>
                     <option value="admin">Admin</option>
-                    <option value="it_staff">IT Staff</option>
-                    <option value="end_user">End User</option>
+                    <option value="staff">IT-Staff</option>
+                    <option value="user">User</option>
                 </select>
             </div>
 
-            <div>
-                <label class="block">Password</label>
-                <input type="password" name="password" class="w-full p-2 border rounded" required>
-            </div>
-
+            <!-- add button -->
             <div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add User</button>
                 <a href="users.php" class="ml-2 text-gray-600">Cancel</a>

@@ -3,8 +3,13 @@ require '../config/db.php'; // your PDO connection file
 session_start();
 
 $incident_id = $_GET['id'] ?? null;
-if (!$incident_id) {
-    echo "Incident ID not provided.";
+
+// if no id is provided, show all incidents
+if (isset($_GET['id'])) {
+    $incident_id = (int) $_GET['id'];
+} else {
+    // Redirect or show all incidents
+    header("Location: incidents.php");
     exit;
 }
 

@@ -33,9 +33,16 @@ if (!$user) {
 }
 
 // Delete user
-$stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+try {
+    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
-
 $_SESSION['success'] = "User deleted successfully.";
 header("Location: users.php");
 exit;
+} catch (PDOException $e) {
+    $_SESSION['error'] = "Can't delete " . $user['name'] . "'s account. Because it has data related to it in the database.";
+    header("Location: users.php");
+    exit;
+}
+
+

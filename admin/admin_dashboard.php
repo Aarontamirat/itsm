@@ -4,6 +4,12 @@ require_once '../config/db.php';
 
 $directoryName = basename(__DIR__);
 
+// check if the user is logged in and has the right role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../login.php");
+    exit;
+}
+
 ?>
 <!-- admin_dashboard.php -->
 <!DOCTYPE html>

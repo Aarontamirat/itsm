@@ -22,12 +22,38 @@ $total_pages = ceil($total_incidents / $results_per_page);
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $results_per_page;
 
+
+
 // Fetch incidents for the current page
-$stmt = $pdo->prepare("SELECT * FROM incidents ORDER BY created_at DESC LIMIT ?, ?");
+$stmt = $pdo->prepare("SELECT 
+  incidents.id AS id,
+  incidents.title AS title,
+  incidents.priority AS priority,
+  incidents.status AS status,
+  incidents.created_at AS created_at,
+  users.id AS user_id,
+  users.name AS assigned_to
+FROM 
+  incidents
+LEFT JOIN 
+  users ON incidents.assigned_to = users.id
+ORDER BY created_at DESC LIMIT ?, ?");
+
 $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $incidents = $stmt->fetchAll();
+
+
+
+
+
+// Fetch incidents for the current page
+// $stmt = $pdo->prepare("SELECT * FROM incidents ORDER BY created_at DESC LIMIT ?, ?");
+// $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
+// $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
+// $stmt->execute();
+// $incidents = $stmt->fetchAll();
 
 // Fetch IT Staff for assignment
 $staffStmt = $pdo->query("SELECT id, name FROM users WHERE role = 'staff'");
@@ -60,7 +86,7 @@ $staff = $staffStmt->fetchAll();
   <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
+    <div class="min-w-5xl max-w-6xl mx-auto bg-white p-6 mt-4 shadow rounded">
 
         <!-- exports -->
         <a href="export_csv.php" class="bg-blue-600 text-white px-4 py-2 rounded">Export CSV</a>
@@ -106,6 +132,7 @@ $staff = $staffStmt->fetchAll();
                     <th class="p-2">Title</th>
                     <th class="p-2">Priority</th>
                     <th class="p-2">Status</th>
+                    <th class="p-2">Assigned</th>
                     <th class="p-2">Assigned To</th>
                     <th class="p-2">Actions</th>
                 </tr>
@@ -118,29 +145,38 @@ $staff = $staffStmt->fetchAll();
                     <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                     <td class="p-2"><?= $incident['assigned_to'] ? 'Assigned' : 'Not Assigned' ?></td>
+                    <td class="p-2"><?= htmlspecialchars($incident['assigned_to']) ?></td>
                     <td class="p-2">
-                        <form action="assign_incidents.php" method="POST" class="inline-block">
+
+                    <!-- Assign Incidents -->
+                        <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php' ?>" method="POST" class="inline-block">
                             <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
-                            <select name="assigned_to" class="p-2 border rounded">
-                                <option name="staff_id" value="">Assign Staff</option>
-                                <?php foreach ($staff as $member): ?>
-                                <option value="<?= $member['id'] ?>"><?= $member['name'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded"><?= $incident['assigned_to'] == '0' ? 'Assign' : 'Reassign' ?></button>
+                            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded"><?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?></button>
                         </form>
+
+                        <!-- Update Status -->
                         <form action="update_incident_status.php" method="POST" class="inline-block ml-2">
                             <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
+
                             <select name="status" class="p-2 border rounded">
+
                                 <option value="pending" <?= $incident['status'] === 'pending' ? 'selected' : '' ?>>
                                     Pending</option>
-                                <option value="assigned"
-                                    <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>Assigned</option>
+
+                                <option value="assigned" <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>
+                                    Assigned</option>
+
+                                <option value="not fixed" <?= $incident['status'] === 'not fixed' ? 'selected' : '' ?>>
+                                    Not Fixed</option>
+
                                 <option value="fixed" <?= $incident['status'] === 'fixed' ? 'selected' : '' ?>>
                                     Fixed</option>
+
                                 <option value="rejected" <?= $incident['status'] === 'rejected' ? 'selected' : '' ?>>
                                     Rejected</option>
+
                             </select>
+
                             <button type="submit" class="bg-yellow-600 text-white px-3 py-1 rounded">Update
                                 Status</button>
                         </form>

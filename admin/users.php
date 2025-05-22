@@ -17,7 +17,21 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $results_per_page;
 
 // Fetch users
-$stmt = $pdo->prepare("SELECT * FROM users ORDER BY created_at DESC LIMIT ?, ?");
+$stmt = $pdo->prepare(
+    "SELECT 
+  users.id AS id,
+  users.name AS name,
+  users.email AS email,
+  users.role AS role,
+  users.created_at AS created_at,
+  branches.id AS branch_id,
+  branches.name AS branch_name
+FROM 
+  users
+LEFT JOIN 
+  branches ON users.branch_id = branches.id 
+ORDER BY created_at DESC LIMIT ?, ?"
+);
 $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
 $stmt->execute();
@@ -62,7 +76,9 @@ $users = $stmt->fetchAll();
                     <th class="p-2">#</th>
                     <th class="p-2">Name</th>
                     <th class="p-2">Email</th>
+                    <th class="p-2">Branch</th>
                     <th class="p-2">Role</th>
+                    <th class="p-2">Created At</th>
                     <th class="p-2">Actions</th>
                 </tr>
             </thead>
@@ -72,7 +88,9 @@ $users = $stmt->fetchAll();
                         <td class="p-2"><?= $start_from + $index + 1 ?></td>
                         <td class="p-2"><?= htmlspecialchars($user['name']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($user['email']) ?></td>
+                        <td class="p-2"><?= htmlspecialchars($user['branch_name']) ?></td>
                         <td class="p-2 capitalize"><?= htmlspecialchars($user['role']) ?></td>
+                        <td class="p-2 capitalize"><?= htmlspecialchars($user['created_at']) ?></td>
                         <td class="p-2 flex space-x-2">
                             <a href="edit_user.php?id=<?= $user['id'] ?>"
                                 class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</a>

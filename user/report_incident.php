@@ -14,12 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $priority = $_POST['priority'];
+    $branch = $_POST['branch'];
     $user_id = $_SESSION['user_id'];
     $branch_id = $_SESSION['branch_id'];
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($description)) $errors[] = 'Description is required.';
     if (!in_array($priority, ['Low', 'Medium', 'High'])) $errors[] = 'Invalid priority.';
+    if (empty($branch)) $errors[] = 'Unknown branch, please contact your system.';
 
     if (empty($errors)) {
         // Insert incident
@@ -101,6 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block">Optional File Upload</label>
                 <input type="file" name="file" class="w-full">
+            </div>
+
+            <!-- incident branch -->
+            <div>
+                <label class="block">Branch</label>
+                <input type="text" disabled name="branch" value="<?= htmlspecialchars($_SESSION['branch_name']) ?>" class="w-full p-2 border rounded" readonly>
             </div>
 
             <!-- submit button -->

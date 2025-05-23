@@ -16,7 +16,21 @@ $total_pages = ceil($total_users / $results_per_page);
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $results_per_page;
 
+
+// Fetch all branches
+$branchFilter = $_GET['branch_id'] ?? '';
+$branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
+
+        
+
 // Fetch users
+if ($branchFilter) {
+    $stmt = $pdo->prepare("SELECT u.*, b.name AS branch_name FROM users u
+        LEFT JOIN branches b ON u.branch_id = b.id
+        WHERE u.branch_id = ?");
+    $stmt->execute([$branchFilter]);
+    $users = $stmt->fetchAll();
+} else {
 $stmt = $pdo->prepare(
     "SELECT 
   users.id AS id,
@@ -36,6 +50,7 @@ $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $users = $stmt->fetchAll();
+}
 ?>
 
 <!DOCTYPE html>
@@ -56,9 +71,33 @@ $users = $stmt->fetchAll();
     <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
         <h2 class="text-2xl font-bold mb-4">User Management</h2>
 
-        <!-- Add User Button -->
-        <div class="mb-4">
-            <a href="add_user.php" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add New User</a>
+        <div class="flex justify-between items-center mb-4">
+            <!-- Add User Button -->
+            <div class="mb-4">
+                <a href="add_user.php" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add New User</a>
+            </div>
+
+            <div class="mb-4 flex flex-col items-center gap-2">
+                <!-- Export Buttons -->
+                 <div>
+                    <a href="export_users_csv.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 mr-2">Export CSV</a>
+                    <a href="export_users_pdf.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Export PDF</a>
+                </div>
+
+                <!-- Filter by Branch -->
+                <form method="get" class="mb-4">
+                    <label for="branchFilter" class="mr-2 font-medium text-gray-700">Filter by Branch:</label>
+                    <select name="branch_id" id="branchFilter" class="px-3 py-1 border rounded">
+                        <option value="">All Branches</option>
+                        <?php foreach ($branches as $branch): ?>
+                        <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($branch['name']) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Filter</button>
+                </form>
+            </div>
         </div>
 
         <!-- Password reset message -->
@@ -88,7 +127,7 @@ $users = $stmt->fetchAll();
                         <td class="p-2"><?= $start_from + $index + 1 ?></td>
                         <td class="p-2"><?= htmlspecialchars($user['name']) ?></td>
                         <td class="p-2"><?= htmlspecialchars($user['email']) ?></td>
-                        <td class="p-2"><?= htmlspecialchars($user['branch_name']) ?></td>
+                        <td><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
                         <td class="p-2 capitalize"><?= htmlspecialchars($user['role']) ?></td>
                         <td class="p-2 capitalize"><?= htmlspecialchars($user['created_at']) ?></td>
                         <td class="p-2 flex space-x-2">

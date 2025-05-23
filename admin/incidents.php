@@ -8,6 +8,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
+// Fetch branches for filter
+$branches = $pdo->query("SELECT * FROM branches")->fetchAll();
+$branchFilter = $_GET['branch_id'] ?? '';
+
 // Define how many results per page
 $results_per_page = 10;
 
@@ -23,37 +27,49 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $results_per_page;
 
 
-
 // Fetch incidents for the current page
-$stmt = $pdo->prepare("SELECT 
-  incidents.id AS id,
-  incidents.title AS title,
-  incidents.priority AS priority,
-  incidents.status AS status,
-  incidents.created_at AS created_at,
-  users.id AS user_id,
-  users.name AS assigned_to
-FROM 
-  incidents
-LEFT JOIN 
-  users ON incidents.assigned_to = users.id
-ORDER BY created_at DESC LIMIT ?, ?");
-
+if ($branchFilter) {
+    $stmt = $pdo->prepare("SELECT 
+      incidents.id AS id,
+      incidents.title AS title,
+      incidents.priority AS priority,
+      incidents.status AS status,
+      incidents.created_at AS created_at,
+      users.id AS user_id,
+      users.name AS assigned_to
+    FROM 
+      incidents
+    LEFT JOIN 
+      users ON incidents.assigned_to = users.id
+    WHERE 
+      incidents.branch_id = ?
+    ORDER BY created_at DESC LIMIT ?, ?");
+    $stmt->bindValue(1, $branchFilter, PDO::PARAM_INT);
+    $stmt->bindValue(2, $start_from, PDO::PARAM_INT);
+    $stmt->bindValue(3, $results_per_page, PDO::PARAM_INT);
+    $stmt->execute();
+    $incidents = $stmt->fetchAll();
+} else {
+    $stmt = $pdo->prepare("SELECT 
+      incidents.id AS id,
+      incidents.title AS title,
+      incidents.priority AS priority,
+      incidents.status AS status,
+      incidents.created_at AS created_at,
+      users.id AS user_id,
+      users.name AS assigned_to
+    FROM 
+      incidents
+    LEFT JOIN 
+      users ON incidents.assigned_to = users.id
+    ORDER BY created_at DESC LIMIT ?, ?");
+    
 $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
 $stmt->execute();
 $incidents = $stmt->fetchAll();
+}
 
-
-
-
-
-// Fetch incidents for the current page
-// $stmt = $pdo->prepare("SELECT * FROM incidents ORDER BY created_at DESC LIMIT ?, ?");
-// $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
-// $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
-// $stmt->execute();
-// $incidents = $stmt->fetchAll();
 
 // Fetch IT Staff for assignment
 $staffStmt = $pdo->query("SELECT id, name FROM users WHERE role = 'staff'");
@@ -92,21 +108,36 @@ $staff = $staffStmt->fetchAll();
         <a href="export_csv.php" class="bg-blue-600 text-white px-4 py-2 rounded">Export CSV</a>
         <a href="export_pdf.php" class="bg-red-600 text-white px-4 py-2 rounded">Export PDF</a>
 
-        <!-- search form -->
-        <form method="GET" class="my-4">
-            <input type="text" name="search" placeholder="Search incidents..." class="p-2 border rounded" />
-            <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
-        </form>
+        <div class="flex justify-between items-center">
+            <!-- search form -->
+            <form method="GET" class="my-4">
+                <input type="text" name="search" placeholder="Search incidents..." class="p-2 border rounded" />
+                <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
+            </form>
+            
+            <?php
+            if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
+                // Handle search
+                $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
+                $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
+                $stmt->execute([$search]);
+                $incidents = $stmt->fetchAll();
+            }
+            ?>
 
-        <?php
-        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
-            // Handle search
-            $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
-            $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
-            $stmt->execute([$search]);
-            $incidents = $stmt->fetchAll();
-        }
-        ?>
+            <!-- filter by branch -->
+            <form method="GET" class="mb-4">
+                <label for="branch_id" class="mr-2">Filter by Branch:</label>
+                <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="border px-2 py-1 rounded">
+                    <option value="">All Branches</option>
+                    <?php foreach ($branches as $branch): ?>
+                    <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($branch['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        </div>
 
         <!-- table -->
         <h2 class="text-2xl font-bold mb-4">Incident Management</h2>
@@ -149,7 +180,7 @@ $staff = $staffStmt->fetchAll();
                     <td class="p-2">
 
                     <!-- Assign Incidents -->
-                        <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php' ?>" method="POST" class="inline-block">
+                        <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" method="POST" class="inline-block">
                             <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
                             <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded"><?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?></button>
                         </form>

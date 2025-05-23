@@ -1,20 +1,3 @@
-<!-- sidebar.php -->
-<!-- <aside class="w-64 bg-white shadow-md p-4 fixed h-full transition-transform duration-300 ease-in-out">
-  <h2 class="text-xl font-bold text-blue-600 mb-6">IT Support System</h2>
-  <nav class="space-y-4"> -->
-    <?php // if ($_SESSION['role'] === 'admin'): ?>
-  <!-- Admin links -->
-    <!-- <a href="dashboard.php" class="block text-gray-700 hover:text-blue-600 transition">🏠 Dashboard</a>
-    <a href="users.php" class="block text-gray-700 hover:text-blue-600 transition">👥 Users</a>
-    <a href="incidents.php" class="block text-gray-700 hover:text-blue-600 transition">📝 Incidents</a>
-    <a href="faq.php" class="block text-gray-700 hover:text-blue-600 transition">❓ FAQs</a>
-    <a href="reports.php" class="block text-gray-700 hover:text-blue-600 transition">📊 Reports</a>
-    <a href="audit_logs.php" class="block text-gray-700 hover:text-blue-600 transition">📁 Audit Logs</a>
-    <a href="logout.php" class="block text-red-600 hover:text-red-800 transition">🚪 Logout</a>
-
-  </nav>
-</aside> -->
-
 
 <!-- sidebar.php -->
 <aside id="sidebar" class="bg-white dark:bg-gray-800 shadow-md h-screen fixed transition-all duration-300 ease-in-out w-64 overflow-hidden z-10">

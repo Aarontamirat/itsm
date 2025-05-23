@@ -2,8 +2,9 @@
 session_start();
 require '../config/db.php';
 
-// Check if user is logged in and has the right role
-if (!isset($_SESSION['role'])) {
+// Check if user is logged in and has the right role of admin only
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'admin')) {
+    // $_SESSION['error'] = "Access denied. Please log in.";
     header("Location: ../login.php");
     exit;
 }

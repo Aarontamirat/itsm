@@ -1,8 +1,6 @@
 <?php
 session_start();
 require_once '../config/db.php';
-require_once '../includes/sidebar.php';
-require_once '../header.php';
 
 // Restrict to Admin only
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
@@ -11,8 +9,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 // Fetch the incident ID from the form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'])) {
-    $incident_id = (int)$_POST['incident_id'];
+if (isset($_GET['id'])) {
+    $incident_id = (int)$_GET['id'];
 
     // Fetch the incident details
     $stmt = $pdo->prepare("SELECT * FROM incidents WHERE id = ?");
@@ -33,8 +31,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'])) {
         $update_stmt = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = ? WHERE id = ?");
         if ($update_stmt->execute([$status, $staff_id, $incident_id])) {
             $_SESSION['success'] = "Incident reassigned successfully.";
-            header("Location: incidents.php");
-            exit;
         } else {
             $_SESSION['error'] = "Failed to reassign incident.";
         }
@@ -42,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'])) {
 
     if (!$incident) {
         $_SESSION['error'] = "Incident not found.";
-        header("header(refresh:2;url= incidents.php");
+        header("header(refresh:2;url= reassign_incidents.php");
         exit;
     }
 } else {
@@ -62,8 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'])) {
 
 <body class="bg-gray-100">
 
+<?php
+require_once '../includes/sidebar.php';
+require_once '../header.php';
+?>
 
-    <div class="max-w-5xl mx-auto bg-white p-6 shadow rounded">
+    <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
         <h2 class="text-2xl font-bold mb-4">Reassign Incident</h2>
 
         <?php if (isset($_SESSION['success'])): ?>

@@ -74,11 +74,13 @@ $totalPages = ceil($total / $limit);
             <td class="p-2"><?= htmlspecialchars($branch['location']) ?></td>
             <td class="p-2"><?= htmlspecialchars($branch['created_at']) ?></td>
             <td class="p-2">
+              <div class="flex">
               <a href="edit_branch.php?id=<?= $branch['id'] ?>" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</a>
               <form action="handlers/delete_branch.php" method="POST" class="inline-block">
                 <input type="hidden" name="id" value="<?= $branch['id'] ?>">
                 <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded ml-2" onclick="return confirm('Are you sure?')">Delete</button>
               </form>
+              </div>
             </td>
           </tr>
         <?php endforeach; ?>

@@ -8,11 +8,23 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 // Fetch all unassigned incidents
-$stmt = $pdo->query("SELECT i.*, u.name AS submitted_by_name 
-                     FROM incidents i 
-                     JOIN users u ON i.submitted_by = u.id 
-                     WHERE i.assigned_to IS NULL 
-                     ORDER BY i.created_at DESC");
+$stmt = $pdo->query(
+"SELECT 
+    i.*, 
+    u.name AS submitted_by_name,
+    b.name AS branch_name
+FROM 
+    incidents i
+JOIN 
+    users u ON i.submitted_by = u.id
+JOIN 
+    branches b ON i.branch_id = b.id
+WHERE 
+    i.assigned_to IS NULL
+ORDER BY 
+    i.created_at DESC;"
+);
+
 $incidents = $stmt->fetchAll();
 
 // Fetch all IT Staff
@@ -25,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
     $incident_id = (int)$_POST['incident_id'];
     $staff_id = (int)$_POST['staff_id'];
 
-    $update = $pdo->prepare("UPDATE incidents SET assigned_to = ?, status = 'assigned' WHERE id = ?");
+    $update = $pdo->prepare("UPDATE incidents SET assigned_to = ?, assigned_date = NOW(), status = 'assigned' WHERE id = ?");
     $update->execute([$staff_id, $incident_id]);
 
     // Add to incident logs
@@ -66,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                         <tr>
                             <th class="p-2 border">Title</th>
                             <th class="p-2 border">Submitted By</th>
+                            <th class="p-2 border">Branch</th>
                             <th class="p-2 border">Priority</th>
                             <th class="p-2 border">Created</th>
                             <th class="p-2 border">Assign To</th>
@@ -76,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                             <tr class="text-sm border-b">
                                 <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['submitted_by_name']) ?></td>
+                                <td class="p-2"><?= htmlspecialchars($incident['branch_name']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['created_at']) ?></td>
                                 <td class="p-2">

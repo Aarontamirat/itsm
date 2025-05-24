@@ -3,7 +3,19 @@ require '../config/db.php';
 require_once '../libs/tcpdf/tcpdf.php';
 
 // Fetch incidents for PDF export
-$stmt = $pdo->query("SELECT * FROM incidents ORDER BY created_at DESC");
+$stmt = $pdo->query(
+    "SELECT 
+        i.*,
+        u.name AS assigned_to_name
+    FROM 
+        incidents i
+    LEFT JOIN
+        users u ON i.assigned_to = u.id
+    WHERE 
+        i.status IN ('open', 'assigned', 'in_progress', 'resolved')
+    ORDER BY 
+        created_at DESC"
+    );
 $incidents = $stmt->fetchAll();
 
 $pdf = new TCPDF();
@@ -27,7 +39,7 @@ foreach ($incidents as $incident) {
     $pdf->Cell(40, 10, $incident['title'], 1, 0, 'C');
     $pdf->Cell(40, 10, $incident['priority'], 1, 0, 'C');
     $pdf->Cell(40, 10, $incident['status'], 1, 0, 'C');
-    $pdf->Cell(40, 10, $incident['assigned_to'], 1, 0, 'C');
+    $pdf->Cell(40, 10, $incident['assigned_to_name'], 1, 0, 'C');
     $pdf->Ln();
 }
 

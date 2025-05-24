@@ -14,14 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $priority = $_POST['priority'];
-    $branch = $_POST['branch'];
+    // $branch = $_POST['branch_name'];
     $user_id = $_SESSION['user_id'];
     $branch_id = $_SESSION['branch_id'];
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($description)) $errors[] = 'Description is required.';
     if (!in_array($priority, ['Low', 'Medium', 'High'])) $errors[] = 'Invalid priority.';
-    if (empty($branch)) $errors[] = 'Unknown branch, please contact your system.';
+    if (empty($branch_id)) $errors[] = 'Unknown branch, please contact your system.';
 
     if (empty($errors)) {
         // Insert incident
@@ -42,8 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Inside incident submission logic
-        $notificationStmt = $pdo->prepare("INSERT INTO notifications (message, user_id) VALUES (?, ?)");
-        $notificationStmt->execute(["New incident submitted by user ID: $user_id from: $branch_id", 1]);  // Admin's user_id = 1
+        // Fetch all admin users
+        $adminStmt = $pdo->prepare("SELECT id FROM users WHERE role = 'admin'");
+        $adminStmt->execute();
+        $admins = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
+        // Insert notification for each admin
+        foreach ($admins as $admin_id) {
+            $notificationStmt = $pdo->prepare("INSERT INTO notifications (message, user_id) VALUES (?, ?)");
+            $notificationStmt->execute(["New incident submitted by user ID: $user_id from branch ID: $branch_id", $admin_id]);
+        }
 
         $message = "Incident submitted successfully!";
     }

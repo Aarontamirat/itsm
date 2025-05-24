@@ -28,8 +28,19 @@ if (isset($_GET['id'])) {
         
         $status = 'assigned';
         // Update the incident with the new staff ID
-        $update_stmt = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = ? WHERE id = ?");
+        $update_stmt = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = ?, assigned_date = NOW() WHERE id = ?");
         if ($update_stmt->execute([$status, $staff_id, $incident_id])) {
+
+            // Add to incident logs
+            // fetch the IT Staff name where the staff_id is equal to the staff_id
+            $log = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+            $log->execute([$staff_id]);
+            $staff_name = $log->fetchColumn();
+            // Insert the log entry
+            // Log the action
+            $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
+            $log->execute([$incident_id, "Assigned to IT Staff ($staff_name)", $_SESSION['user_id']]);
+
             $_SESSION['success'] = "Incident reassigned successfully.";
         } else {
             $_SESSION['error'] = "Failed to reassign incident.";

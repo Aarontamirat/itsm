@@ -2,7 +2,19 @@
 require '../config/db.php';
 
 // Fetch incidents for CSV export
-$stmt = $pdo->query("SELECT * FROM incidents ORDER BY created_at DESC");
+$stmt = $pdo->query(
+    "SELECT 
+        i.*,
+        u.name AS assigned_to_name
+    FROM 
+        incidents i
+    LEFT JOIN
+        users u ON i.assigned_to = u.id
+    WHERE 
+        i.status IN ('open', 'assigned', 'in_progress', 'resolved')
+    ORDER BY 
+        created_at DESC"
+    );
 $incidents = $stmt->fetchAll();
 
 // Set headers for CSV file download

@@ -27,6 +27,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
         $update = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
         $update->execute([$status, $incident_id]);
 
+        // After updating the incident status:
+        if ($update->execute([$status, $incident_id])) {
+
+            // Fetch the user who created the incident
+            $stmtUser = $pdo->prepare("SELECT submitted_by FROM incidents WHERE id = ?");
+            $stmtUser->execute([$incident_id]);
+            $incidentUser = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+            if ($incidentUser) {
+                $userId = $incidentUser['submitted_by'];
+                $message = "Your incident (ID: $incident_id) has been marked as $status.";
+
+                // Insert into notifications
+                $stmtNotif = $pdo->prepare("INSERT INTO notifications (user_id, message, is_seen, created_at) VALUES (?, ?, 0, NOW())");
+                $stmtNotif->execute([$userId, $message]);
+            }
+        }
+
         $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
         $log->execute([$incident_id, "Status changed to $status", $staff_id]);
 
@@ -53,6 +71,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
 
     <div class="max-w-7xl ms-auto bg-white p-6 mt-4 shadow rounded">
         <h2 class="text-2xl font-bold mb-4">My Assigned Incidents</h2>
+
+        <?php
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
+                $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
+                $stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name 
+                       FROM incidents i 
+                       JOIN users u ON i.submitted_by = u.id 
+                       WHERE i.id LIKE ? 
+                       ORDER BY i.created_at DESC");
+                $stmt->execute([$search]);
+                $incidents = $stmt->fetchAll();
+            }
+        ?>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="bg-green-100 text-green-800 p-3 mb-4 rounded">

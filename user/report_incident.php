@@ -42,16 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Inside incident submission logic
-        // Fetch all admin users
-        $adminStmt = $pdo->prepare("SELECT id FROM users WHERE role = 'admin'");
-        $adminStmt->execute();
-        $admins = $adminStmt->fetchAll(PDO::FETCH_COLUMN);
-        // Insert notification for each admin
-        foreach ($admins as $admin_id) {
-            $notificationStmt = $pdo->prepare("INSERT INTO notifications (message, user_id) VALUES (?, ?)");
-            $notificationStmt->execute(["New incident submitted by user ID: $user_id from branch ID: $branch_id", $admin_id]);
+        $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll();
+        foreach ($admins as $admin) {
+            $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
+            $stmt->execute([$admin['id'], "New incident reported", $incident_id]);
         }
-
+        // Add to incident logs
+        $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
+        $log->execute([$incident_id, "Incident reported by User ID: $user_id", $user_id]);
+        
         $message = "Incident submitted successfully!";
     }
 }

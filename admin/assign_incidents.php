@@ -7,6 +7,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
+
 // Fetch all unassigned incidents
 $stmt = $pdo->query(
 "SELECT 
@@ -43,6 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
     // Add to incident logs
     $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
     $log->execute([$incident_id, "Assigned to IT Staff (User ID: $staff_id)", $_SESSION['user_id']]);
+
+    // update noitifications table
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
+    $stmt->execute([$staff_id, "You have been assigned to an incident", $incident_id]);
 
     $_SESSION['success'] = "Incident assigned successfully.";
     header("Location: assign_incidents.php");

@@ -122,6 +122,11 @@ $staff = $staffStmt->fetchAll();
                 $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
                 $stmt->execute([$search]);
                 $incidents = $stmt->fetchAll();
+            } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
+                $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
+                $stmt = $pdo->prepare("SELECT * FROM incidents WHERE id LIKE ? ORDER BY created_at DESC");
+                $stmt->execute([$search]);
+                $incidents = $stmt->fetchAll();
             }
             ?>
 

@@ -5,6 +5,7 @@ echo "Pulling latest changes..."
 git pull
 
 # Add all changes
+echo "Adding latest changes to the repository..."
 git add .
 
 # Prompt for commit message

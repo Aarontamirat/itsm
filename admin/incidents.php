@@ -51,18 +51,22 @@ if ($branchFilter) {
     $incidents = $stmt->fetchAll();
 } else {
     $stmt = $pdo->prepare("SELECT 
-      incidents.id AS id,
-      incidents.title AS title,
-      incidents.priority AS priority,
-      incidents.status AS status,
-      incidents.created_at AS created_at,
-      users.id AS user_id,
-      users.name AS assigned_to
+      i.id AS id,
+      i.title AS title,
+      i.priority AS priority,
+      i.status AS status,
+      i.created_at AS created_at,
+      u.id AS user_id,
+      u.name AS assigned_to,
+      c.category_name AS category_name
     FROM 
-      incidents
+        incidents i
     LEFT JOIN 
-      users ON incidents.assigned_to = users.id
-    ORDER BY created_at DESC LIMIT ?, ?");
+        users u ON i.assigned_to = u.id
+    LEFT JOIN
+        incident_categories c ON i.category_id = c.id
+    ORDER BY 
+        created_at DESC LIMIT ?, ?");
     
 $stmt->bindValue(1, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
@@ -119,12 +123,22 @@ $staff = $staffStmt->fetchAll();
             if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
                 // Handle search
                 $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
-                $stmt = $pdo->prepare("SELECT * FROM incidents WHERE title LIKE ? ORDER BY created_at DESC");
+                $stmt = $pdo->prepare(
+                    "SELECT i.*, c.category_name
+                    FROM incidents i
+                    LEFT JOIN incident_categories c ON i.category_id = c.id
+                    WHERE title LIKE ? 
+                    ORDER BY created_at DESC");
                 $stmt->execute([$search]);
                 $incidents = $stmt->fetchAll();
             } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
                 $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
-                $stmt = $pdo->prepare("SELECT * FROM incidents WHERE id LIKE ? ORDER BY created_at DESC");
+                $stmt = $pdo->prepare(
+                    "SELECT i.*, c.category_name
+                    FROM incidents i 
+                    LEFT JOIN incident_categories c ON i.category_id = c.id
+                    WHERE i.id LIKE ? 
+                    ORDER BY i.created_at DESC");
                 $stmt->execute([$search]);
                 $incidents = $stmt->fetchAll();
             }
@@ -166,6 +180,7 @@ $staff = $staffStmt->fetchAll();
                 <tr class="bg-gray-200 text-left">
                     <th class="p-2">#</th>
                     <th class="p-2">Title</th>
+                    <th class="p-2">Category</th>
                     <th class="p-2">Priority</th>
                     <th class="p-2">Status</th>
                     <th class="p-2">Assigned</th>
@@ -178,6 +193,7 @@ $staff = $staffStmt->fetchAll();
                 <tr class="border-t">
                     <td class="p-2"><?= $index + 1 ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
+                    <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                     <td class="p-2"><?= $incident['assigned_to'] ? 'Assigned' : 'Not Assigned' ?></td>

@@ -17,16 +17,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // $branch = $_POST['branch_name'];
     $user_id = $_SESSION['user_id'];
     $branch_id = $_SESSION['branch_id'];
+    $category_id = $_POST['category_id'];
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($description)) $errors[] = 'Description is required.';
     if (!in_array($priority, ['Low', 'Medium', 'High'])) $errors[] = 'Invalid priority.';
     if (empty($branch_id)) $errors[] = 'Unknown branch, please contact your system.';
+    if (empty($category_id)) $errors[] = 'Please select an incident category.';
 
     if (empty($errors)) {
         // Insert incident
-        $stmt = $pdo->prepare("INSERT INTO incidents (title, description, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, 'Pending', ?, ?, NOW())");
-        $stmt->execute([$title, $description, $priority, $user_id, $branch_id]);
+        $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, ?, 'Pending', ?, ?, NOW())");
+        $stmt->execute([$title, $description, $category_id, $priority, $user_id, $branch_id]);
         $incident_id = $pdo->lastInsertId();
 
         // Handle file upload
@@ -64,8 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 p-6">
-    <div class="max-w-lg mx-auto bg-white p-6 shadow rounded">
+<body class="bg-gray-100">
+
+<!-- header and sidebar -->
+      <?php include '../includes/sidebar.php'; ?>
+  <div class="flex-1 ml-20">
+    <?php include '../header.php'; ?>
+
+    <div class="max-w-lg mx-auto bg-white mt-6 p-6 shadow rounded">
         <h2 class="text-xl font-bold mb-4">Report New Incident</h2>
 
         <?php if (!empty($errors)): ?>
@@ -94,6 +102,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label class="block">Description</label>
                 <textarea name="description" class="w-full p-2 border rounded" rows="4" required></textarea>
             </div>
+
+            <!-- incident category -->
+             <div>
+                <label for="category" class="block">Incident Category</label>
+                <select name="category_id" id="category" class="block w-full mt-1 p-2 border border-gray-300 rounded-md">
+                <option value="">-- Select Category --</option>
+                <?php
+                $stmt = $pdo->query("SELECT id, category_name FROM incident_categories ORDER BY category_name ASC");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['category_name']) . '</option>';
+                }
+                ?>
+                </select>
+             </div>
 
             <!-- incident priority -->
             <div>

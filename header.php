@@ -102,7 +102,7 @@ notifBtn.addEventListener('click', () => {
         setTimeout(() => {
           notificationsCache = [];
           updateNotificationUI([]);
-        }, 10000);  // Wait 10 seconds before clearing the UI
+        }, 10000000000);  // Wait 10 seconds before clearing the UI
         notifCounter.classList.add('hidden');
       });
   }
@@ -115,7 +115,7 @@ document.addEventListener('click', (e) => {
 });
 
 loadNotifications();
-setInterval(loadNotifications, 5000);  // Reload every 30s
+setInterval(loadNotifications, 30000);  // Reload every 30s
 
 </script>
 

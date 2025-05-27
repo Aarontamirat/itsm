@@ -25,7 +25,22 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start_from = ($page - 1) * $results_per_page;
 
 // Fetch incidents for the current page
-$stmt = $pdo->prepare("SELECT * FROM incidents WHERE submitted_by = ? ORDER BY created_at DESC LIMIT ?, ?");
+$stmt = $pdo->prepare(
+    "SELECT 
+        i.*,
+        c.category_name
+    FROM 
+        incidents i 
+    LEFT JOIN 
+        incident_categories c ON i.category_id = c.id
+    WHERE 
+        submitted_by = ? 
+    ORDER BY 
+        created_at 
+    DESC LIMIT 
+        ?, ?"
+    );
+
 $stmt->bindValue(1, $user_id, PDO::PARAM_INT);
 $stmt->bindValue(2, $start_from, PDO::PARAM_INT);
 $stmt->bindValue(3, $results_per_page, PDO::PARAM_INT);
@@ -41,8 +56,14 @@ $incidents = $stmt->fetchAll();
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto bg-white p-6 shadow rounded">
+<body class="bg-gray-100">
+
+<!-- header and sidebar -->
+      <?php include '../includes/sidebar.php'; ?>
+  <div class="flex-1 ml-20">
+    <?php include '../header.php'; ?>
+
+    <div class="max-w-4xl mx-auto bg-white p-6 mt-6 shadow rounded">
         <h2 class="text-2xl font-bold mb-4">Your Incident History</h2>
         <!-- search for history -->
         <form method="GET" class="mb-4">
@@ -52,16 +73,22 @@ $incidents = $stmt->fetchAll();
 
         <?php
         $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
-        $stmt = $pdo->prepare("SELECT * FROM incidents WHERE submitted_by = ? AND title LIKE ? ORDER BY created_at DESC");
-        $stmt->execute([$user_id, $search]);
+        $stmt = $pdo->prepare(
+            "SELECT i.*, c.category_name
+            FROM incidents i
+            LEFT JOIN incident_categories c ON i.category_id = c.id
+            WHERE title LIKE ? 
+            ORDER BY created_at DESC");
+        $stmt->execute([$search]);
         $incidents = $stmt->fetchAll();
         ?>
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
                 $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
-                $stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name 
-                       FROM incidents i 
-                       JOIN users u ON i.submitted_by = u.id 
+                $stmt = $pdo->prepare(
+                    "SELECT i.*, c.category_name
+                       FROM incidents i  
+                       LEFT JOIN incident_categories c ON i.category_id = c.id 
                        WHERE i.id LIKE ? 
                        ORDER BY i.created_at DESC");
                 $stmt->execute([$search]);
@@ -78,6 +105,8 @@ $incidents = $stmt->fetchAll();
                     <tr class="bg-gray-200 text-left">
                         <th class="p-2">#</th>
                         <th class="p-2">Title</th>
+                        <th class="p-2">Description</th>
+                        <th class="p-2">Category</th>
                         <th class="p-2">Priority</th>
                         <th class="p-2">Status</th>
                         <th class="p-2">Created</th>
@@ -88,6 +117,8 @@ $incidents = $stmt->fetchAll();
                         <tr class="border-t">
                             <td class="p-2"><?= $index + 1 ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
+                            <td class="p-2"><?= htmlspecialchars($incident['description']) ?></td>
+                            <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['created_at']) ?></td>

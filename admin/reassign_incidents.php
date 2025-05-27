@@ -36,6 +36,10 @@ if (isset($_GET['id'])) {
             $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
             $stmt->execute([$staff_id, "You have been assigned to an incident", $incident_id]);
 
+            // mark previously assigned notification as seen
+            $stmt = $pdo->prepare("UPDATE notifications SET is_seen = 1 WHERE related_incident_id = ? AND user_id != ?");
+            $stmt->execute([$incident_id, $staff_id]);
+
 
             // Add to incident logs
             // fetch the IT Staff name where the staff_id is equal to the staff_id

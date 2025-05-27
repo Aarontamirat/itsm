@@ -19,7 +19,10 @@
       <span>👥</span><span class="nav-text">Users</span>
     </a>
     <a href="../admin/branches.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>👥</span><span class="nav-text">Branches</span>
+      <span>🏢</span><span class="nav-text">Branches</span>
+    </a>
+    <a href="../admin/categories.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+      <span>📂</span><span class="nav-text">Categories</span>
     </a>
     <a href="../admin/incidents.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📝</span><span class="nav-text">Incidents</span>
@@ -37,11 +40,11 @@
 
     <!-- For IT Staff -->
     <?php }elseif($_SESSION['role'] === 'staff'){ ?>
-      <a href="../it_staff/it_staff_dashboard.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>🏠</span><span class="nav-text">Dashboard</span>
+    <a href="../it_staff/it_staff_dashboard.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+    <span>🏠</span><span class="nav-text">Dashboard</span>
     </a>
     <a href="../it_staff/my_incidents.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-    <span>📝</span><span class="nav-text">Incidents</span>
+    <span>📝</span><span class="nav-text">My Incidents</span>
     </a>
     <a href="../it_staff/faq_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
       <span>❓</span><span class="nav-text">FAQs</span>
@@ -52,7 +55,18 @@
 
     <!-- For End User -->
     <?php }elseif ($_SESSION['role'] === 'user'){ ?>
-      <a href="/user-dashboard" class="block hover:bg-gray-700 p-2 rounded">Dashboard</a>
+      <a href="../user/user_dashboard.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>🏠</span><span class="nav-text">Dashboard</span>
+      </a>
+      <a href="../user/report_incident.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>📝</span><span class="nav-text">Report Incident</span>
+      </a>
+      <a href="../user/my_incident_history.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>📝</span><span class="nav-text">My Incidents</span>
+      </a>
+      <a href="../user/faq_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>❓</span><span class="nav-text">FAQs</span>
+      </a>
 
     <!-- Routing Error -->
      <?php }else { ?>

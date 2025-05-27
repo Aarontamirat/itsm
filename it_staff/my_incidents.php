@@ -8,9 +8,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'staff') {
 }
 
 $staff_id = $_SESSION['user_id'];
-$stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name 
+$stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name, c.category_name AS category_name
                        FROM incidents i 
-                       JOIN users u ON i.submitted_by = u.id 
+                       LEFT JOIN users u ON i.submitted_by = u.id 
+                       LEFT JOIN incident_categories c ON i.category_id = c.id
                        WHERE i.assigned_to = ? 
                        ORDER BY i.created_at DESC");
 $stmt->execute([$staff_id]);
@@ -75,9 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
         <?php
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
                 $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
-                $stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name 
+                $stmt = $pdo->prepare(
+                    "SELECT i.*, u.name AS submitted_by_name, c.category_name AS category_name 
                        FROM incidents i 
-                       JOIN users u ON i.submitted_by = u.id 
+                       LEFT JOIN users u ON i.submitted_by = u.id
+                       LEFT JOIN incident_categories c ON i.category_id = c.id 
                        WHERE i.id LIKE ? 
                        ORDER BY i.created_at DESC");
                 $stmt->execute([$search]);
@@ -106,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                             <th class="p-2 border">Title</th>
                             <th class="p-2 border">description</th>
                             <th class="p-2 border">Submitted By</th>
+                            <th class="p-2 border">Category</th>
                             <th class="p-2 border">Priority</th>
                             <th class="p-2 border">Status</th>
                             <th class="p-2 border">Actions</th>
@@ -117,6 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                 <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['description']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['submitted_by_name']) ?></td>
+                                <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                                 <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                                 <td class="p-2">

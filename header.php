@@ -1,6 +1,21 @@
 <?php
 include 'config/db.php'; // Include your database connection file
 
+// fetch user data
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+$user_id = $_SESSION['user_id'];
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
+    $user['profile_image'] = '../uploads/' . $user['profile_picture'];
+} else {
+    $user['profile_image'] = '../uploads/default_avatar.png'; // Default profile image
+}
 
 
 ?>
@@ -55,7 +70,7 @@ function updateNotificationUI(notifications, userRole) {
           baseUrl = 'my_incidents.php?id=';
           break;
         case 'user':
-          baseUrl = 'incidents.php?id=';
+          baseUrl = 'my_incident_history.php?id=';
           break;
         default:
           baseUrl = '#';
@@ -100,128 +115,45 @@ document.addEventListener('click', (e) => {
 });
 
 loadNotifications();
-setInterval(loadNotifications, 30000);  // Reload every 30s
+setInterval(loadNotifications, 5000);  // Reload every 30s
 
 </script>
 
 
 
 
-<!-- admin dropdown -->
-  <div class="relative inline-block">
-    <button class="flex items-center space-x-2 focus:outline-none" id="dropdownButton">
-      <span class="text-gray-800 font-medium"><?= htmlspecialchars($_SESSION['name'] ?? 'Who are you?') ?></span>
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<!-- profile dropdown -->
+  <!-- Profile Section in Header -->
+<div class="relative inline-block text-left">
+  <button id="profileDropdownBtn" class="flex items-center gap-2 focus:outline-none">
+    <img src="<?= $user['profile_image'] ?>" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-gray-700 shadow">
+    <span class="hidden md:inline text-gray-700 text-sm"><?= htmlspecialchars($user['name'] ?? 'Profile') ?></span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
-    </button>
-    <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg">
-        <a href="logout.php" class="block px-4 py-2 text-red-600 hover:bg-gray-100">🚪 Logout</a>
-    </div>
+  </button>
+
+  <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-50">
+    <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👤 My Profile</a>
+    <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🚪 Logout</a>
   </div>
+</div>
 </header>
 
+
 <script>
-  // Admin dropdown menu
-  document.getElementById('dropdownButton').addEventListener('click', () => {
-    const menu = document.getElementById('dropdownMenu');
-    menu.classList.toggle('hidden');
+  // Profile Dropdown Functionality
+  // Toggle profile dropdown visibility
+  const profileBtn = document.getElementById('profileDropdownBtn');
+  const profileDropdown = document.getElementById('profileDropdown');
+
+  profileBtn.addEventListener('click', () => {
+    profileDropdown.classList.toggle('hidden');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+      profileDropdown.classList.add('hidden');
+    }
   });
 </script>
-
-<!-- Notifications Dropdown script -->
-
-
-
- <?php
-if ($_SESSION['role'] == 'admin') { ?>
-<!-- <script>
-  const btn = document.getElementById('notificationBtn');
-  const dropdown = document.getElementById('notificationDropdown');
-  const notifList = document.getElementById('notifList');
-  const notifCount = document.getElementById('notifCount');
-
-  // Toggle dropdown and mark as seen
-  btn.addEventListener('click', () => {
-    dropdown.classList.toggle('hidden');
-
-    if (!dropdown.classList.contains('hidden')) {
-      fetch('../mark_notifications_seen.php', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          notifList.innerHTML = '';
-          if (data.notifications.length === 0) {
-            notifList.innerHTML = `<div class="px-4 py-2 text-sm text-gray-500">No new notifications</div>`;
-          } 
-          else {
-            data.notifications.forEach(notif => {
-              const item = document.createElement('a');
-              item.href = 'assign_incidents.php'; // Link to assigning incidents page
-              item.className = 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100';
-              item.textContent = notif.message;
-              notifList.appendChild(item);
-            });
-          }
-
-        })
-        .catch(err => {
-          console.error('Error fetching notifications:', err);
-          notifList.innerHTML = `<div class="px-4 py-2 text-sm text-red-500">Error loading notifications</div>`;
-        });
-    }
-  });
-
-  // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.add('hidden');
-    }
-  });
-</script> -->
-<?php } elseif ($_SESSION['role'] == 'staff') { ?>
-  
-  <!-- <script>
-  const btn = document.getElementById('notificationBtn');
-  const dropdown = document.getElementById('notificationDropdown');
-  const notifList = document.getElementById('notifList');
-  const notifCount = document.getElementById('notifCount');
-
-  // Toggle dropdown and mark as seen
-  btn.addEventListener('click', () => {
-    dropdown.classList.toggle('hidden');
-
-    if (!dropdown.classList.contains('hidden')) {
-      fetch('../mark_notifications_seen.php', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          notifList.innerHTML = '';
-          if (data.notifications.length === 0) {
-            notifList.innerHTML = `<div class="px-4 py-2 text-sm text-gray-500">No new notifications</div>`;
-          } 
-          else {
-            data.notifications.forEach(notif => {
-              const item = document.createElement('a');
-              item.href = 'my_incidents.php'; // Link to my incidents page
-              item.className = 'block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100';
-              item.textContent = notif.message;
-              notifList.appendChild(item);
-            });
-          }
-
-        })
-        .catch(err => {
-          console.error('Error fetching notifications:', err);
-          notifList.innerHTML = `<div class="px-4 py-2 text-sm text-red-500">Error loading notifications</div>`;
-        });
-    }
-  });
-
-  // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
-      dropdown.classList.add('hidden');
-    }
-  });
-</script> -->
-
-<?php }  ?>

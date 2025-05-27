@@ -56,6 +56,18 @@ $incidents = $stmt->fetchAll();
         $stmt->execute([$user_id, $search]);
         $incidents = $stmt->fetchAll();
         ?>
+        <?php
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
+                $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
+                $stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name 
+                       FROM incidents i 
+                       JOIN users u ON i.submitted_by = u.id 
+                       WHERE i.id LIKE ? 
+                       ORDER BY i.created_at DESC");
+                $stmt->execute([$search]);
+                $incidents = $stmt->fetchAll();
+            }
+        ?>
 
         <!-- table -->
         <?php if (empty($incidents)): ?>

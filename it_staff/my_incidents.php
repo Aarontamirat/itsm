@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                 $message = "Your incident (ID: $incident_id) has been marked as $status.";
 
                 // Insert into notifications
-                $stmtNotif = $pdo->prepare("INSERT INTO notifications (user_id, message, is_seen, created_at) VALUES (?, ?, 0, NOW())");
-                $stmtNotif->execute([$userId, $message]);
+                $stmtNotif = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id, is_seen, created_at) VALUES (?, ?, ?, 0, NOW())");
+                $stmtNotif->execute([$userId, $message, $incident_id]);
             }
         }
 

@@ -127,7 +127,7 @@ setInterval(loadNotifications, 30000);  // Reload every 30s
 <div class="relative inline-block text-left">
   <button id="profileDropdownBtn" class="flex items-center gap-2 focus:outline-none">
     <img src="<?= $user['profile_image'] ?>" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-gray-700 shadow">
-    <span class="hidden md:inline text-gray-700 text-sm"><?= htmlspecialchars($user['name'] ?? 'Profile') ?></span>
+    <span class="md:inline text-gray-700 text-sm"><?= htmlspecialchars($user['name'] ?? 'Profile') ?></span>
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>

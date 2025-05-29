@@ -17,16 +17,37 @@ $stmt = $pdo->prepare("SELECT i.*, u.name AS submitted_by_name, c.category_name 
 $stmt->execute([$staff_id]);
 $incidents = $stmt->fetchAll();
 
+
 // Handle status update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST['status'])) {
     $incident_id = (int)$_POST['incident_id'];
     $status = $_POST['status'];
 
-    if (!in_array($status, ['Pending', 'Fixed', 'Not Fixed'])) {
+    if (!in_array($status, ['pending', 'fixed', 'not fixed'])) {
         $_SESSION['error'] = "Invalid status.";
     } else {
-        $update = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
-        $update->execute([$status, $incident_id]);
+
+        // fetch the current status of the incident
+        $stmt = $pdo->prepare("SELECT status FROM incidents WHERE id = ?");
+        $stmt->execute([$incident_id]);
+        $incid = $stmt->fetchColumn();
+
+        // set status of incident
+        if ($status === 'fixed') {
+            // when fixed
+            $update = $pdo->prepare("UPDATE incidents SET status = ?, fixed_date = NOW() WHERE id = ?");
+            $update->execute([$status, $incident_id]);
+        } else {
+            // when not fixed
+            $update = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
+            $update->execute([$status, $incident_id]);
+            // If previously fixed, reset fixed_date to null
+            if ($incid === 'fixed') {
+                $resetFixedDate = $pdo->prepare("UPDATE incidents SET fixed_date = NULL WHERE id = ?");
+                $resetFixedDate->execute([$incident_id]);
+            }
+        }
+
 
         // After updating the incident status:
         if ($update->execute([$status, $incident_id])) {
@@ -128,9 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                     <form method="POST" class="flex items-center gap-2">
                                         <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>">
                                         <select name="status" class="border p-1 text-sm rounded">
-                                            <option value="Pending" <?= $incident['status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                            <option value="Fixed" <?= $incident['status'] === 'Fixed' ? 'selected' : '' ?>>Fixed</option>
-                                            <option value="Not Fixed" <?= $incident['status'] === 'Not Fixed' ? 'selected' : '' ?>>Not Fixed</option>
+                                            <option value="pending" <?= $incident['status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                            <option value="fixed" <?= $incident['status'] === 'Fixed' ? 'selected' : '' ?>>Fixed</option>
+                                            <option value="not fixed" <?= $incident['status'] === 'Not Fixed' ? 'selected' : '' ?>>Not Fixed</option>
                                         </select>
                                         <div class="flex justify-between items-center gap-2">
                                             <button type="submit" class="bg-blue-600 text-white px-2 py-1 rounded text-sm">Update</button>

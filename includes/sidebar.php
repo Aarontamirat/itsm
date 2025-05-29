@@ -27,8 +27,8 @@
     <a href="../admin/incidents.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📝</span><span class="nav-text">Incidents</span>
     </a>
-    <a href="../admin/faq_list.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>❓</span><span class="nav-text">FAQs</span>
+    <a href="../admin/kb_list.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+      <span>❓</span><span class="nav-text">Knowledge Base</span>
     </a>
     <a href="../admin/reports.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
       <span>📊</span><span class="nav-text">Reports</span>
@@ -46,8 +46,8 @@
     <a href="../it_staff/my_incidents.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
     <span>📝</span><span class="nav-text">My Incidents</span>
     </a>
-    <a href="../it_staff/faq_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>❓</span><span class="nav-text">FAQs</span>
+    <a href="../it_staff/kb_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>❓</span><span class="nav-text">Knowledge Base</span>
     </a>
     <a href="../it_staff/reports.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
       <span>📊</span><span class="nav-text">Reports</span>
@@ -64,8 +64,8 @@
       <a href="../user/my_incident_history.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
       <span>📝</span><span class="nav-text">My Incidents</span>
       </a>
-      <a href="../user/faq_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>❓</span><span class="nav-text">FAQs</span>
+      <a href="../user/kb_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
+      <span>❓</span><span class="nav-text">Knowledge Base</span>
       </a>
 
     <!-- Routing Error -->

@@ -14,8 +14,12 @@ if (!$branch) die('Branch not found');
 <!DOCTYPE html>
 <html>
 <head><title>Edit Branch</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="p-6 bg-gray-100">
-  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+<body class="bg-gray-100">
+
+<?php include '../includes/sidebar.php'; ?>
+    <?php include '../header.php'; ?>
+
+  <div class="max-w-xl mx-auto bg-white p-6 mt-6 rounded shadow">
     <h2 class="text-xl font-bold mb-4">Edit Branch</h2>
 
     <form action="handlers/update_branch.php" method="POST" class="grid gap-4">

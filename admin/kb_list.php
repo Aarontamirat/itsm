@@ -150,7 +150,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         content.className = "overflow-hidden max-h-0 transition-max-height duration-300 ease-in-out mt-2 text-gray-700";
         content.innerHTML = `
           <div class="prose max-w-none mb-3">${article.content}</div>
-          <div class="text-sm text-gray-500">Category: ${article.category_name}</div>
+          <div class="text-sm text-gray-500">Category: ${article.name}</div>
           <div class="text-xs text-gray-400 mt-1">Created at: ${new Date(article.created_at).toLocaleString()}</div>
           <div class="mt-3">
             <button data-article-id="${article.id}" class="feedbackBtn mr-3 px-3 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200">Helpful</button>

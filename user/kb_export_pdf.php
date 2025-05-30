@@ -6,7 +6,7 @@ require_once '../libs/tcpdf/tcpdf.php'; // Adjust path accordingly
 $q = $_GET['q'] ?? '';
 $category_id = $_GET['category_id'] ?? '';
 
-$sql = "SELECT kb_articles.id, kb_articles.title, kb_articles.content, kb_categories.name AS category_name, kb_articles.created_at
+$sql = "SELECT kb_articles.id, kb_articles.title, kb_articles.content, kb_categories.name AS name, kb_articles.created_at
         FROM kb_articles
         LEFT JOIN kb_categories ON kb_articles.category_id = kb_categories.id
         WHERE 1=1 ";
@@ -37,7 +37,7 @@ foreach ($articles as $row) {
     $html .= '<td>' . $row['id'] . '</td>';
     $html .= '<td>' . htmlspecialchars($row['title']) . '</td>';
     $html .= '<td>' . htmlspecialchars(substr($row['content'], 0, 100)) . '...</td>';
-    $html .= '<td>' . htmlspecialchars($row['category_name']) . '</td>';
+    $html .= '<td>' . htmlspecialchars($row['name']) . '</td>';
     $html .= '<td>' . $row['created_at'] . '</td>';
     $html .= '</tr>';
 }

@@ -63,61 +63,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-md mx-auto bg-white p-6 mt-4 shadow rounded">
-        <h2 class="text-xl font-bold mb-4">Add New User</h2>
+    <div class="bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-20 fade-in tech-border glow max-w-lg mx-auto mt-8">
+        <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Add New User</h2>
+        <p class="text-center text-cyan-500 mb-1 font-mono">Create a new IT Support user account</p>
+        <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
 
         <?php if (!empty($errors)): ?>
-        <div class="bg-red-100 text-red-800 p-3 mb-4 rounded">
-            <ul class="list-disc ml-5">
-                <?php foreach ($errors as $error): ?>
-                <li><?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+            <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <ul class="list-disc ml-5 inline-block text-left">
+                    <?php foreach ($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
         <?php endif; ?>
 
-        <form method="POST" class="space-y-4">
+        <form method="POST" class="space-y-5">
             <!-- name -->
             <div>
-                <label class="block">Name</label>
-                <input type="text" name="name" class="w-full p-2 border rounded" required>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="name">Name</label>
+                <input type="text" name="name" id="name" required
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono"
+                    value="<?= isset($_POST['name']) ? htmlspecialchars($_POST['name']) : '' ?>">
             </div>
 
             <!-- email -->
             <div>
-                <label class="block">Email</label>
-                <input type="email" name="email" class="w-full p-2 border rounded" required>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="email">Email</label>
+                <input type="email" name="email" id="email" required
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono"
+                    value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
             </div>
 
             <!-- branch -->
             <div>
-            <label class="block" for="branch_id">Branch</label>
-            <select name="branch_id" id="branch_id" required class="w-full border rounded p-2">
-                <option value="">-- Select Branch --</option>
-            <?php
-                $branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
-                foreach ($branches as $branch) {
-                echo "<option value='{$branch['id']}'>{$branch['name']}</option>";
-                }
-            ?>
-            </select>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="branch_id">Branch</label>
+                <select name="branch_id" id="branch_id" required
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono">
+                    <option value="">-- Select Branch --</option>
+                    <?php
+                        $branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
+                        foreach ($branches as $branch) {
+                            $selected = (isset($_POST['branch_id']) && $_POST['branch_id'] == $branch['id']) ? 'selected' : '';
+                            echo "<option value='{$branch['id']}' $selected>{$branch['name']}</option>";
+                        }
+                    ?>
+                </select>
             </div>
 
             <!-- role -->
             <div>
-                <label class="block">Role</label>
-                <select name="role" class="w-full p-2 border rounded" required>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="role">Role</label>
+                <select name="role" id="role" required
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono">
                     <option value="">-- Select Role --</option>
-                    <option value="admin">Admin</option>
-                    <option value="staff">IT-Staff</option>
-                    <option value="user">User</option>
+                    <option value="admin" <?= (isset($_POST['role']) && $_POST['role'] == 'admin') ? 'selected' : '' ?>>Admin</option>
+                    <option value="staff" <?= (isset($_POST['role']) && $_POST['role'] == 'staff') ? 'selected' : '' ?>>IT-Staff</option>
+                    <option value="user" <?= (isset($_POST['role']) && $_POST['role'] == 'user') ? 'selected' : '' ?>>User</option>
                 </select>
             </div>
 
             <!-- add button -->
             <div>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add User</button>
-                <a href="users.php" class="ml-2 text-gray-600">Cancel</a>
+                <button type="submit"
+                    class="w-full py-2 px-4 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                    Add User
+                </button>
+                <a href="users.php" class="block mt-3 text-center text-green-500 hover:underline text-sm transition font-mono">Cancel</a>
             </div>
         </form>
     </div>

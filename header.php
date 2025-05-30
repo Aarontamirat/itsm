@@ -1,10 +1,9 @@
 <?php
-include 'config/db.php'; // Include your database connection file
+include 'config/db.php';
 
-// fetch user data
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+  header("Location: ../login.php");
+  exit();
 }
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
@@ -12,148 +11,250 @@ $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
-    $user['profile_image'] = '../uploads/' . $user['profile_picture'];
+  $user['profile_image'] = '../uploads/' . $user['profile_picture'];
 } else {
-    $user['profile_image'] = '../uploads/default_avatar.png'; // Default profile image
+  $user['profile_image'] = '../uploads/default_avatar.png';
 }
-
-
 ?>
 
+<style>
+  /* Futuristic animated gradient background */
+  .header-animated-bg {
+    background: linear-gradient(120deg, #0f172a, #1e293b 40%, #06b6d4 70%, #818cf8 100%);
+    background-size: 200% 200%;
+    animation: gradientMove 8s linear infinite;
+    border-bottom: 2px solid #06b6d4;
+    box-shadow: 0 4px 24px 0 #0ea5e933, 0 1.5px 0 #818cf8;
+    position: relative;
+    overflow: visible;
+  }
+  @keyframes gradientMove {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
+  /* Neon circuit lines */
+  .header-animated-bg::before, .header-animated-bg::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #06b6d4 40%, #818cf8 60%, transparent);
+    opacity: 0.7;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .header-animated-bg::before { top: 0; }
+  .header-animated-bg::after { bottom: 0; }
 
-<!-- header.php -->
-<header id="header" class="bg-white shadow-md p-4 pl-72 flex justify-between items-center">
-  <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+  /* Dropdown animation */
+  .dropdown-enter {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  }
+  .dropdown-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    box-shadow: 0 8px 32px 0 #06b6d455, 0 1.5px 0 #818cf8;
+  }
+  /* Profile image with neon ring and glow */
+  .profile-glow {
+    box-shadow: 0 0 0 2px #06b6d4, 0 0 16px 2px #818cf855;
+    transition: box-shadow 0.3s, border-color 0.3s;
+    border: 2.5px solid #818cf8;
+  }
+  .profile-glow:hover {
+    box-shadow: 0 0 0 5px #06b6d4, 0 0 32px 8px #818cf8cc;
+    border-color: #06b6d4;
+  }
+  /* Notification bell pulse */
+  .notif-pulse {
+    animation: notifPulse 1.2s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes notifPulse {
+    0% { filter: drop-shadow(0 0 0 #06b6d4); }
+    70% { filter: drop-shadow(0 0 8px #06b6d4cc); }
+    100% { filter: drop-shadow(0 0 0 #06b6d4); }
+  }
+  /* Techy glassmorphism for dropdowns */
+  .glass {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(12px) saturate(180%);
+    border: 1.5px solid #06b6d4;
+    box-shadow: 0 8px 32px 0 #06b6d455;
+  }
+  /* Button styles */
+  .tech-btn {
+    background: linear-gradient(90deg, #06b6d4 0%, #818cf8 100%);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px #06b6d433;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .tech-btn:hover {
+    background: linear-gradient(90deg, #818cf8 0%, #06b6d4 100%);
+    box-shadow: 0 4px 16px #818cf855;
+  }
+  /* Header title with clean professional font and subtle glow */
+  .header-title {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f1f5f9;
+    text-shadow: 0 1px 6px #06b6d455, 0 1px 0 #818cf822;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: none;
+  }
+  /* Custom scrollbar for dropdowns */
+  #notifList::-webkit-scrollbar, #profileDropdown::-webkit-scrollbar {
+    width: 6px;
+    background: #1e293b;
+  }
+  #notifList::-webkit-scrollbar-thumb, #profileDropdown::-webkit-scrollbar-thumb {
+    background: #06b6d4;
+    border-radius: 3px;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
+<header id="header" class="header-animated-bg shadow-md p-4 pl-72 flex justify-between items-center relative overflow-visible">
+  <h1 class="header-title">
+    <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+      <rect x="2" y="2" width="28" height="28" rx="6" fill="#06b6d4" opacity="0.15"/>
+      <path d="M8 16h16M16 8v16" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    ITSM Dashboard
+  </h1>
 
   <!-- Notification Button -->
-<div class="relative inline-block text-left">
-  <button id="notifBtn" class="relative flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">
-    🔔 Notifications
-    <span id="notifCounter" class="absolute -top-2 -right-2 w-5 h-5 text-xs text-center text-white bg-red-500 rounded-full hidden"></span>
-  </button>
-
-  <div id="notifDropdown" class="absolute right-0 z-20 w-80 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 hidden">
-    <div class="py-1 max-h-60 overflow-y-auto" id="notifList">
-      <p class="px-4 py-2 text-sm text-gray-500">Loading notifications...</p>
+  <div class="relative inline-block text-left">
+    <button id="notifBtn" class="relative flex items-center gap-2 px-4 py-2 text-sm tech-btn shadow-lg focus:outline-none transition-all duration-300">
+      <span id="notifBell" class="text-xl notif-pulse transition-transform duration-300">🔔</span>
+      <span class="hidden md:inline">Notifications</span>
+      <span id="notifCounter" class="absolute -top-2 -right-2 w-5 h-5 text-xs text-center text-white bg-pink-600 border-2 border-white rounded-full hidden shadow-lg"></span>
+    </button>
+    <div id="notifDropdown" class="dropdown-enter glass absolute right-0 z-20 w-80 mt-2 origin-top-right divide-y divide-cyan-200 rounded-xl shadow-2xl ring-1 ring-cyan-400 ring-opacity-30 hidden">
+      <div class="py-1 max-h-60 overflow-y-auto" id="notifList">
+        <p class="px-4 py-2 text-sm text-cyan-200">Loading notifications...</p>
+      </div>
     </div>
   </div>
-</div>
+
+  <!-- Profile Section in Header -->
+  <div class="relative inline-block text-left">
+    <button id="profileDropdownBtn" class="flex items-center gap-2 focus:outline-none group">
+      <img src="<?= $user['profile_image'] ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover profile-glow transition-all duration-300">
+      <span class="md:inline text-white text-base font-semibold group-hover:text-cyan-200 transition-colors"><?= htmlspecialchars($user['name'] ?? 'Profile') ?></span>
+      <svg class="w-5 h-5 text-cyan-200 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+    <div id="profileDropdown" class="dropdown-enter glass hidden absolute right-0 mt-2 w-52 shadow-2xl rounded-xl z-50 overflow-hidden">
+      <a href="profile.php" class="block px-5 py-3 text-base text-cyan-100 hover:bg-cyan-700/30 hover:text-cyan-300 transition-all duration-200">👤 My Profile</a>
+      <a href="logout.php" class="block px-5 py-3 text-base text-rose-100 hover:bg-rose-700/30 hover:text-rose-300 transition-all duration-200">🚪 Logout</a>
+    </div>
+  </div>
+</header>
 
 <script>
-// Load notifications via AJAX
 const notifBtn = document.getElementById('notifBtn');
 const notifCounter = document.getElementById('notifCounter');
 const notifDropdown = document.getElementById('notifDropdown');
 const notifList = document.getElementById('notifList');
+const notifBell = document.getElementById('notifBell');
 
-let notificationsCache = [];  // Cache the last fetched notifications
+let notificationsCache = [];
+let userRoles = '';
 
 function loadNotifications() {
   fetch('../fetch_notifications.php')
     .then(res => res.json())
     .then(data => {
-      notificationsCache = data.notifications; // Cache the notifications
-      userRoles = data.user_role; // Store user role for later use
+      notificationsCache = data.notifications;
+      userRoles = data.user_role;
       updateNotificationUI(notificationsCache, userRoles);
     });
 }
 
 function updateNotificationUI(notifications, userRole) {
-
   let baseUrl = '';
-      switch (userRole) {
-        case 'admin':
-          baseUrl = 'incidents.php?id=';
-          break;
-        case 'staff':
-          baseUrl = 'my_incidents.php?id=';
-          break;
-        case 'user':
-          baseUrl = 'my_incident_history.php?id=';
-          break;
-        default:
-          baseUrl = '#';
-      }
-
+  switch (userRole) {
+    case 'admin': baseUrl = 'incidents.php?id='; break;
+    case 'staff': baseUrl = 'my_incidents.php?id='; break;
+    case 'user': baseUrl = 'my_incident_history.php?id='; break;
+    default: baseUrl = '#';
+  }
 
   notifList.innerHTML = '';
   if (notifications.length > 0) {
     notifCounter.textContent = notifications.length;
     notifCounter.classList.remove('hidden');
-
     notifications.forEach(n => {
-      notifList.innerHTML += `<a href="${baseUrl}${n.related_incident_id}" class="block px-4 py-2 text-sm text-gray-700 bg-orange-100 hover:bg-orange-300">${n.message}</a>`;
+      notifList.innerHTML += `<a href="${baseUrl}${n.related_incident_id}" class="block px-4 py-2 text-base text-cyan-100 bg-cyan-900/40 hover:bg-cyan-700/60 transition-all duration-200 rounded">${n.message}</a>`;
     });
   } else {
     notifCounter.classList.add('hidden');
-    notifList.innerHTML = '<p class="px-4 py-2 text-sm text-gray-500">No new notifications</p>';
+    notifList.innerHTML = '<p class="px-4 py-2 text-base text-cyan-200">No new notifications</p>';
   }
 }
 
-notifBtn.addEventListener('click', () => {
-  notifDropdown.classList.toggle('hidden');
+// Dropdown animation helpers
+function showDropdown(dropdown) {
+  dropdown.classList.remove('hidden');
+  setTimeout(() => dropdown.classList.add('dropdown-enter-active'), 10);
+}
+function hideDropdown(dropdown) {
+  dropdown.classList.remove('dropdown-enter-active');
+  setTimeout(() => dropdown.classList.add('hidden'), 200);
+}
 
-  if (!notifDropdown.classList.contains('hidden')) {
-    // Mark notifications as seen
-    fetch('../mark_notifications_seen.php', { method: 'POST' })
-      .then(() => {
-        // Keep displaying the old data for a few seconds
-        setTimeout(() => {
-          notificationsCache = [];
-          updateNotificationUI([]);
-        }, 10000000000);  // Wait 10 seconds before clearing the UI
-        notifCounter.classList.add('hidden');
-      });
+notifBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (notifDropdown.classList.contains('hidden')) {
+    showDropdown(notifDropdown);
+    fetch('../mark_notifications_seen.php', { method: 'POST' }).then(() => {
+      setTimeout(() => {
+        notificationsCache = [];
+        updateNotificationUI([]);
+      }, 10000);
+      notifCounter.classList.add('hidden');
+    });
+  } else {
+    hideDropdown(notifDropdown);
   }
 });
 
 document.addEventListener('click', (e) => {
   if (!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
-    notifDropdown.classList.add('hidden');
+    hideDropdown(notifDropdown);
+  }
+});
+
+// Profile Dropdown
+const profileBtn = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+
+profileBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (profileDropdown.classList.contains('hidden')) {
+    showDropdown(profileDropdown);
+  } else {
+    hideDropdown(profileDropdown);
+  }
+});
+document.addEventListener('click', (e) => {
+  if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+    hideDropdown(profileDropdown);
   }
 });
 
 loadNotifications();
-setInterval(loadNotifications, 30000);  // Reload every 30s
-
-</script>
-
-
-
-
-<!-- profile dropdown -->
-  <!-- Profile Section in Header -->
-<div class="relative inline-block text-left">
-  <button id="profileDropdownBtn" class="flex items-center gap-2 focus:outline-none">
-    <img src="<?= $user['profile_image'] ?>" alt="Profile" class="w-8 h-8 rounded-full object-cover border border-gray-700 shadow">
-    <span class="md:inline text-gray-700 text-sm"><?= htmlspecialchars($user['name'] ?? 'Profile') ?></span>
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-      </svg>
-  </button>
-
-  <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md z-50">
-    <a href="profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">👤 My Profile</a>
-    <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">🚪 Logout</a>
-  </div>
-</div>
-</header>
-
-
-<script>
-  // Profile Dropdown Functionality
-  // Toggle profile dropdown visibility
-  const profileBtn = document.getElementById('profileDropdownBtn');
-  const profileDropdown = document.getElementById('profileDropdown');
-
-  profileBtn.addEventListener('click', () => {
-    profileDropdown.classList.toggle('hidden');
-  });
-
-  document.addEventListener('click', (e) => {
-    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
-      profileDropdown.classList.add('hidden');
-    }
-  });
+setInterval(loadNotifications, 30000);
 </script>

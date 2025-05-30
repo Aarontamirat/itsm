@@ -18,7 +18,12 @@ require '../config/db.php';
 </head>
 <body class="bg-gray-100">
 
-  <div class="max-w-7xl mx-auto p-6">
+<?php
+require_once '../includes/sidebar.php';
+require_once '../header.php';
+?>
+
+  <div class="max-w-7xl ms-auto p-6 mt-4">
     <h1 class="text-3xl font-bold mb-6">📊 Incident Reports</h1>
 
     <!-- Filters -->

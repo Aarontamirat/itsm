@@ -86,7 +86,7 @@ if ($type === 'add_category' || $type === 'edit_category') {
     echo '
       <input type="hidden" name="action" value="'.($type === 'add_category' ? 'add_category' : 'edit_category').'">
       <label class="block mb-4">Category Name
-        <input type="text" name="category_name" value="'.esc($name).'" required class="w-full border border-gray-300 rounded p-2">
+        <input type="text" name="name" value="'.esc($name).'" required class="w-full border border-gray-300 rounded p-2">
       </label>
       <div class="flex justify-end gap-3">
         <button type="button" class="modalCloseBtn bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>

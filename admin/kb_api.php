@@ -5,7 +5,7 @@ require_once '../config/db.php';
 $q = $_GET['q'] ?? '';
 $category_id = $_GET['category_id'] ?? '';
 
-$sql = "SELECT kb_articles.*, kb_categories.name AS category_name 
+$sql = "SELECT kb_articles.*, kb_categories.name AS kb_categories 
         FROM kb_articles
         LEFT JOIN kb_categories ON kb_articles.category_id = kb_categories.id
         WHERE 1=1 ";

@@ -109,9 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="category_id" id="category" class="block w-full mt-1 p-2 border border-gray-300 rounded-md">
                 <option value="">-- Select Category --</option>
                 <?php
-                $stmt = $pdo->query("SELECT id, category_name FROM incident_categories ORDER BY category_name ASC");
+                $stmt = $pdo->query("SELECT id, name FROM kb_categories ORDER BY name ASC");
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['category_name']) . '</option>';
+                    echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
                 }
                 ?>
                 </select>

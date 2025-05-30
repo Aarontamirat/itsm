@@ -4,7 +4,7 @@ require_once '../config/db.php';
 session_start();
 
 // Fetch categories
-$stmt = $pdo->query("SELECT * FROM faq_categories ORDER BY category_name");
+$stmt = $pdo->query("SELECT * FROM faq_categories ORDER BY name");
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -29,7 +29,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <select id="categoryFilter" class="border p-2 rounded">
         <option value="">All Categories</option>
         <?php foreach($categories as $cat): ?>
-          <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['category_name']) ?></option>
+          <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['name']) ?></option>
         <?php endforeach; ?>
       </select>
 

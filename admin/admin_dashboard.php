@@ -28,42 +28,24 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     <?php include '../header.php'; ?>
 
   <!-- Main Content -->
-  <main class="ml-60 p-6 flex-1">
-
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Overview</h1>
-
-    <!-- Cards for quick stats -->
-    <!-- <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-lg font-semibold">Total Users</h2>
-        <p id="user-count" class="text-2xl font-bold text-blue-600">Loading...</p>
+  <main class="flex justify-center items-start min-h-[80vh] py-10 px-2 bg-transparent">
+    <div class="bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-14 fade-in tech-border glow max-w-4xl w-full">
+      <h1 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Admin Dashboard</h1>
+      <p class="text-center text-cyan-500 mb-1 font-mono">Overview of system users and incidents</p>
+      <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- User Roles Pie Chart -->
+        <div class="bg-cyan-50 bg-opacity-80 rounded-xl p-6 shadow-lg border border-cyan-100 flex flex-col items-center">
+          <h2 class="text-lg font-semibold mb-4 text-cyan-700 font-mono">User Roles</h2>
+          <canvas id="userChart" height="200"></canvas>
+        </div>
+        <!-- Incident Status Bar Chart -->
+        <div class="bg-cyan-50 bg-opacity-80 rounded-xl p-6 shadow-lg border border-cyan-100 flex flex-col items-center">
+          <h2 class="text-lg font-semibold mb-4 text-cyan-700 font-mono">Incidents by Status</h2>
+          <canvas id="incidentChart" height="200"></canvas>
+        </div>
       </div>
-      <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-lg font-semibold">Total Incidents</h2>
-        <p id="incident-count" class="text-2xl font-bold text-green-600">Loading...</p>
-      </div>
-      <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-lg font-semibold">Assigned Incidents</h2>
-        <p id="assigned-count" class="text-2xl font-bold text-yellow-600">Loading...</p>
-      </div>
-    </div> -->
-
-    <!-- Charts -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <!-- User Roles Pie Chart -->
-  <div class="bg-white max-w-96 dark:bg-gray-800 p-4 rounded shadow">
-    <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">User Roles</h2>
-    <canvas id="userChart" height="200"></canvas>
-  </div>
-
-  
-
-  <!-- Incident Status Bar Chart -->
-  <div class="bg-white max-w-96 dark:bg-gray-800 p-4 rounded shadow">
-    <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Incidents by Status</h2>
-    <canvas id="incidentChart" height="200"></canvas>
-  </div>
-</div>
+    </div>
   </main>
   </div>
   

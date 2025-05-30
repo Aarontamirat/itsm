@@ -68,95 +68,117 @@ $users = $stmt->fetchAll();
   <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-5xl mx-auto bg-white p-6 mt-4 shadow rounded">
-        <h2 class="text-2xl font-bold mb-4">User Management</h2>
+    <div class="max-w-6xl mx-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-20 fade-in tech-border glow mt-8">
+        <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">User Management</h2>
+        <p class="text-center text-cyan-500 mb-1 font-mono">Manage IT Support user accounts</p>
+        <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
 
-        <div class="flex justify-between items-center mb-4">
-            <!-- Add User Button -->
-            <div class="mb-4">
-                <a href="add_user.php" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add New User</a>
+        <!-- Success/Error Messages -->
+        <?php if (isset($_SESSION['success'])): ?>
+            <div id="success-message" class="mb-4 text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
             </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
+        <?php endif; ?>
+        <?php if (isset($_SESSION['error'])): ?>
+            <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+            </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
+        <?php endif; ?>
 
-            <div class="mb-4 flex flex-col items-center gap-2">
-                <!-- Export Buttons -->
-                 <div>
-                    <a href="export_users_csv.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 mr-2">Export CSV</a>
-                    <a href="export_users_pdf.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">Export PDF</a>
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <a href="add_user.php" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                + Add New User
+            </a>
+            <div class="flex flex-col md:flex-row items-center gap-4">
+                <div>
+                    <a href="export_users_csv.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition">Export CSV</a>
+                    <a href="export_users_pdf.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition ml-2">Export PDF</a>
                 </div>
-
-                <!-- Filter by Branch -->
-                <form method="get" class="mb-4">
-                    <label for="branchFilter" class="mr-2 font-medium text-gray-700">Filter by Branch:</label>
-                    <select name="branch_id" id="branchFilter" class="px-3 py-1 border rounded">
+                <form method="get" class="flex items-center gap-2">
+                    <label for="branchFilter" class="font-mono text-cyan-700 font-semibold">Branch:</label>
+                    <select name="branch_id" id="branchFilter" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
                         <option value="">All Branches</option>
                         <?php foreach ($branches as $branch): ?>
-                        <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($branch['name']) ?>
-                        </option>
+                            <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($branch['name']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" class="ml-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Filter</button>
+                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                        Filter
+                    </button>
                 </form>
             </div>
         </div>
 
-        <!-- Password reset message -->
-        <?php if (isset($_SESSION['success'])): ?>
-        <div class="p-3 bg-green-100 text-green-800 rounded mb-4"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
-        <?php endif; ?>
-        <?php if (isset($_SESSION['error'])): ?>
-        <div class="p-3 bg-red-100 text-red-800 rounded mb-4"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-        <?php endif; ?>
-
-        <!-- User Table -->
-        <table class="w-full border">
-            <thead>
-                <tr class="bg-gray-200 text-left">
-                    <th class="p-2">#</th>
-                    <th class="p-2">Name</th>
-                    <th class="p-2">Email</th>
-                    <th class="p-2">Branch</th>
-                    <th class="p-2">Role</th>
-                    <th class="p-2">Created At</th>
-                    <th class="p-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $index => $user): ?>
-                    <tr class="border-t">
-                        <td class="p-2"><?= $start_from + $index + 1 ?></td>
-                        <td class="p-2"><?= htmlspecialchars($user['name']) ?></td>
-                        <td class="p-2"><?= htmlspecialchars($user['email']) ?></td>
-                        <td><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
-                        <td class="p-2 capitalize"><?= htmlspecialchars($user['role']) ?></td>
-                        <td class="p-2 capitalize"><?= htmlspecialchars($user['created_at']) ?></td>
-                        <td class="p-2 flex space-x-2">
-                            <a href="edit_user.php?id=<?= $user['id'] ?>"
-                                class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</a>
-                            <a href="delete_user.php?id=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')"
-                                class="bg-red-600 text-white px-2 py-1 rounded ml-2">Delete</a>
-
-                            <!-- Reset password form -->
-                            <form method="POST" action="reset_password.php" onsubmit="return confirm('Reset password for this user?');">
-                                <input type="hidden" name="user_id" value="<?= $user['id']; ?>">
-                                <button type="submit" class="bg-orange-500 text-white px-2 py-1 rounded">
-                                Reset Password
-                                </button>
-                            </form>
-                        </td>
+        <div class="overflow-x-auto rounded-xl shadow-inner">
+            <table class="w-full border border-cyan-100 bg-white bg-opacity-90 font-mono text-cyan-900">
+                <thead>
+                    <tr class="bg-cyan-50 text-cyan-700 text-left">
+                        <th class="p-3 font-bold">#</th>
+                        <th class="p-3 font-bold">Name</th>
+                        <th class="p-3 font-bold">Email</th>
+                        <th class="p-3 font-bold">Branch</th>
+                        <th class="p-3 font-bold">Role</th>
+                        <th class="p-3 font-bold">Created At</th>
+                        <th class="p-3 font-bold">Actions</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($users as $index => $user): ?>
+                        <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
+                            <td class="p-3"><?= $start_from + $index + 1 ?></td>
+                            <td class="p-3"><?= htmlspecialchars($user['name']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($user['email']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
+                            <td class="p-3 capitalize"><?= htmlspecialchars($user['role']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($user['created_at']) ?></td>
+                            <td class="p-3 flex flex-col md:flex-row gap-2">
+                                <a href="edit_user.php?id=<?= $user['id'] ?>"
+                                    class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Edit</a>
+                                <a href="delete_user.php?id=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')"
+                                    class="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1 rounded-lg shadow transition">Delete</a>
+                                <form method="POST" action="reset_password.php" onsubmit="return confirm('Reset password for this user?');" class="inline">
+                                    <input type="hidden" name="user_id" value="<?= $user['id']; ?>">
+                                    <button type="submit" class="bg-orange-400 hover:bg-orange-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">
+                                        Reset Password
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="mt-8">
             <nav class="flex justify-center">
-                <ul class="flex space-x-2">
+                <ul class="flex space-x-2 font-mono">
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                         <li>
-                            <a href="?page=<?= $i ?>"
-                                class="px-4 py-2 <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-gray-200' ?> rounded">
+                            <a href="?page=<?= $i ?><?= $branchFilter ? '&branch_id=' . $branchFilter : '' ?>"
+                                class="px-4 py-2 <?= $i == $page ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 text-white font-bold' : 'bg-cyan-50 text-cyan-700' ?> rounded-lg shadow transition">
                                 <?= $i ?>
                             </a>
                         </li>

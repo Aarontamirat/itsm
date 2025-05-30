@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include '../config/db.php'; // DB connection
 
 // Fetch categories
-$stmt = $pdo->query("SELECT * FROM incident_categories ORDER BY id DESC");
+$stmt = $pdo->query("SELECT * FROM kb_categories ORDER BY id DESC");
 $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -63,10 +63,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <?php foreach($categories as $cat): ?>
             <tr class="border-t">
             <td class="px-4 py-2"><?= $cat['id'] ?></td>
-            <td class="px-4 py-2"><?= htmlspecialchars($cat['category_name']) ?></td>
+            <td class="px-4 py-2"><?= htmlspecialchars($cat['name']) ?></td>
             <td class="px-4 py-2"><?= $cat['created_at'] ?></td>
             <td class="px-4 py-2">
-                <button onclick="openEditModal(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['category_name'], ENT_QUOTES) ?>')" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+                <button onclick="openEditModal(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
                 <button onclick="confirmDelete(<?= $cat['id'] ?>)" class="bg-red-600 text-white px-2 py-1 rounded">Delete</button>
             </td>
             </tr>
@@ -80,7 +80,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="bg-white p-6 rounded shadow-lg">
         <h3 class="text-lg font-semibold mb-4">Add New Category</h3>
         <form method="POST" action="add_category.php">
-        <input type="text" name="category_name" placeholder="Category Name" class="border p-2 w-full mb-4" required>
+        <input type="text" name="name" placeholder="Category Name" class="border p-2 w-full mb-4" required>
         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add</button>
         <button type="button" onclick="closeAddModal()" class="ml-2 text-gray-600">Cancel</button>
         </form>
@@ -93,7 +93,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <h3 class="text-lg font-semibold mb-4">Edit Category</h3>
         <form method="POST" action="update_category.php">
         <input type="hidden" name="id" id="editId">
-        <input type="text" name="category_name" id="editName" placeholder="Category Name" class="border p-2 w-full mb-4" required>
+        <input type="text" name="name" id="editName" placeholder="Category Name" class="border p-2 w-full mb-4" required>
         <button type="submit" class="bg-yellow-500 text-white px-4 py-2 rounded">Update</button>
         <button type="button" onclick="closeEditModal()" class="ml-2 text-gray-600">Cancel</button>
         </form>

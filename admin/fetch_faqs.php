@@ -4,7 +4,7 @@ require_once '../config/db.php';
 $search = $_GET['search'] ?? '';
 $category = $_GET['category'] ?? '';
 
-$sql = "SELECT f.*, c.category_name, u.name AS created_by_name FROM faqs f
+$sql = "SELECT f.*, c.name, u.name AS created_by_name FROM faqs f
         LEFT JOIN faq_categories c ON f.category_id = c.id
         LEFT JOIN users u ON f.created_by = u.id
         WHERE (f.title LIKE ? OR f.solution LIKE ?)";
@@ -26,7 +26,7 @@ if ($faqs) {
     echo '<button class="faq-toggle w-full text-left font-semibold text-lg">' . htmlspecialchars($faq['title']) . '</button>';
     echo '<div class="faq-content hidden mt-2 text-gray-700">';
     echo '<p>' . nl2br(htmlspecialchars($faq['solution'])) . '</p>';
-    echo '<p class="mt-2 text-sm text-gray-500">Category: ' . htmlspecialchars($faq['category_name']) . ' | By: ' . htmlspecialchars($faq['created_by_name']) . '</p>';
+    echo '<p class="mt-2 text-sm text-gray-500">Category: ' . htmlspecialchars($faq['name']) . ' | By: ' . htmlspecialchars($faq['created_by_name']) . '</p>';
     echo '</div>';
     echo '</div>';
   }

@@ -28,11 +28,11 @@ $start_from = ($page - 1) * $results_per_page;
 $stmt = $pdo->prepare(
     "SELECT 
         i.*,
-        c.category_name
+        c.name
     FROM 
         incidents i 
     LEFT JOIN 
-        incident_categories c ON i.category_id = c.id
+        kb_categories c ON i.category_id = c.id
     WHERE 
         submitted_by = ? 
     ORDER BY 
@@ -74,9 +74,9 @@ $incidents = $stmt->fetchAll();
         <?php
         $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
         $stmt = $pdo->prepare(
-            "SELECT i.*, c.category_name
+            "SELECT i.*, c.name
             FROM incidents i
-            LEFT JOIN incident_categories c ON i.category_id = c.id
+            LEFT JOIN kb_categories c ON i.category_id = c.id
             WHERE title LIKE ? 
             ORDER BY created_at DESC");
         $stmt->execute([$search]);
@@ -86,9 +86,9 @@ $incidents = $stmt->fetchAll();
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
                 $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
                 $stmt = $pdo->prepare(
-                    "SELECT i.*, c.category_name
+                    "SELECT i.*, c.name
                        FROM incidents i  
-                       LEFT JOIN incident_categories c ON i.category_id = c.id 
+                       LEFT JOIN kb_categories c ON i.category_id = c.id 
                        WHERE i.id LIKE ? 
                        ORDER BY i.created_at DESC");
                 $stmt->execute([$search]);
@@ -118,7 +118,7 @@ $incidents = $stmt->fetchAll();
                             <td class="p-2"><?= $index + 1 ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['description']) ?></td>
-                            <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
+                            <td class="p-2"><?= htmlspecialchars($incident['name']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                             <td class="p-2"><?= htmlspecialchars($incident['created_at']) ?></td>

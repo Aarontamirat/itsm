@@ -33,13 +33,13 @@ if ($branchFilter) {
       incidents.*,
       users.id AS user_id,
       users.name AS assigned_to,
-      c.category_name AS category_name
+      c.kb_categories AS kb_categories
     FROM 
       incidents
     LEFT JOIN 
       users ON incidents.assigned_to = users.id
     LEFT JOIN
-      incident_categories c ON incidents.category_id = c.id
+      kb_categories c ON incidents.category_id = c.id
     WHERE 
       incidents.branch_id = ?
     ORDER BY created_at DESC LIMIT ?, ?");
@@ -53,13 +53,13 @@ if ($branchFilter) {
       i.*,
       u.id AS user_id,
       u.name AS assigned_to,
-      c.category_name AS category_name
+      c.kb_categories AS kb_categories
     FROM 
         incidents i
     LEFT JOIN 
         users u ON i.assigned_to = u.id
     LEFT JOIN
-        incident_categories c ON i.category_id = c.id
+        kb_categories c ON i.category_id = c.id
     ORDER BY 
         created_at DESC LIMIT ?, ?");
     
@@ -123,13 +123,13 @@ $staff = $staffStmt->fetchAll();
                         incidents.*,
                         users.id AS user_id,
                         users.name AS assigned_to,
-                        c.category_name AS category_name
+                        c.kb_categories AS kb_categories
                     FROM 
                         incidents
                     LEFT JOIN 
                         users ON incidents.assigned_to = users.id
                     LEFT JOIN
-                        incident_categories c ON incidents.category_id = c.id
+                        kb_categories c ON incidents.category_id = c.id
                     WHERE 
                         title LIKE ? 
                     ORDER BY 
@@ -144,13 +144,13 @@ $staff = $staffStmt->fetchAll();
                         incidents.*,
                         users.id AS user_id,
                         users.name AS assigned_to,
-                        c.category_name AS category_name
+                        c.kb_categories AS kb_categories
                     FROM 
                         incidents
                     LEFT JOIN 
                         users ON incidents.assigned_to = users.id
                     LEFT JOIN
-                        incident_categories c ON incidents.category_id = c.id
+                        kb_categories c ON incidents.category_id = c.id
                     WHERE 
                         incidents.id LIKE ? 
                     ORDER BY 
@@ -210,7 +210,7 @@ $staff = $staffStmt->fetchAll();
                 <tr class="border-t">
                     <td class="p-2"><?= $index + 1 ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
+                    <td class="p-2"><?= htmlspecialchars($incident['kb_categories']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['assigned_to']) ?></td>

@@ -1,10 +1,10 @@
 <?php
 include '../config/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $name = trim($_POST['category_name']);
+  $name = trim($_POST['name']);
   if (!empty($name)) {
     try {
-      $stmt = $pdo->prepare("INSERT INTO incident_categories (category_name) VALUES (?)");
+      $stmt = $pdo->prepare("INSERT INTO kb_categories (name) VALUES (?)");
       $stmt->execute([$name]);
       header('Location: categories.php?success=1');
     } catch (PDOException $e) {

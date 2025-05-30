@@ -1,77 +1,88 @@
-
 <!-- sidebar.php -->
-<aside id="sidebar" class="bg-white dark:bg-gray-800 shadow-md h-screen fixed transition-all duration-300 ease-in-out w-64 overflow-hidden z-10">
+<aside id="sidebar" class="bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 shadow-xl h-screen fixed transition-all duration-500 ease-in-out w-64 overflow-hidden z-10 flex flex-col">
   <div class="flex items-center justify-between p-4">
-    <h2 class="text-xl font-bold text-blue-600 dark:text-white" id="sidebar-title">IT Support</h2>
-    <button id="sidebarToggle" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 focus:outline-none">
-      ☰
+    <h2 class="text-2xl font-extrabold text-white tracking-wide transition-all duration-500" id="sidebar-title">IT Support</h2>
+    <button id="sidebarToggle" class="text-white hover:text-yellow-300 focus:outline-none transition-transform duration-500">
+      <svg id="sidebarToggleIcon" class="w-7 h-7 transition-transform duration-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
     </button>
   </div>
-  <nav class="space-y-4 px-4">
-
-
+  <nav class="space-y-2 px-4 flex-1">
     <!-- For Admin -->
     <?php if ($_SESSION['role'] === 'admin'){ ?>
-    <a href="../admin/admin_dashboard.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>🏠</span><span class="nav-text">Dashboard</span>
+    <a href="../admin/admin_dashboard.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+      <span class="nav-text transition-all duration-300">Dashboard</span>
     </a>
-    <a href="../admin/users.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>👥</span><span class="nav-text">Users</span>
+    <a href="../admin/users.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">👥</span>
+      <span class="nav-text transition-all duration-300">Users</span>
     </a>
-    <a href="../admin/branches.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>🏢</span><span class="nav-text">Branches</span>
+    <a href="../admin/branches.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏢</span>
+      <span class="nav-text transition-all duration-300">Branches</span>
     </a>
-    <a href="../admin/categories.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>📂</span><span class="nav-text">Categories</span>
+    <a href="../admin/categories.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📂</span>
+      <span class="nav-text transition-all duration-300">Categories</span>
     </a>
-    <a href="../admin/incidents.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>📝</span><span class="nav-text">Incidents</span>
+    <a href="../admin/incidents.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+      <span class="nav-text transition-all duration-300">Incidents</span>
     </a>
-    <a href="../admin/kb_list.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>❓</span><span class="nav-text">Knowledge Base</span>
+    <a href="../admin/kb_list.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+      <span class="nav-text transition-all duration-300">Knowledge Base</span>
     </a>
-    <a href="../admin/reports.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>📊</span><span class="nav-text">Reports</span>
+    <a href="../admin/reports.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Reports</span>
     </a>
-    <a href="../admin/incident_history.php" class="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-      <span>📁</span><span class="nav-text">Audit Logs</span>
+    <a href="../admin/incident_history.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📁</span>
+      <span class="nav-text transition-all duration-300">Audit Logs</span>
     </a>
-
-
     <!-- For IT Staff -->
     <?php }elseif($_SESSION['role'] === 'staff'){ ?>
-    <a href="../it_staff/it_staff_dashboard.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-    <span>🏠</span><span class="nav-text">Dashboard</span>
+    <a href="../it_staff/it_staff_dashboard.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+      <span class="nav-text transition-all duration-300">Dashboard</span>
     </a>
-    <a href="../it_staff/my_incidents.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-    <span>📝</span><span class="nav-text">My Incidents</span>
+    <a href="../it_staff/my_incidents.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+      <span class="nav-text transition-all duration-300">My Incidents</span>
     </a>
-    <a href="../it_staff/kb_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>❓</span><span class="nav-text">Knowledge Base</span>
+    <a href="../it_staff/kb_list.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+      <span class="nav-text transition-all duration-300">Knowledge Base</span>
     </a>
-    <a href="../it_staff/reports.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>📊</span><span class="nav-text">Reports</span>
+    <a href="../it_staff/reports.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Reports</span>
     </a>
-
     <!-- For End User -->
     <?php }elseif ($_SESSION['role'] === 'user'){ ?>
-      <a href="../user/user_dashboard.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>🏠</span><span class="nav-text">Dashboard</span>
-      </a>
-      <a href="../user/report_incident.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>📝</span><span class="nav-text">Report Incident</span>
-      </a>
-      <a href="../user/my_incident_history.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>📝</span><span class="nav-text">My Incidents</span>
-      </a>
-      <a href="../user/kb_list.php" class="block hover:bg-gray-700 p-2 text-gray-200 rounded">
-      <span>❓</span><span class="nav-text">Knowledge Base</span>
-      </a>
-
+    <a href="../user/user_dashboard.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+      <span class="nav-text transition-all duration-300">Dashboard</span>
+    </a>
+    <a href="../user/report_incident.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+      <span class="nav-text transition-all duration-300">Report Incident</span>
+    </a>
+    <a href="../user/my_incident_history.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+      <span class="nav-text transition-all duration-300">My Incidents</span>
+    </a>
+    <a href="../user/kb_list.php" class="group flex items-center space-x-3 text-white hover:bg-blue-700 rounded-lg px-3 py-2 transition-all duration-300">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+      <span class="nav-text transition-all duration-300">Knowledge Base</span>
+    </a>
     <!-- Routing Error -->
-     <?php }else { ?>
-      <p class="block hover:bg-gray-700 p-2 text-red-700 rounded">ROUTING ERROR</p>
-     <?php } ?>
+    <?php }else { ?>
+    <p class="block bg-red-100 text-red-700 p-2 rounded text-center">ROUTING ERROR</p>
+    <?php } ?>
   </nav>
 </aside>
 
@@ -80,13 +91,19 @@
   const toggleBtn = document.getElementById('sidebarToggle');
   const navTextEls = document.querySelectorAll('.nav-text');
   const title = document.getElementById('sidebar-title');
+  const toggleIcon = document.getElementById('sidebarToggleIcon');
+
+  let collapsed = false;
 
   toggleBtn.addEventListener('click', () => {
     sidebar.classList.toggle('w-64');
-    sidebar.classList.toggle('w-14');
-
-    navTextEls.forEach(el => el.classList.toggle('hidden'));
-    title.classList.toggle('hidden');
+    sidebar.classList.toggle('w-16');
+    navTextEls.forEach(el => el.classList.toggle('opacity-0'));
+    navTextEls.forEach(el => el.classList.toggle('w-0'));
+    title.classList.toggle('opacity-0');
+    title.classList.toggle('w-0');
+    // Animate toggle icon (rotate)
+    collapsed = !collapsed;
+    toggleIcon.style.transform = collapsed ? 'rotate(90deg)' : 'rotate(0deg)';
   });
 </script>
-

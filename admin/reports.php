@@ -1,118 +1,107 @@
 <?php
 session_start();
-include '../config/db.php';
-
-$where = 'WHERE 1=1';
-$params = [];
-
-if (!empty($_GET['branch'])) {
-    $where .= ' AND i.branch_id = ?';
-    $params[] = $_GET['branch'];
-}
-if (!empty($_GET['status'])) {
-    $where .= ' AND i.status = ?';
-    $params[] = $_GET['status'];
-}
-
-$sql = "SELECT 
-    i.id AS incident_id,
-    i.title AS incident_title,
-    i.status,
-    i.priority,
-    i.created_at,
-    i.assigned_date,
-    i.fixed_date,
-    u.name AS reported_by,
-    s.name AS assigned_to,
-    b.name AS branch_name,
-    c.category_name
-FROM incidents i
-LEFT JOIN users u ON i.created_by = u.id
-LEFT JOIN users s ON i.assigned_to = s.id
-LEFT JOIN branches b ON i.branch_id = b.id
-LEFT JOIN incident_categories c ON i.category_id = c.id
-$where
-ORDER BY i.created_at DESC";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+require '../config/db.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Knowledge Base</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-</head>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Incident Reports</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
 <body class="bg-gray-100">
 
-<?php include '../includes/sidebar.php'; ?>
-<?php include '../header.php'; ?>
+  <div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6">📊 Incident Reports</h1>
 
-<div class="p-6 bg-gray-900 mt-6 text-white">
-  <h1 class="text-2xl font-bold mb-4">Comprehensive Reports</h1>
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-4 mb-6">
+      <select id="branchFilter" class="p-2 border rounded">
+        <option value="">All Branches</option>
+        <?php
+        // Fetch branches from the database
+        $stmt = $pdo->prepare("SELECT id, name FROM branches ORDER BY name ASC");
+        $stmt->execute();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            echo '<option value="' . htmlspecialchars($row['id']) . '">' . htmlspecialchars($row['name']) . '</option>';
+        }
+        ?>
+      </select>
+      <select id="categoryFilter" class="p-2 border rounded">
+        <option value="">All Categories</option>
+        <?php
+        // Fetch categories from the database
+        $stmt = $pdo->prepare("SELECT id, name FROM kb_categories ORDER BY name ASC");
+        $stmt->execute();
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            echo '<option value="' . htmlspecialchars($row['id']) . '">' . htmlspecialchars($row['name']) . '</option>';
+        }
+        ?>
+      </select>
+      <input type="date" id="fromDate" class="p-2 border rounded">
+      <input type="date" id="toDate" class="p-2 border rounded">
+      <button id="filterBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Filter</button>
+    </div>
 
-  <form method="get" class="flex gap-4 mb-6">
-    <select name="branch" class="p-2 bg-gray-800 rounded">
-      <option value="">All Branches</option>
-      <?php foreach ($branches as $b): ?>
-        <option value="<?= $b['id'] ?>"><?= $b['name'] ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="status" class="p-2 bg-gray-800 rounded">
-      <option value="">All Statuses</option>
-      <option value="pending">Pending</option>
-      <option value="fixed">Fixed</option>
-      <option value="not-fixed">Not Fixed</option>
-    </select>
-    <button type="submit" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">Filter</button>
-    <a href="export_reports.php?format=pdf" class="px-4 py-2 bg-red-600 rounded hover:bg-red-700">Export PDF</a>
-    <a href="export_reports.php?format=csv" class="px-4 py-2 bg-green-600 rounded hover:bg-green-700">Export CSV</a>
-  </form>
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <canvas id="incidentCountChart"></canvas>
+      <canvas id="staffPerformanceChart"></canvas>
+    </div>
 
-  <div class="overflow-auto">
-    <table class="min-w-full table-auto border-collapse border border-gray-700">
-      <thead class="bg-gray-800">
-        <tr>
-          <th class="border p-2">Incident ID</th>
-          <th class="border p-2">Title</th>
-          <th class="border p-2">Status</th>
-          <th class="border p-2">Priority</th>
-          <th class="border p-2">Reported By</th>
-          <th class="border p-2">Assigned To</th>
-          <th class="border p-2">Branch</th>
-          <th class="border p-2">Category</th>
-          <th class="border p-2">Created At</th>
-          <th class="border p-2">Assigned Date</th>
-          <th class="border p-2">Fixed Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($reports as $r): ?>
-          <tr>
-            <td class="border p-2"><?= $r['incident_id'] ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['incident_title']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['status']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['priority']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['reported_by']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['assigned_to']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['branch_name']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['category_name']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['created_at']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['assigned_date']) ?></td>
-            <td class="border p-2"><?= htmlspecialchars($r['fixed_date']) ?></td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+    <!-- Table -->
+    <div class="bg-white p-4 rounded shadow">
+      <div class="flex justify-between mb-4">
+        <h2 class="text-xl font-semibold">Incident Report Details</h2>
+        <div class="flex gap-2">
+          <button onclick="exportCSV()" class="bg-green-500 text-white px-4 py-2 rounded">Export CSV</button>
+          <button onclick="exportPDF()" class="bg-red-500 text-white px-4 py-2 rounded">Export PDF</button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table id="reportTable" class="min-w-full table-auto">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="px-4 py-2">Incident</th>
+              <th>Branch</th>
+              <th>Category</th>
+              <th>Reported</th>
+              <th>Fixed</th>
+              <th>Days to Fix</th>
+              <th>Assigned To</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- PHP Loop: Fetch report data -->
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
 
+
+  <?php
+             $branch ='Kazanchis Branch';
+             $sql = "SELECT * FROM incident_fix_times WHERE 1=1";
+// if ($branch) $sql .= " AND branch_name = '$branch'";
+// if ($category) $sql .= " AND name = '$category'";
+// if ($from && $to) $sql .= " AND report_date BETWEEN '$from' AND '$to'";
+
+$result = $pdo->prepare($sql);
+
+while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+  echo '<p>' . $row['title'] .'</p>';
+}
+             ?>
+
+  <script src="report-logic.js"></script>
 
 
 </body>

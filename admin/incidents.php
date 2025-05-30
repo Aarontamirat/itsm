@@ -30,17 +30,16 @@ $start_from = ($page - 1) * $results_per_page;
 // Fetch incidents for the current page
 if ($branchFilter) {
     $stmt = $pdo->prepare("SELECT 
-      incidents.id AS id,
-      incidents.title AS title,
-      incidents.priority AS priority,
-      incidents.status AS status,
-      incidents.created_at AS created_at,
+      incidents.*,
       users.id AS user_id,
-      users.name AS assigned_to
+      users.name AS assigned_to,
+      c.category_name AS category_name
     FROM 
       incidents
     LEFT JOIN 
       users ON incidents.assigned_to = users.id
+    LEFT JOIN
+      incident_categories c ON incidents.category_id = c.id
     WHERE 
       incidents.branch_id = ?
     ORDER BY created_at DESC LIMIT ?, ?");
@@ -51,11 +50,7 @@ if ($branchFilter) {
     $incidents = $stmt->fetchAll();
 } else {
     $stmt = $pdo->prepare("SELECT 
-      i.id AS id,
-      i.title AS title,
-      i.priority AS priority,
-      i.status AS status,
-      i.created_at AS created_at,
+      i.*,
       u.id AS user_id,
       u.name AS assigned_to,
       c.category_name AS category_name
@@ -106,7 +101,7 @@ $staff = $staffStmt->fetchAll();
   <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="min-w-5xl max-w-6xl mx-auto bg-white p-6 mt-4 shadow rounded">
+    <div class="max-w-7xl ms-auto bg-white p-6 mt-4 shadow rounded">
 
         <!-- exports -->
         <a href="export_csv.php" class="bg-blue-600 text-white px-4 py-2 rounded">Export CSV</a>
@@ -124,21 +119,43 @@ $staff = $staffStmt->fetchAll();
                 // Handle search
                 $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
                 $stmt = $pdo->prepare(
-                    "SELECT i.*, c.category_name
-                    FROM incidents i
-                    LEFT JOIN incident_categories c ON i.category_id = c.id
-                    WHERE title LIKE ? 
-                    ORDER BY created_at DESC");
+                    "SELECT 
+                        incidents.*,
+                        users.id AS user_id,
+                        users.name AS assigned_to,
+                        c.category_name AS category_name
+                    FROM 
+                        incidents
+                    LEFT JOIN 
+                        users ON incidents.assigned_to = users.id
+                    LEFT JOIN
+                        incident_categories c ON incidents.category_id = c.id
+                    WHERE 
+                        title LIKE ? 
+                    ORDER BY 
+                        created_at DESC");
+
                 $stmt->execute([$search]);
                 $incidents = $stmt->fetchAll();
             } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
                 $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
                 $stmt = $pdo->prepare(
-                    "SELECT i.*, c.category_name
-                    FROM incidents i 
-                    LEFT JOIN incident_categories c ON i.category_id = c.id
-                    WHERE i.id LIKE ? 
-                    ORDER BY i.created_at DESC");
+                    "SELECT 
+                        incidents.*,
+                        users.id AS user_id,
+                        users.name AS assigned_to,
+                        c.category_name AS category_name
+                    FROM 
+                        incidents
+                    LEFT JOIN 
+                        users ON incidents.assigned_to = users.id
+                    LEFT JOIN
+                        incident_categories c ON incidents.category_id = c.id
+                    WHERE 
+                        incidents.id LIKE ? 
+                    ORDER BY 
+                        incidents.created_at DESC");
+
                 $stmt->execute([$search]);
                 $incidents = $stmt->fetchAll();
             }
@@ -183,8 +200,8 @@ $staff = $staffStmt->fetchAll();
                     <th class="p-2">Category</th>
                     <th class="p-2">Priority</th>
                     <th class="p-2">Status</th>
-                    <th class="p-2">Assigned</th>
                     <th class="p-2">Assigned To</th>
+                    <th class="p-2">Fixed Date</th>
                     <th class="p-2">Actions</th>
                 </tr>
             </thead>
@@ -196,8 +213,8 @@ $staff = $staffStmt->fetchAll();
                     <td class="p-2"><?= htmlspecialchars($incident['category_name']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
-                    <td class="p-2"><?= $incident['assigned_to'] ? 'Assigned' : 'Not Assigned' ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['assigned_to']) ?></td>
+                    <td class="p-2"><?= htmlspecialchars($incident['fixed_date']) ?></td>
                     <td class="p-2">
 
                     <!-- Assign Incidents -->

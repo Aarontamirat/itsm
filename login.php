@@ -1,52 +1,85 @@
+
 <?php
 session_start();
 require 'config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $sessionExpired = isset($_POST) ? $_POST['error'] : '';
 
-    $stmt = $pdo->prepare(
-        "SELECT u.*, 
-        b.name AS branch_name
-        FROM users u
-        JOIN branches b ON u.branch_id = b.id
-        WHERE u.email = ?"
-    ); 
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    if($sessionExpired) {
+        $_SESSION['error'] = $sessionExpired;
+        header("Location: login.php");
+        exit;
+    }
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['name'] = $user['name'];
-        $_SESSION['branch_id'] = $user['branch_id'];
-        $_SESSION['branch_name'] = $user['branch_name'];
+    // Validate email
+    if (empty($email)) {
+        $_SESSION['error'] = "Email is required.";
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = "Invalid email format.";
+    }
 
-        // check if password was reset
-        if ($user['force_password_change']) {
-            header("Location: change_password.php");
+    // Validate password
+    if (empty($password)) {
+        $_SESSION['error'] = "Password is required.";
+    }
+    if (strlen($password) < 6) {
+        $_SESSION['error'] = "Password must be at least 6 characters.";
+    }
+    
+    if (!isset($_SESSION['error'])) {
+        $stmt = $pdo->prepare(
+            "SELECT u.*, 
+            b.name AS branch_name
+            FROM users u
+            JOIN branches b ON u.branch_id = b.id
+            WHERE u.email = ?"
+        ); 
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['name'] = $user['name'];
+            $_SESSION['branch_id'] = $user['branch_id'];
+            $_SESSION['branch_name'] = $user['branch_name'];
+            $_SESSION['last_activity'] = time();
+
+            // check if password was reset
+            if ($user['force_password_change']) {
+                header("Location: change_password.php");
+                exit;
+            }
+
+            // Redirect based on role
+            switch ($user['role']) {
+                case 'admin':
+                    header("Location: admin/admin_dashboard.php");
+                    break;
+                case 'staff':
+                    header("Location: it_staff/it_staff_dashboard.php");
+                    break;
+                default:
+                    header("Location: user/user_dashboard.php");
+                    break;
+            }
+            exit;
+        } else {
+            $_SESSION['error'] = "Invalid login credentials.";
+            header("Location: login.php");
             exit;
         }
-
-        // Redirect based on role
-        switch ($user['role']) {
-            case 'admin':
-                header("Location: admin/admin_dashboard.php");
-                break;
-            case 'staff':
-                header("Location: it_staff/it_staff_dashboard.php");
-                break;
-            default:
-                header("Location: user/user_dashboard.php");
-                break;
-        }
-        exit;
     } else {
-        $_SESSION['error'] = "Invalid login credentials.";
+        header("Location: login.php");
+        exit;
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -128,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     setTimeout(function() {
                         var el = document.getElementById('error-message');
                         if (el) el.style.opacity = '0';
-                    }, 3010);
+                    }, 5010);
                 </script>
             <?php endif; ?>
             <form method="POST" class="space-y-5">
@@ -147,9 +180,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Login
             </button>
             </form>
-            <div class="mt-6 text-center">
-            <a href="#" class="text-green-500 hover:underline text-sm transition font-mono">Forgot your password?</a>
-            </div>
         </div>
         </div>
     </body>

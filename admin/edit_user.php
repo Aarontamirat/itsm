@@ -17,7 +17,7 @@ $user_id = (int)$_GET['id'];
 // Fetch user
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
-$user = $stmt->fetch();
+$current_user = $stmt->fetch();
 
 // Fetch allusers
 $stmt2 = $pdo->prepare("SELECT * FROM users");
@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($name) > 50) $errors[] = 'Name must not exceed 50 characters.';
     if (strlen($email) < 5) $errors[] = 'Email must be at least 5 characters long.';
     if (strlen($email) > 100) $errors[] = 'Email must not exceed 100 characters.';
+
     // Check if email already exists
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND id != ?");
     $stmt->execute([$email, $user_id]);
@@ -59,8 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Email already exists.';
     }
 
-    if (count($admin_users) <= 1 && $role !== 'admin' && $user['role'] == 'admin') $errors[] = 'At least one admin user is required.';
+    // if there's one admin left, do not update it to another role
+    if (count($admin_users) <= 1 && $role !== 'admin' && $current_user['role'] == 'admin') $errors[] = 'At least one admin user is required.';
 
+    // if free of errors run the update function 
     if (empty($errors)) {
         $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, branch_id = ?, role = ? WHERE id = ?");
         $stmt->execute([$name, $email, $branch_id, $role, $user_id]);
@@ -115,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- name -->
             <div>
                 <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="name">Name</label>
-                <input type="text" name="name" id="name" value="<?= htmlspecialchars($user['name']) ?>"
+                <input type="text" name="name" id="name" value="<?= htmlspecialchars($current_user['name']) ?>"
                     class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono"
                     required>
             </div>
@@ -123,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- email -->
             <div>
                 <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="email">Email</label>
-                <input type="email" name="email" id="email" value="<?= htmlspecialchars($user['email']) ?>"
+                <input type="email" name="email" id="email" value="<?= htmlspecialchars($current_user['email']) ?>"
                     class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono"
                     required>
             </div>
@@ -137,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php
                         $branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
                         foreach ($branches as $branch) {
-                            $selected = $user['branch_id'] == $branch['id'] ? 'selected' : '';
+                            $selected = $current_user['branch_id'] == $branch['id'] ? 'selected' : '';
                             echo "<option value='{$branch['id']}' $selected>{$branch['name']}</option>";
                         }
                     ?>
@@ -150,9 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="role" id="role"
                     class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono"
                     required>
-                    <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                    <option value="staff" <?= $user['role'] === 'staff' ? 'selected' : '' ?>>IT Staff</option>
-                    <option value="user" <?= $user['role'] === 'user' ? 'selected' : '' ?>>End User</option>
+                    <option value="admin" <?= $current_user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                    <option value="staff" <?= $current_user['role'] === 'staff' ? 'selected' : '' ?>>IT Staff</option>
+                    <option value="user" <?= $current_user['role'] === 'user' ? 'selected' : '' ?>>End User</option>
                 </select>
             </div>
 

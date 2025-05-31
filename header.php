@@ -1,6 +1,10 @@
 <?php
 include 'config/db.php';
 
+// Update last activity time stamp
+$_SESSION['last_activity'] = time();
+
+
 if (!isset($_SESSION['user_id'])) {
   header("Location: ../login.php");
   exit();

@@ -1,3 +1,26 @@
+<?php
+// Set session timeout in seconds
+$timeout_duration = 1800; // 1800 seconds = 30 minutes
+
+// Check if last activity is set
+if (isset($_SESSION['last_activity'])) {
+  $elapsed_time = time() - $_SESSION['last_activity'];
+  if ($elapsed_time > $timeout_duration) {
+    // Session expired - destroy session and redirect via POST
+    session_unset();
+    session_destroy();
+    echo '
+    <form id="sessionExpiredForm" action="../login.php" method="post" style="display:none;">
+      <input type="hidden" name="error" value="Session expired. Please log in again.">
+    </form>
+    <script>
+      document.getElementById("sessionExpiredForm").submit();
+    </script>
+    ';
+    exit();
+  }
+}
+?>
 <!-- sidebar.php -->
 <aside id="sidebar" class="bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 shadow-xl h-screen fixed transition-all duration-500 ease-in-out w-64 overflow-hidden z-10 flex flex-col">
   <div class="flex items-center justify-between p-4">

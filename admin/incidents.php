@@ -33,7 +33,7 @@ if ($branchFilter) {
       incidents.*,
       users.id AS user_id,
       users.name AS assigned_to,
-      c.kb_categories AS kb_categories
+      c.name AS name
     FROM 
       incidents
     LEFT JOIN 
@@ -53,7 +53,7 @@ if ($branchFilter) {
       i.*,
       u.id AS user_id,
       u.name AS assigned_to,
-      c.kb_categories AS kb_categories
+      c.name AS name
     FROM 
         incidents i
     LEFT JOIN 
@@ -123,7 +123,7 @@ $staff = $staffStmt->fetchAll();
                         incidents.*,
                         users.id AS user_id,
                         users.name AS assigned_to,
-                        c.kb_categories AS kb_categories
+                        c.name AS name
                     FROM 
                         incidents
                     LEFT JOIN 
@@ -144,7 +144,7 @@ $staff = $staffStmt->fetchAll();
                         incidents.*,
                         users.id AS user_id,
                         users.name AS assigned_to,
-                        c.kb_categories AS kb_categories
+                        c.name AS name
                     FROM 
                         incidents
                     LEFT JOIN 
@@ -210,7 +210,7 @@ $staff = $staffStmt->fetchAll();
                 <tr class="border-t">
                     <td class="p-2"><?= $index + 1 ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['kb_categories']) ?></td>
+                    <td class="p-2"><?= htmlspecialchars($incident['name']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
                     <td class="p-2"><?= htmlspecialchars($incident['assigned_to']) ?></td>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 31, 2025 at 03:17 PM
+-- Generation Time: May 29, 2025 at 12:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -161,8 +161,7 @@ INSERT INTO `incidents` (`id`, `title`, `description`, `status`, `priority`, `as
 (2, 'Printer error', 'Printer shows the following error code: 0xE0012', 'assigned', 'low', 8, 9, '2025-05-26 08:05:26', 5, '2025-05-27 16:31:43', NULL, NULL),
 (3, 'Internet access issue', 'Can not connect to the internet due to some issue that I have no idea about.', 'fixed', 'low', 8, 9, '2025-05-26 13:48:02', 5, '2025-05-27 17:09:14', NULL, NULL),
 (4, 'Computer Error', 'Computer is not starting up, it doesn\'t power up at all.', 'fixed', 'medium', 8, 9, '2025-05-27 11:03:40', 5, '2025-05-27 16:26:58', '2025-05-28 14:42:39', 4),
-(5, 'Printer Dead', 'JKDfbasid dfh vijadv ijsn vjnv jnv ijdfvn', 'pending', 'medium', 3, 2, '2025-05-27 14:18:23', 4, '2025-05-28 08:47:09', '2025-05-28 13:41:03', 1),
-(6, 'Lucy Live System Login Issue', 'I tried logging in into lucy live system but I couldn\'t login as the login page froze.', 'pending', 'low', NULL, 9, '2025-05-30 11:39:00', 5, NULL, NULL, 4);
+(5, 'Printer Dead', 'JKDfbasid dfh vijadv ijsn vjnv jnv ijdfvn', 'pending', 'medium', 3, 2, '2025-05-27 14:18:23', 4, '2025-05-28 08:47:09', '2025-05-28 13:41:03', 1);
 
 -- --------------------------------------------------------
 
@@ -183,36 +182,6 @@ CREATE TABLE `incident_categories` (
 INSERT INTO `incident_categories` (`id`, `category_name`, `created_at`) VALUES
 (1, 'Hardware', '2025-05-27 10:38:31'),
 (4, 'Computer', '2025-05-27 10:43:23');
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `incident_counts`
--- (See below for the actual view)
---
-CREATE TABLE `incident_counts` (
-`branch_name` varchar(100)
-,`name` varchar(100)
-,`report_date` date
-,`total_incidents` bigint(21)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `incident_fix_times`
--- (See below for the actual view)
---
-CREATE TABLE `incident_fix_times` (
-`incident_id` int(11)
-,`title` varchar(255)
-,`report_date` timestamp
-,`fixed_date` datetime
-,`days_to_fix` int(7)
-,`branch_name` varchar(100)
-,`name` varchar(100)
-,`assigned_staff` varchar(100)
-);
 
 -- --------------------------------------------------------
 
@@ -285,15 +254,7 @@ INSERT INTO `incident_logs` (`id`, `incident_id`, `user_id`, `action`, `created_
 (50, 4, 8, 'Status changed to pending', '2025-05-28 11:41:50'),
 (51, 4, 8, 'Status changed to fixed', '2025-05-28 11:42:01'),
 (52, 4, 8, 'Status changed to not fixed', '2025-05-28 11:42:08'),
-(53, 4, 8, 'Status changed to fixed', '2025-05-28 11:42:39'),
-(54, NULL, 1, 'Reset password for user ID 8', '2025-05-30 10:54:24'),
-(55, NULL, 1, 'Reset password for user ID 3', '2025-05-30 10:54:31'),
-(56, NULL, 1, 'Reset password for user ID 6', '2025-05-30 10:54:40'),
-(57, NULL, 1, 'Reset password for user ID 2', '2025-05-30 10:54:48'),
-(58, NULL, 1, 'Reset password for user ID 9', '2025-05-30 10:54:52'),
-(59, NULL, 1, 'Reset password for user ID 1', '2025-05-30 10:54:57'),
-(60, NULL, 1, 'Reset password for user ID 1', '2025-05-30 11:09:29'),
-(61, 6, 9, 'Incident reported by User ID: 9', '2025-05-30 11:39:00');
+(53, 4, 8, 'Status changed to fixed', '2025-05-28 11:42:39');
 
 -- --------------------------------------------------------
 
@@ -401,10 +362,10 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `related_incident_id`, 
 (19, 6, 'New incident reported', 5, 1, '2025-05-27 14:18:23'),
 (20, 3, 'You have been assigned to an incident', 5, 1, '2025-05-28 05:47:09'),
 (21, 9, 'Your incident (ID: 4) has been marked as Fixed.', 4, 1, '2025-05-28 10:37:57'),
-(22, 2, 'Your incident (ID: 5) has been marked as Fixed.', 5, 1, '2025-05-28 10:38:42'),
-(23, 2, 'Your incident (ID: 5) has been marked as pending.', 5, 1, '2025-05-28 10:40:41'),
-(24, 2, 'Your incident (ID: 5) has been marked as not fixed.', 5, 1, '2025-05-28 10:40:56'),
-(25, 2, 'Your incident (ID: 5) has been marked as fixed.', 5, 1, '2025-05-28 10:41:03'),
+(22, 2, 'Your incident (ID: 5) has been marked as Fixed.', 5, 0, '2025-05-28 10:38:42'),
+(23, 2, 'Your incident (ID: 5) has been marked as pending.', 5, 0, '2025-05-28 10:40:41'),
+(24, 2, 'Your incident (ID: 5) has been marked as not fixed.', 5, 0, '2025-05-28 10:40:56'),
+(25, 2, 'Your incident (ID: 5) has been marked as fixed.', 5, 0, '2025-05-28 10:41:03'),
 (26, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 10:41:59'),
 (27, 9, 'Your incident (ID: 4) has been marked as pending.', 4, 1, '2025-05-28 10:42:25'),
 (28, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 10:47:01'),
@@ -425,23 +386,7 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `related_incident_id`, 
 (43, 9, 'Your incident (ID: 4) has been marked as pending.', 4, 1, '2025-05-28 11:41:50'),
 (44, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 11:42:01'),
 (45, 9, 'Your incident (ID: 4) has been marked as not fixed.', 4, 1, '2025-05-28 11:42:08'),
-(46, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 11:42:39'),
-(47, 1, 'New incident reported', 6, 1, '2025-05-30 11:39:00'),
-(48, 6, 'New incident reported', 6, 1, '2025-05-30 11:39:00');
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `staff_performance`
--- (See below for the actual view)
---
-CREATE TABLE `staff_performance` (
-`staff_id` int(11)
-,`name` varchar(100)
-,`fixed_count` bigint(21)
-,`not_fixed_count` bigint(21)
-,`avg_days_to_fix` decimal(10,4)
-);
+(46, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 11:42:39');
 
 -- --------------------------------------------------------
 
@@ -466,40 +411,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `force_password_change`, `branch_id`, `profile_picture`) VALUES
-(1, 'Aamon', 'aamon@example.com', '$2y$10$84ypjMT/qukoTqy853yRi.1ej9fKKFAL4h0UawOGfvPXMUWOKwZdi', 'staff', '2025-05-11 15:25:35', 0, 3, 'male4.jpg'),
-(2, 'Simon', 'simon@example.com', '$2y$10$HCl3ox5so7tHqYp8nmjL2uDBh/0SSzCuH.A46KBonrujkfN4jmS/u', 'user', '2025-05-11 15:30:52', 0, 4, NULL),
-(3, 'Mengistu', 'mengie@example.com', '$2y$10$cRCLC1wuOWWSuAWFNXgqQeNnzF/FpK7T/aueDVJejHyTZdqaUO75O', 'user', '2025-05-11 15:31:25', 0, 3, 'photo_2025-05-24_11-31-46.jpg'),
-(6, 'Mikiyas', 'miki@example.com', '$2y$10$jxn86HXCDfMq9yY3S7utxOvGNT7FjdkTptPjhzPQ0FFKdWvMUYqSq', 'admin', '2025-05-22 09:57:51', 0, 3, 'male2.jpg'),
-(8, 'Eleni', 'eleni@example.com', '$2y$10$O8h0QCvEYuGisBpKc3G23.LMNuSs3o0ShXB/x41OsnnZ/nPv45eg2', 'staff', '2025-05-22 10:40:33', 0, 3, 'female2.jpg'),
-(9, 'Shewit', 'shewit@example.com', '$2y$10$wGS7kLuW8A3QtFdO84tvq.HunnhcYA8fF2NOMyRK9nBA3ADQVhudi', 'user', '2025-05-24 07:51:49', 0, 5, 'female3.jpg'),
-(10, 'Yehulashet', 'yehualashet@example.com', '$2y$10$3sdlqLJUt2TRVdel8drsOeH8CSygXXncxW53ITewYVF.mJSNcb0xW', 'staff', '2025-05-30 10:54:06', 1, 3, NULL);
-
--- --------------------------------------------------------
-
---
--- Structure for view `incident_counts`
---
-DROP TABLE IF EXISTS `incident_counts`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `incident_counts`  AS SELECT `b`.`name` AS `branch_name`, `c`.`name` AS `name`, cast(`i`.`created_at` as date) AS `report_date`, count(0) AS `total_incidents` FROM ((`incidents` `i` left join `branches` `b` on(`i`.`branch_id` = `b`.`id`)) left join `kb_categories` `c` on(`i`.`category_id` = `c`.`id`)) GROUP BY `b`.`name`, `c`.`name`, cast(`i`.`created_at` as date) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `incident_fix_times`
---
-DROP TABLE IF EXISTS `incident_fix_times`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `incident_fix_times`  AS SELECT `i`.`id` AS `incident_id`, `i`.`title` AS `title`, `i`.`created_at` AS `report_date`, `i`.`fixed_date` AS `fixed_date`, to_days(`i`.`fixed_date`) - to_days(`i`.`created_at`) AS `days_to_fix`, `b`.`name` AS `branch_name`, `c`.`name` AS `name`, `u`.`name` AS `assigned_staff` FROM (((`incidents` `i` left join `branches` `b` on(`i`.`branch_id` = `b`.`id`)) left join `kb_categories` `c` on(`i`.`category_id` = `c`.`id`)) left join `users` `u` on(`i`.`assigned_to` = `u`.`id`)) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `staff_performance`
---
-DROP TABLE IF EXISTS `staff_performance`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `staff_performance`  AS SELECT `u`.`id` AS `staff_id`, `u`.`name` AS `name`, count(case when `i`.`status` = 'fixed' then 1 end) AS `fixed_count`, count(case when `i`.`status` <> 'fixed' then 1 end) AS `not_fixed_count`, avg(to_days(`i`.`fixed_date`) - to_days(`i`.`assigned_date`)) AS `avg_days_to_fix` FROM (`users` `u` left join `incidents` `i` on(`i`.`assigned_to` = `u`.`id`)) WHERE `u`.`role` = 'staff' GROUP BY `u`.`id`, `u`.`name` ;
+(1, 'Aamon', 'aamon@example.com', '$2y$10$DdoRIXIYy8tFco9CwCR/Huzgxmu.JPvtTlsLlQsTAW1fGijK12MOW', 'admin', '2025-05-11 15:25:35', 0, 3, 'male4.jpg'),
+(2, 'Simon', 'simon@example.com', '$2y$10$7gG6InICwE0Q.Xsj625IPuzwpl9nMOlXstSecfPDYf3sYWsjly/gC', 'user', '2025-05-11 15:30:52', 0, 4, NULL),
+(3, 'Mengistu', 'menge@example.com', '$2y$10$mjSlDDKZkj62d72JLncOkuixKNK15OOF1oh67cU.1RFJoF7HSSTlm', 'staff', '2025-05-11 15:31:25', 0, 3, 'male3.jpg'),
+(6, 'Mikiyas', 'miki@example.com', '$2y$10$SHztnOI00sFHSeyj5FRuceGfRwugZOSsMQxewnubCH7zuDHyguP1a', 'admin', '2025-05-22 09:57:51', 0, 2, 'male2.jpg'),
+(8, 'Eleni', 'eleni@example.com', '$2y$10$xVGrYy1ck5mAHDdROzrYgOyywD9QDzCFUU24a7WWycgblr0bwAXCO', 'staff', '2025-05-22 10:40:33', 0, 3, 'female2.jpg'),
+(9, 'Shewit', 'shewit@example.com', '$2y$10$NvQd6gsWXjVSsYvZXWNR0.IcGchz36qCrDUGR2ZwtirWXJdIxXyYO', 'user', '2025-05-24 07:51:49', 0, 5, 'female3.jpg');
 
 --
 -- Indexes for dumped tables
@@ -644,7 +561,7 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT for table `incidents`
 --
 ALTER TABLE `incidents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `incident_categories`
@@ -656,7 +573,7 @@ ALTER TABLE `incident_categories`
 -- AUTO_INCREMENT for table `incident_logs`
 --
 ALTER TABLE `incident_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- AUTO_INCREMENT for table `kb_articles`
@@ -680,13 +597,13 @@ ALTER TABLE `kb_feedback`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables

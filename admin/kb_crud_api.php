@@ -56,7 +56,7 @@ if ($action === 'add_article') {
     respond('Article deleted successfully');
 
 } elseif ($action === 'add_category') {
-    $kb_categories = trim($_POST['kb_categories'] ?? '');
+    $kb_categories = trim($_POST['cat_name'] ?? '');
     if ($kb_categories === '') {
         respond('Category name required', false);
     }

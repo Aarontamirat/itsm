@@ -46,110 +46,150 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <meta charset="UTF-8">
   <title>Incident History</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadeIn 0.7s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .tech-border { border: 2px solid #22d3ee; }
+    .glow { box-shadow: 0 0 24px 2px #67e8f9, 0 0 0 2px #a7f3d0; }
+  </style>
 </head>
-<body class="p-6 bg-gray-100">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2xl font-semibold">Incident Log History</h2>
-    <div class="flex gap-2">
+<body class="bg-gray-100 min-h-screen">
+
+<!-- header and sidebar -->
+      <?php include '../includes/sidebar.php'; ?>
+  <div class="flex-1 ml-20">
+    <?php include '../header.php'; ?>
+
+  <div class="max-w-7xl ms-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-20 fade-in tech-border glow mt-8">
+    <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Incident Log History</h2>
+    <p class="text-center text-cyan-500 mb-6 font-mono">View and export incident activity logs</p>
+
+    <!-- Success/Error Messages -->
+    <?php if (isset($_SESSION['success'])): ?>
+      <div id="success-message" class="mb-4 text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+        <?= htmlspecialchars($_SESSION['success']); unset($_SESSION['success']); ?>
+      </div>
+      <script>
+        setTimeout(function() {
+          var el = document.getElementById('success-message');
+          if (el) el.style.opacity = '1';
+        }, 10);
+        setTimeout(function() {
+          var el = document.getElementById('success-message');
+          if (el) el.style.opacity = '0';
+        }, 3010);
+      </script>
+    <?php endif; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+      <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+        <?= htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+      </div>
+      <script>
+        setTimeout(function() {
+          var el = document.getElementById('error-message');
+          if (el) el.style.opacity = '1';
+        }, 10);
+        setTimeout(function() {
+          var el = document.getElementById('error-message');
+          if (el) el.style.opacity = '0';
+        }, 3010);
+      </script>
+    <?php endif; ?>
+
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div></div>
+      <form method="GET" action="export_incident_logs.php" class="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
         <?php
-// Fetch users and incidents for dropdowns
-$userStmt = $pdo->query("SELECT id, name FROM users ORDER BY name ASC");
-$users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
+        // Fetch users and incidents for dropdowns
+        $userStmt = $pdo->query("SELECT id, name FROM users ORDER BY name ASC");
+        $users = $userStmt->fetchAll(PDO::FETCH_ASSOC);
 
-$incidentStmt = $pdo->query("SELECT id, title FROM incidents ORDER BY id DESC");
-$incidents = $incidentStmt->fetchAll(PDO::FETCH_ASSOC);
-?>
-
-<form method="GET" action="export_incident_logs.php" class="mb-6 p-4 border rounded bg-white shadow-md">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-    <!-- Select User -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Filter by User</label>
-      <select name="user_id" class="w-full border-gray-300 rounded mt-1">
-        <option value="">All Users</option>
-        <?php foreach ($users as $user): ?>
-          <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
-        <?php endforeach; ?>
-      </select>
+        $incidentStmt = $pdo->query("SELECT id, title FROM incidents ORDER BY id DESC");
+        $incidents = $incidentStmt->fetchAll(PDO::FETCH_ASSOC);
+        ?>
+        <div>
+          <label class="block text-xs font-mono text-cyan-700">User</label>
+          <select name="user_id" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+            <option value="">All Users</option>
+            <?php foreach ($users as $user): ?>
+              <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-cyan-700">Incident</label>
+          <select name="incident_id" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+            <option value="">All Incidents</option>
+            <?php foreach ($incidents as $incident): ?>
+              <option value="<?= $incident['id'] ?>">#<?= $incident['id'] ?> - <?= htmlspecialchars($incident['title']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-cyan-700">From</label>
+          <input type="date" name="from" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-cyan-700">To</label>
+          <input type="date" name="to" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        </div>
+        <div class="flex gap-2 mt-2 md:mt-6">
+          <button type="submit" name="format" value="csv"
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition">
+            Export CSV
+          </button>
+          <button type="submit" name="format" value="pdf"
+            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition">
+            Export PDF
+          </button>
+        </div>
+      </form>
     </div>
 
-    <!-- Select Incident -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">Filter by Incident</label>
-      <select name="incident_id" class="w-full border-gray-300 rounded mt-1">
-        <option value="">All Incidents</option>
-        <?php foreach ($incidents as $incident): ?>
-          <option value="<?= $incident['id'] ?>">#<?= $incident['id'] ?> - <?= htmlspecialchars($incident['title']) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <!-- From Date -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">From</label>
-      <input type="date" name="from" class="w-full border-gray-300 rounded mt-1">
-    </div>
-
-    <!-- To Date -->
-    <div>
-      <label class="block text-sm font-medium text-gray-700">To</label>
-      <input type="date" name="to" class="w-full border-gray-300 rounded mt-1">
-    </div>
-
-  </div>
-
-  <!-- Export Buttons -->
-  <div class="mt-4 flex gap-3">
-    <button type="submit" name="format" value="csv"
-      class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-      Export CSV
-    </button>
-    <button type="submit" name="format" value="pdf"
-      class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
-      Export PDF
-    </button>
-  </div>
-</form>
-
-    </div>
-  </div>
-
-  <div class="bg-white shadow rounded p-4">
-    <?php if (count($logs) > 0): ?>
-      <div class="overflow-x-auto">
-        <table class="min-w-full border text-sm">
-          <thead class="bg-gray-200">
-            <tr>
-              <th class="p-2 border">Date</th>
-              <th class="p-2 border">User</th>
-              <th class="p-2 border">Action</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div class="overflow-x-auto rounded-xl shadow-inner">
+      <table class="w-full border border-cyan-100 bg-white bg-opacity-90 font-mono text-cyan-900">
+        <thead>
+          <tr class="bg-cyan-50 text-cyan-700 text-left">
+            <th class="p-3 font-bold">Date</th>
+            <th class="p-3 font-bold">User</th>
+            <th class="p-3 font-bold">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php if (count($logs) > 0): ?>
             <?php foreach ($logs as $log): ?>
-              <tr>
-                <td class="p-2 border"><?= htmlspecialchars($log['created_at']) ?></td>
-                <td class="p-2 border"><?= htmlspecialchars($log['name']) ?></td>
-                <td class="p-2 border"><?= htmlspecialchars($log['action']) ?></td>
+              <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
+                <td class="p-3"><?= htmlspecialchars($log['created_at']) ?></td>
+                <td class="p-3"><?= htmlspecialchars($log['name']) ?></td>
+                <td class="p-3"><?= htmlspecialchars($log['action']) ?></td>
               </tr>
             <?php endforeach; ?>
-          </tbody>
-        </table>
-      </div>
+          <?php else: ?>
+            <tr>
+              <td colspan="3" class="p-4 text-center text-cyan-400">No logs found for this incident.</td>
+            </tr>
+          <?php endif; ?>
+        </tbody>
+      </table>
+    </div>
 
-      <!-- Pagination -->
-      <div class="mt-4 flex justify-center space-x-2">
-        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-          <a href="?id=<?= $incident_id ?>&page=<?= $i ?>"
-             class="px-3 py-1 border rounded <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-white' ?>">
-            <?= $i ?>
-          </a>
-        <?php endfor; ?>
-      </div>
-    <?php else: ?>
-      <p class="text-gray-500">No logs found for this incident.</p>
-    <?php endif; ?>
+    <!-- Pagination -->
+    <div class="mt-8">
+      <nav class="flex justify-center">
+        <ul class="flex space-x-2 font-mono">
+          <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+            <li>
+              <a href="?id=<?= $incident_id ?>&page=<?= $i ?>"
+                class="px-4 py-2 <?= $i == $page ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 text-white font-bold' : 'bg-cyan-50 text-cyan-700' ?> rounded-lg shadow transition">
+                <?= $i ?>
+              </a>
+            </li>
+          <?php endfor; ?>
+        </ul>
+      </nav>
+    </div>
   </div>
+</body>
+</html>
 </body>
 </html>

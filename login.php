@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-center text-cyan-500 mb-1 font-mono">Sign in to your IT Support account</p>
             <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
             <?php if (isset($_SESSION['error'])): ?>
-                <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-centefont-mono font-semibold opacity-0 transition-opacity duration-500">
                     <?php 
                         echo htmlspecialchars($_SESSION['error']); 
                         unset($_SESSION['error']);

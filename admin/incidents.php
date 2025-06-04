@@ -98,178 +98,167 @@ $staff = $staffStmt->fetchAll();
 
 <!-- header and sidebar -->
       <?php include '../includes/sidebar.php'; ?>
-  <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-7xl ms-auto bg-white p-6 mt-4 shadow rounded">
+    <div class="max-w-6xl ms-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 fade-in tech-border glow mt-8">
+        <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Incident Management</h2>
+        <p class="text-center text-cyan-500 mb-1 font-mono">Manage and track IT support incidents</p>
 
-        <!-- exports -->
-        <a href="export_csv.php" class="bg-blue-600 text-white px-4 py-2 rounded">Export CSV</a>
-        <a href="export_pdf.php" class="bg-red-600 text-white px-4 py-2 rounded">Export PDF</a>
+        <!-- Success/Error Messages -->
+        <?php if (isset($_GET['success'])): ?>
+            <div id="success-message" class="mb-4 text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <?= htmlspecialchars($_GET['success']) ?>
+            </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
+        <?php endif; ?>
 
-        <div class="flex justify-between items-center">
-            <!-- search form -->
-            <form method="GET" class="my-4">
-                <input type="text" name="search" placeholder="Search incidents..." class="p-2 border rounded" />
-                <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded">Search</button>
-            </form>
-            
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div class="flex gap-2">
+                <a href="export_csv.php" class="inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition">Export CSV</a>
+                <a href="export_pdf.php" class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition">Export PDF</a>
+            </div>
+
             <?php
-            if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
-                // Handle search
-                $search = isset($_GET['search']) ? '%' . htmlspecialchars($_GET['search']) . '%' : '';
+            // Filter by incident ID if provided in GET
+            if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+                $incidentId = (int)$_GET['id'];
                 $stmt = $pdo->prepare(
                     "SELECT 
                         incidents.*,
-                        users.id AS user_id,
-                        users.name AS assigned_to,
                         c.name AS name
                     FROM 
                         incidents
-                    LEFT JOIN 
-                        users ON incidents.assigned_to = users.id
                     LEFT JOIN
                         kb_categories c ON incidents.category_id = c.id
                     WHERE 
-                        title LIKE ? 
+                        incidents.id = ?
                     ORDER BY 
-                        created_at DESC");
-
-                $stmt->execute([$search]);
+                        incidents.created_at DESC"
+                );
+                $stmt->execute([$incidentId]);
                 $incidents = $stmt->fetchAll();
-            } elseif ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
-                $search = isset($_GET['id']) ? '%' . htmlspecialchars($_GET['id']) . '%' : '';
-                $stmt = $pdo->prepare(
-                    "SELECT 
-                        incidents.*,
-                        users.id AS user_id,
-                        users.name AS assigned_to,
-                        c.name AS name
-                    FROM 
-                        incidents
-                    LEFT JOIN 
-                        users ON incidents.assigned_to = users.id
-                    LEFT JOIN
-                        kb_categories c ON incidents.category_id = c.id
-                    WHERE 
-                        incidents.id LIKE ? 
-                    ORDER BY 
-                        incidents.created_at DESC");
-
-                $stmt->execute([$search]);
-                $incidents = $stmt->fetchAll();
+                // Override pagination since only one result is shown
+                $total_pages = 1;
+                $page = 1;
+                $start_from = 0;
             }
             ?>
 
-            <!-- filter by branch -->
-            <form method="GET" class="mb-4">
-                <label for="branch_id" class="mr-2">Filter by Branch:</label>
-                <select name="branch_id" id="branch_id" onchange="this.form.submit()" class="border px-2 py-1 rounded">
+            <form method="GET" class="flex items-center gap-2">
+                <input type="text" name="search" placeholder="Search incidents..." value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono" />
+                <button type="submit" class="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                    Search
+                </button>
+            </form>
+            <form method="GET" class="flex items-center gap-2">
+                <label for="branchFilter" class="font-mono text-cyan-700 font-semibold">Branch:</label>
+                <select name="branch_id" id="branchFilter" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono" onchange="this.form.submit()">
                     <option value="">All Branches</option>
                     <?php foreach ($branches as $branch): ?>
-                    <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($branch['name']) ?>
-                    </option>
+                        <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($branch['name']) ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </form>
         </div>
 
-        <!-- table -->
-        <h2 class="text-2xl font-bold mb-4">Incident Management</h2>
+        <?php
+        // Search logic (move above table to avoid duplicate queries)
+        if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search'])) {
+            $search = '%' . htmlspecialchars($_GET['search']) . '%';
+            $stmt = $pdo->prepare(
+                "SELECT 
+                    incidents.*,
+                    users.id AS user_id,
+                    users.name AS assigned_to,
+                    c.name AS name
+                FROM 
+                    incidents
+                LEFT JOIN 
+                    users ON incidents.assigned_to = users.id
+                LEFT JOIN
+                    kb_categories c ON incidents.category_id = c.id
+                WHERE 
+                    incidents.title LIKE ? 
+                ORDER BY 
+                    incidents.created_at DESC"
+            );
+            $stmt->execute([$search]);
+            $incidents = $stmt->fetchAll();
+        }
+        ?>
 
-                    <!-- form submission message -->
-                             <?php if (isset($_GET['success'])): ?>
-                            <div id="successMsg" class="bg-green-100 text-green-800 px-4 py-2 rounded mb-4 animate-slide-in">
-                                <?= htmlspecialchars($_GET['success']) ?>
-                            </div>
-                            <script>
-                                // Auto-hide after 3 seconds
-                                setTimeout(() => {
-                                document.getElementById('successMsg').style.display = 'none';
-                                }, 3000);
-                            </script>
-                            <?php endif; ?>
-
-
-        <table class="w-full border mt-4">
-            <thead>
-                <tr class="bg-gray-200 text-left">
-                    <th class="p-2">#</th>
-                    <th class="p-2">Title</th>
-                    <th class="p-2">Category</th>
-                    <th class="p-2">Priority</th>
-                    <th class="p-2">Status</th>
-                    <th class="p-2">Assigned To</th>
-                    <th class="p-2">Fixed Date</th>
-                    <th class="p-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($incidents as $index => $incident): ?>
-                <tr class="border-t">
-                    <td class="p-2"><?= $index + 1 ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['title']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['name']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['priority']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['status']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['assigned_to']) ?></td>
-                    <td class="p-2"><?= htmlspecialchars($incident['fixed_date']) ?></td>
-                    <td class="p-2">
-
-                    <!-- Assign Incidents -->
-                        <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" method="POST" class="inline-block">
-                            <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
-                            <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded"><?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?></button>
-                        </form>
-
-                        <!-- Update Status -->
-                        <form action="update_incident_status.php" method="POST" class="inline-block ml-2">
-                            <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
-
-                            <select name="status" class="p-2 border rounded">
-
-                                <option value="pending" <?= $incident['status'] === 'pending' ? 'selected' : '' ?>>
-                                    Pending</option>
-
-                                <option value="assigned" <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>
-                                    Assigned</option>
-
-                                <option value="not fixed" <?= $incident['status'] === 'not fixed' ? 'selected' : '' ?>>
-                                    Not Fixed</option>
-
-                                <option value="fixed" <?= $incident['status'] === 'fixed' ? 'selected' : '' ?>>
-                                    Fixed</option>
-
-                                <option value="rejected" <?= $incident['status'] === 'rejected' ? 'selected' : '' ?>>
-                                    Rejected</option>
-
-                            </select>
-
-                            <button type="submit" class="bg-yellow-600 text-white px-3 py-1 rounded">Update
-                                Status</button>
-                        </form>
-                        <a href="incident_history.php?id=<?= $incident['id'] ?>" 
-   class="text-blue-600 hover:underline text-sm">
-  View History
-</a>
-                    </td>
-                </tr>
-                <?php endforeach ?>
-            </tbody>
-        </table>
+        <div class="overflow-x-auto rounded-xl shadow-inner">
+            <table class="w-full border border-cyan-100 bg-white bg-opacity-90 font-mono text-cyan-900">
+                <thead>
+                    <tr class="bg-cyan-50 text-cyan-700 text-left">
+                        <th class="p-3 font-bold">#</th>
+                        <th class="p-3 font-bold">Title</th>
+                        <th class="p-3 font-bold">Category</th>
+                        <th class="p-3 font-bold">Priority</th>
+                        <th class="p-3 font-bold">Status</th>
+                        <th class="p-3 font-bold">Assigned To</th>
+                        <th class="p-3 font-bold">Fixed Date</th>
+                        <th class="p-3 font-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($incidents as $index => $incident): ?>
+                        <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
+                            <td class="p-3"><?= $start_from + $index + 1 ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['title']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['name']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['priority']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['status']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['assigned_to']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['fixed_date']) ?></td>
+                            <td class="p-3">
+                                <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                                    <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" method="POST" class="inline-block">
+                                        <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
+                                        <button type="submit" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"><?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?></button>
+                                    </form>
+                                    <form action="update_incident_status.php" method="POST" class="inline-block">
+                                        <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
+                                        <div class="flex gap-2">
+                                            <select name="status" class="px-2 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono">
+                                                <option value="pending" <?= $incident['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                                <option value="assigned" <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>Assigned</option>
+                                                <option value="rejected" <?= $incident['status'] === 'rejected' ? 'selected' : '' ?>>Rejected</option>
+                                            </select>
+                                            <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Update</button>
+                                        </div>
+                                    </form>
+                                    <a href="incident_history.php?id=<?= $incident['id'] ?>" class="bg-blue-400 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto text-center">History</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="mt-8">
             <nav class="flex justify-center">
-                <ul class="flex space-x-2">
+                <ul class="flex space-x-2 font-mono">
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                    <li>
-                        <a href="?page=<?= $i ?>"
-                            class="px-4 py-2 <?= $i == $page ? 'bg-blue-600 text-white' : 'bg-gray-200' ?> rounded">
-                            <?= $i ?>
-                        </a>
-                    </li>
+                        <li>
+                            <a href="?page=<?= $i ?><?= $branchFilter ? '&branch_id=' . $branchFilter : '' ?>"
+                                class="px-4 py-2 <?= $i == $page ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 text-white font-bold' : 'bg-cyan-50 text-cyan-700' ?> rounded-lg shadow transition">
+                                <?= $i ?>
+                            </a>
+                        </li>
                     <?php endfor; ?>
                 </ul>
             </nav>

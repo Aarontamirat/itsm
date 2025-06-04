@@ -36,21 +36,21 @@ if ($type === 'add_article' || $type === 'edit_article') {
     $stmt->execute();
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo '<h2 class="text-xl font-semibold mb-4">' . ($type === 'add_article' ? 'Add New Article' : 'Edit Article') . '</h2>';
-    echo '<form id="articleForm" enctype="multipart/form-data">';
+    echo '<h2 class="text-2xl font-bold mb-6 font-mono text-cyan-700">' . ($type === 'add_article' ? 'Add New Article' : 'Edit Article') . '</h2>';
+    echo '<form id="articleForm" enctype="multipart/form-data" class="bg-white rounded-2xl shadow-xl p-6">';
     if ($type === 'edit_article') {
       echo '<input type="hidden" name="id" value="'.esc($id).'">';
     }
     echo '
       <input type="hidden" name="action" value="'.($type === 'add_article' ? 'add_article' : 'edit_article').'">
-      <label class="block mb-2">Title
-        <input type="text" name="title" value="'.esc($title).'" required class="w-full border border-gray-300 rounded p-2">
+      <label class="block mb-5 font-mono font-semibold text-cyan-700">Title
+        <input type="text" name="title" value="'.esc($title).'" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">
       </label>
-      <label class="block mb-2">Content
-        <textarea name="content" rows="8" required class="w-full border border-gray-300 rounded p-2">'.esc($content).'</textarea>
+      <label class="block mb-5 font-mono font-semibold text-cyan-700">Content
+        <textarea name="content" rows="8" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">'.esc($content).'</textarea>
       </label>
-      <label class="block mb-4">Category
-        <select name="category_id" required class="w-full border border-gray-300 rounded p-2">
+      <label class="block mb-7 font-mono font-semibold text-cyan-700">Category
+        <select name="category_id" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">
           <option value="">Select category</option>';
           foreach ($categories as $cat) {
             $sel = ($cat['id'] == $category_id) ? 'selected' : '';
@@ -58,11 +58,16 @@ if ($type === 'add_article' || $type === 'edit_article') {
           }
     echo '</select>
       </label>
-      <div class="flex justify-end gap-3">
-        <button type="button" class="modalCloseBtn bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Save</button>
+      <div class="flex justify-end gap-3 mt-8">
+      <button type="button" class="modalCloseBtn bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        Cancel
+      </button>
+      <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        Save
+      </button>
       </div>
-    </form>';
+    </form>
+    </div>';
     exit;
 }
 
@@ -76,21 +81,25 @@ if ($type === 'add_category' || $type === 'edit_category') {
             echo "<p class='text-red-600'>Category not found.</p>";
             exit;
         }
-        $name = $cat['name'];
+        $name = $cat['cat_name'];
     }
-    echo '<h2 class="text-xl font-semibold mb-4">' . ($type === 'add_category' ? 'Add New Category' : 'Edit Category') . '</h2>';
-    echo '<form id="categoryForm">';
+    echo '<h2 class="text-2xl font-bold mb-6 font-mono text-cyan-700">' . ($type === 'add_category' ? 'Add New Category' : 'Edit Category') . '</h2>';
+    echo '<form id="categoryForm" class="bg-white rounded-2xl shadow-xl p-6">';
     if ($type === 'edit_category') {
       echo '<input type="hidden" name="id" value="'.esc($id).'">';
     }
     echo '
       <input type="hidden" name="action" value="'.($type === 'add_category' ? 'add_category' : 'edit_category').'">
-      <label class="block mb-4">Category Name
-        <input type="text" name="name" value="'.esc($name).'" required class="w-full border border-gray-300 rounded p-2">
+      <label class="block mb-7 font-mono font-semibold text-cyan-700">Category Name
+      <input type="text" name="cat_name" value="'.esc($name).'" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">
       </label>
-      <div class="flex justify-end gap-3">
-        <button type="button" class="modalCloseBtn bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Save</button>
+      <div class="flex justify-end gap-3 mt-8">
+      <button type="button" class="modalCloseBtn bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        Cancel
+      </button>
+      <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        Save
+      </button>
       </div>
     </form>';
     exit;

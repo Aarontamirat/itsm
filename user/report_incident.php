@@ -73,54 +73,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-lg mx-auto bg-white mt-6 p-6 shadow rounded">
-        <h2 class="text-xl font-bold mb-4">Report New Incident</h2>
+    <div class="max-w-3xl mx-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-16 fade-in tech-border glow mt-8">
+        <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Report New Incident</h2>
+        <p class="text-center text-cyan-500 mb-6 font-mono">Submit a new IT support incident</p>
 
         <?php if (!empty($errors)): ?>
-            <div class="bg-red-100 text-red-800 p-3 mb-4 rounded">
-                <ul class="list-disc ml-5">
+            <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <ul class="list-disc list-inside">
                     <?php foreach ($errors as $error): ?>
                         <li><?= htmlspecialchars($error) ?></li>
                     <?php endforeach; ?>
                 </ul>
             </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
         <?php endif; ?>
-        <!-- message -->
         <?php if (isset($message)): ?>
-            <div class="mb-4 text-green-600"><?= $message ?></div>
+            <div id="success-message" class="mb-4 text-green-600 bg-green-50 border border-green-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <?= $message ?>
+            </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('success-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
         <?php endif; ?>
-        <form method="POST" enctype="multipart/form-data" class="space-y-4">
 
-        <!-- incident title -->
+        <form method="POST" enctype="multipart/form-data" class="space-y-6 mt-6 font-mono">
+            <!-- incident title -->
             <div>
-                <label class="block">Title</label>
-                <input type="text" name="title" class="w-full p-2 border rounded" required>
+                <label class="block text-cyan-700 font-semibold mb-1">Title</label>
+                <input type="text" name="title" class="w-full p-3 border border-cyan-200 rounded-lg bg-cyan-50 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition" required>
             </div>
 
-            <!-- incident desciption -->
+            <!-- incident description -->
             <div>
-                <label class="block">Description</label>
-                <textarea name="description" class="w-full p-2 border rounded" rows="4" required></textarea>
+                <label class="block text-cyan-700 font-semibold mb-1">Description</label>
+                <textarea name="description" class="w-full p-3 border border-cyan-200 rounded-lg bg-cyan-50 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition" rows="4" required></textarea>
             </div>
 
             <!-- incident category -->
-             <div>
-                <label for="category" class="block">Incident Category</label>
-                <select name="category_id" id="category" class="block w-full mt-1 p-2 border border-gray-300 rounded-md">
-                <option value="">-- Select Category --</option>
-                <?php
-                $stmt = $pdo->query("SELECT id, name FROM kb_categories ORDER BY name ASC");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
-                }
-                ?>
+            <div>
+                <label for="category" class="block text-cyan-700 font-semibold mb-1">Incident Category</label>
+                <select name="category_id" id="category" class="block w-full mt-1 p-3 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition">
+                    <option value="">-- Select Category --</option>
+                    <?php
+                    $stmt = $pdo->query("SELECT id, name FROM kb_categories ORDER BY name ASC");
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['name']) . '</option>';
+                    }
+                    ?>
                 </select>
-             </div>
+            </div>
 
             <!-- incident priority -->
             <div>
-                <label class="block">Priority</label>
-                <select name="priority" class="w-full p-2 border rounded" required>
+                <label class="block text-cyan-700 font-semibold mb-1">Priority</label>
+                <select name="priority" class="w-full p-3 border border-cyan-200 rounded-lg bg-cyan-50 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition" required>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -129,20 +151,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- incident file upload -->
             <div>
-                <label class="block">Optional File Upload</label>
-                <input type="file" name="file" class="w-full">
+                <label class="block text-cyan-700 font-semibold mb-1">Optional File Upload</label>
+                <input type="file" name="file" class="w-full p-2 border border-cyan-200 rounded-lg bg-cyan-50 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition">
             </div>
 
             <!-- incident branch -->
             <div>
-                <label class="block">Branch</label>
-                <input type="text" disabled name="branch" value="<?= htmlspecialchars($_SESSION['branch_name']) ?>" class="w-full p-2 border rounded" readonly>
+                <label class="block text-cyan-700 font-semibold mb-1">Branch</label>
+                <input type="text" disabled name="branch" value="<?= htmlspecialchars($_SESSION['branch_name']) ?>" class="w-full p-3 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900" readonly>
             </div>
 
             <!-- submit button -->
-            <div>
-                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Submit Incident</button>
-                <a href="user_dashboard.php" class="ml-3 text-gray-600">Cancel</a>
+            <div class="flex flex-col md:flex-row gap-4 justify-center items-center mt-6">
+                <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-8 py-3 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                    Submit Incident
+                </button>
+                <a href="user_dashboard.php" class="text-cyan-600 hover:underline font-semibold font-mono">Cancel</a>
             </div>
         </form>
     </div>

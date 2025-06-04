@@ -65,13 +65,11 @@ $users = $stmt->fetchAll();
 
 <!-- header and sidebar -->
       <?php include '../includes/sidebar.php'; ?>
-  <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
-    <div class="max-w-6xl mx-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-20 fade-in tech-border glow mt-8">
+    <div class="max-w-7xl ms-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 fade-in tech-border glow mt-8">
         <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">User Management</h2>
         <p class="text-center text-cyan-500 mb-1 font-mono">Manage IT Support user accounts</p>
-        <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
 
         <!-- Success/Error Messages -->
         <?php if (isset($_SESSION['success'])): ?>

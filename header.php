@@ -22,15 +22,23 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
 ?>
 
 <style>
-  /* Futuristic animated gradient background */
+  /* Glassmorphism + Futuristic animated gradient background */
   .header-animated-bg {
-    background: linear-gradient(120deg, #0f172a, #1e293b 40%, #06b6d4 70%, #818cf8 100%);
+    background: rgba(30, 41, 59, 0.82);
+    background-image: linear-gradient(120deg, #0f172a 0%, #1e293b 40%, #06b6d4 70%, #818cf8 100%);
+    background-blend-mode: overlay;
     background-size: 200% 200%;
     animation: gradientMove 8s linear infinite;
     border-bottom: 2px solid #06b6d4;
     box-shadow: 0 4px 24px 0 #0ea5e933, 0 1.5px 0 #818cf8;
     position: relative;
     overflow: visible;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    min-height: 54px;
+    height: 58px;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
   }
   @keyframes gradientMove {
     0% {background-position: 0% 50%;}
@@ -87,6 +95,7 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
   .glass {
     background: rgba(30, 41, 59, 0.85);
     backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
     border: 1.5px solid #06b6d4;
     box-shadow: 0 8px 32px 0 #06b6d455;
   }
@@ -98,6 +107,10 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
     border-radius: 0.75rem;
     box-shadow: 0 2px 8px #06b6d433;
     transition: background 0.3s, box-shadow 0.3s;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    min-height: 36px;
+    height: 38px;
   }
   .tech-btn:hover {
     background: linear-gradient(90deg, #818cf8 0%, #06b6d4 100%);
@@ -106,7 +119,7 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
   /* Header title with clean professional font and subtle glow */
   .header-title {
     font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 2rem;
+    font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #f1f5f9;
@@ -115,6 +128,7 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
     align-items: center;
     gap: 0.5rem;
     animation: none;
+    line-height: 1.1;
   }
   /* Custom scrollbar for dropdowns */
   #notifList::-webkit-scrollbar, #profileDropdown::-webkit-scrollbar {
@@ -128,9 +142,9 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
-<header id="header" class="header-animated-bg shadow-md p-4 pl-72 flex justify-between items-center relative overflow-visible">
+<header id="header" class="header-animated-bg shadow-md px-4 pl-72 flex justify-between items-center relative overflow-visible" style="min-height:54px;height:58px;">
   <h1 class="header-title">
-    <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+    <svg width="28" height="28" fill="none" viewBox="0 0 32 32">
       <rect x="2" y="2" width="28" height="28" rx="6" fill="#06b6d4" opacity="0.15"/>
       <path d="M8 16h16M16 8v16" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
@@ -139,7 +153,7 @@ if (isset($user['profile_picture']) && !empty($user['profile_picture'])) {
 
   <!-- Notification Button -->
   <div class="relative inline-block text-left">
-    <button id="notifBtn" class="relative flex items-center gap-2 px-4 py-2 text-sm tech-btn shadow-lg focus:outline-none transition-all duration-300">
+    <button id="notifBtn" class="relative flex items-center gap-2 px-4 py-1 text-sm tech-btn shadow-lg focus:outline-none transition-all duration-300" style="min-height:36px;height:38px;">
       <span id="notifBell" class="text-xl notif-pulse transition-transform duration-300">🔔</span>
       <span class="hidden md:inline">Notifications</span>
       <span id="notifCounter" class="absolute -top-2 -right-2 w-5 h-5 text-xs text-center text-white bg-pink-600 border-2 border-white rounded-full hidden shadow-lg"></span>
@@ -201,7 +215,22 @@ function updateNotificationUI(notifications, userRole) {
     notifCounter.textContent = notifications.length;
     notifCounter.classList.remove('hidden');
     notifications.forEach(n => {
-      notifList.innerHTML += `<a href="${baseUrl}${n.related_incident_id}" class="block px-4 py-2 text-base text-cyan-100 bg-cyan-900/40 hover:bg-cyan-700/60 transition-all duration-200 rounded">${n.message}</a>`;
+      notifList.innerHTML += `
+      <a href="${baseUrl}${n.related_incident_id}" 
+         class="block px-5 py-3 mb-2 last:mb-0 text-base font-medium text-slate-100 glass border-l-4 border-cyan-500 shadow-lg hover:bg-slate-900/80 hover:border-cyan-300 transition-all duration-200 rounded-xl group relative overflow-hidden backdrop-blur-md"
+         style="border-radius: 0.85rem; border-left: 3px solid #38bdf8; box-shadow: 0 2px 10px 0 #38bdf844; position: relative; overflow: hidden; padding-left: 1.2rem; min-height: 44px;"
+        >
+        <span class="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-cyan-400 via-blue-500 to-indigo-600 opacity-70 rounded-l"></span>
+        <span class="block text-cyan-100 text-sm font-mono py-3 pr-3" style="letter-spacing: 0.01em;">
+          <svg class="inline-block mr-1 -mt-0.5" width="14" height="14" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" stroke="#38bdf8" stroke-width="1.3"/><path d="M8 4v4l2 2" stroke="#818cf8" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ${n.message}
+        </span>
+        <span class="absolute left-3 bottom-2 text-xs text-cyan-300 font-mono tracking-tight opacity-70" style="letter-spacing:0.01em;">
+          <svg class="inline-block mr-1 -mt-0.5" width="11" height="11" fill="none" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="2" stroke="#38bdf8" stroke-width="1"/><path d="M6 3v3l1.5 1.5" stroke="#818cf8" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ${n.created_at ? new Date(n.created_at).toLocaleString() : ''}
+        </span>
+      </a>
+      `;
     });
   } else {
     notifCounter.classList.add('hidden');

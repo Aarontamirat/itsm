@@ -36,7 +36,7 @@ foreach ($articles as $row) {
     $html .= '<tr>';
     $html .= '<td>' . $row['id'] . '</td>';
     $html .= '<td>' . htmlspecialchars($row['title']) . '</td>';
-    $html .= '<td>' . htmlspecialchars(substr($row['content'], 0, 100)) . '...</td>';
+    $html .= '<td>' . htmlspecialchars($row['content']) . '</td>';
     $html .= '<td>' . htmlspecialchars($row['name']) . '</td>';
     $html .= '<td>' . $row['created_at'] . '</td>';
     $html .= '</tr>';

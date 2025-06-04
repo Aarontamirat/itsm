@@ -21,10 +21,9 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="flex bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen">
 
   <?php include '../includes/sidebar.php'; ?>
-  <div class="flex-1 ml-20">
     <?php include '../header.php'; ?>
 
   <!-- Main Content -->
@@ -32,7 +31,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     <div class="bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 pt-14 fade-in tech-border glow max-w-4xl w-full">
       <h1 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Admin Dashboard</h1>
       <p class="text-center text-cyan-500 mb-1 font-mono">Overview of system users and incidents</p>
-      <p class="text-center text-green-500 mb-6 font-mono text-xs">Property of Lucy Insurance</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- User Roles Pie Chart -->
         <div class="bg-cyan-50 bg-opacity-80 rounded-xl p-6 shadow-lg border border-cyan-100 flex flex-col items-center">
@@ -47,7 +45,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
       </div>
     </div>
   </main>
-  </div>
   
   <script>
 fetch('dashboard_data.php')

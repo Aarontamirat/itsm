@@ -56,23 +56,23 @@ if ($action === 'add_article') {
     respond('Article deleted successfully');
 
 } elseif ($action === 'add_category') {
-    $name = trim($_POST['name'] ?? '');
-    if ($name === '') {
+    $kb_categories = trim($_POST['cat_name'] ?? '');
+    if ($kb_categories === '') {
         respond('Category name required', false);
     }
     $stmt = $pdo->prepare("INSERT INTO kb_categories (name, created_at) VALUES (?, NOW())");
-    $stmt->execute([$name]);
+    $stmt->execute([$kb_categories]);
 
     respond('Category added successfully');
 
 } elseif ($action === 'edit_category') {
     $id = $_POST['id'] ?? null;
-    $name = trim($_POST['name'] ?? '');
-    if (!$id || !is_numeric($id) || $name === '') {
+    $kb_categories = trim($_POST['kb_categories'] ?? '');
+    if (!$id || !is_numeric($id) || $kb_categories === '') {
         respond('Invalid input', false);
     }
     $stmt = $pdo->prepare("UPDATE kb_categories SET name = ? WHERE id = ?");
-    $stmt->execute([$name, $id]);
+    $stmt->execute([$kb_categories, $id]);
 
     respond('Category updated successfully');
 

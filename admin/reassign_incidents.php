@@ -28,6 +28,11 @@ if (isset($_GET['id'])) {
         
         $status = 'assigned';
         // Update the incident with the new staff ID
+        if ($incident['status'] === 'fixed') {
+            $_SESSION['error'] = "Cannot reassign an incident that is already fixed.";
+            header("Location: reassign_incidents.php?id=" . $incident_id);
+            exit;
+        }
         $update_stmt = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = ?, assigned_date = NOW() WHERE id = ?");
         if ($update_stmt->execute([$status, $staff_id, $incident_id])) {
 

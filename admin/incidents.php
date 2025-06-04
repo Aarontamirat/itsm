@@ -224,10 +224,8 @@ $staff = $staffStmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($incident['fixed_date']) ?></td>
                             <td class="p-3">
                                 <div class="flex flex-col md:flex-row gap-2 md:items-center">
-                                    <form action="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" method="POST" class="inline-block">
-                                        <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
-                                        <button type="submit" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"><?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?></button>
-                                    </form>
+                                    <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
+                   
                                     <form action="update_incident_status.php" method="POST" class="inline-block">
                                         <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
                                         <div class="flex gap-2">

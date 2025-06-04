@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 04, 2025 at 02:43 PM
+-- Generation Time: May 31, 2025 at 03:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,6 +47,72 @@ INSERT INTO `branches` (`id`, `name`, `location`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `faqs`
+--
+
+CREATE TABLE `faqs` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `solution` text NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `linked_incident` int(11) DEFAULT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `faqs`
+--
+
+INSERT INTO `faqs` (`id`, `title`, `solution`, `created_by`, `linked_incident`, `category_id`, `created_at`) VALUES
+(1, 'How to reset your password?', 'Go to the login page and click on \"Forgot Password\".', 1, NULL, 4, '2025-05-29 06:42:38'),
+(2, 'VPN Connection Troubleshooting', 'Ensure your network is stable, restart VPN client.', 2, NULL, 1, '2025-05-29 06:42:38'),
+(3, 'Installing Office 365', 'Download the installer and follow the steps in the documentation.', 2, 5, 2, '2025-05-29 06:42:38'),
+(4, 'Printer Not Responding', 'Check if the printer is powered on, restart it, and verify network connection.', 3, NULL, 3, '2025-05-29 06:42:38'),
+(5, 'How to request software installation?', 'Submit an incident report under the \"Software Installation\" category.', 1, NULL, 2, '2025-05-29 06:42:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `faq_articles`
+--
+
+CREATE TABLE `faq_articles` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `faq_categories`
+--
+
+CREATE TABLE `faq_categories` (
+  `id` int(11) NOT NULL,
+  `category_name` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `faq_categories`
+--
+
+INSERT INTO `faq_categories` (`id`, `category_name`, `created_at`) VALUES
+(1, 'Network Issues', '2025-05-29 06:42:04'),
+(2, 'Software Installation', '2025-05-29 06:42:04'),
+(3, 'Hardware Troubleshooting', '2025-05-29 06:42:04'),
+(4, 'Access & Permissions', '2025-05-29 06:42:04'),
+(5, 'General Inquiries', '2025-05-29 06:42:04');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `files`
 --
 
@@ -63,10 +129,7 @@ CREATE TABLE `files` (
 --
 
 INSERT INTO `files` (`id`, `incident_id`, `filename`, `filepath`, `uploaded_at`) VALUES
-(2, 5, NULL, '../uploads/default_avatar.png', '2025-05-27 14:18:23'),
-(3, 8, NULL, '../uploads/1748929395_4934501_2537405.jpg', '2025-06-03 05:43:15'),
-(4, 10, NULL, '../uploads/1748960036_output-onlinepngtools.png', '2025-06-03 14:13:56'),
-(5, 11, NULL, '../uploads/1749026761_error2.jpg', '2025-06-04 08:46:01');
+(2, 5, NULL, '../uploads/1748355503_icons8-javascript-128.png', '2025-05-27 14:18:23');
 
 -- --------------------------------------------------------
 
@@ -86,25 +149,40 @@ CREATE TABLE `incidents` (
   `branch_id` int(11) DEFAULT NULL,
   `assigned_date` datetime DEFAULT NULL,
   `fixed_date` datetime DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL,
-  `saved_amount` decimal(10,2) DEFAULT NULL
+  `category_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `incidents`
 --
 
-INSERT INTO `incidents` (`id`, `title`, `description`, `status`, `priority`, `assigned_to`, `submitted_by`, `created_at`, `branch_id`, `assigned_date`, `fixed_date`, `category_id`, `saved_amount`) VALUES
-(1, 'Internet Issue', 'Internet is not working.', 'assigned', 'medium', 8, 9, '2025-05-26 08:04:58', 5, '2025-05-26 14:39:57', NULL, NULL, NULL),
-(2, 'Printer error', 'Printer shows the following error code: 0xE0012', 'assigned', 'low', 8, 9, '2025-05-26 08:05:26', 5, '2025-05-27 16:31:43', NULL, NULL, NULL),
-(3, 'Internet access issue', 'Can not connect to the internet due to some issue that I have no idea about.', 'fixed', 'low', 8, 9, '2025-05-26 13:48:02', 5, '2025-05-27 17:09:14', NULL, 4, NULL),
-(4, 'Computer Error', 'Computer is not starting up, it doesn\'t power up at all.', 'pending', 'medium', 8, 9, '2025-05-27 11:03:40', 5, '2025-05-27 16:26:58', NULL, 4, NULL),
-(5, 'Printer Dead', 'JKDfbasid dfh vijadv ijsn vjnv jnv ijdfvn', 'fixed', 'medium', 3, 2, '2025-05-27 14:18:23', 4, '2025-05-28 08:47:09', '2025-06-02 17:16:49', 1, 3200.00),
-(6, 'Lucy Live System Login Issue', 'I tried logging in into lucy live system but I couldn\'t login as the login page froze.', 'assigned', 'low', 3, 9, '2025-05-30 11:39:00', 5, '2025-06-03 13:07:06', NULL, 4, NULL),
-(8, 'Scanner Issue', 'Our scanner has stopped functioning and it has impacted our work performance, we need an immediate solution to keep working.', 'assigned', 'high', 3, 9, '2025-06-03 05:43:15', 5, '2025-06-03 08:44:53', NULL, 5, NULL),
-(9, 'Scanner Issue2', 'Our scanner2 has stopped functioning and it has impacted our work performance, we need an immediate solution to keep working.', 'assigned', 'medium', 3, 2, '2025-06-03 05:51:48', 4, '2025-06-03 08:53:14', NULL, 5, NULL),
-(10, 'VPN Router Issue', 'The VPN router is not starting up, there used to be lights on it but now it doesn\'t as a consequence we don\'t have an internet access as a branch.', 'fixed', 'high', 3, 9, '2025-06-03 14:13:56', 5, '2025-06-04 11:15:21', '2025-06-04 13:58:23', 2, 12000.00),
-(11, 'Display Port Issue', 'The display port cable has stopped functioning in our branch we require a replacement.', 'assigned', 'medium', 10, 2, '2025-06-04 08:46:01', 4, '2025-06-04 12:24:16', '2025-06-04 11:54:57', 7, 0.00);
+INSERT INTO `incidents` (`id`, `title`, `description`, `status`, `priority`, `assigned_to`, `submitted_by`, `created_at`, `branch_id`, `assigned_date`, `fixed_date`, `category_id`) VALUES
+(1, 'Internet Issue', 'Internet is not working.', 'assigned', 'medium', 8, 9, '2025-05-26 08:04:58', 5, '2025-05-26 14:39:57', NULL, NULL),
+(2, 'Printer error', 'Printer shows the following error code: 0xE0012', 'assigned', 'low', 8, 9, '2025-05-26 08:05:26', 5, '2025-05-27 16:31:43', NULL, NULL),
+(3, 'Internet access issue', 'Can not connect to the internet due to some issue that I have no idea about.', 'fixed', 'low', 8, 9, '2025-05-26 13:48:02', 5, '2025-05-27 17:09:14', NULL, NULL),
+(4, 'Computer Error', 'Computer is not starting up, it doesn\'t power up at all.', 'fixed', 'medium', 8, 9, '2025-05-27 11:03:40', 5, '2025-05-27 16:26:58', '2025-05-28 14:42:39', 4),
+(5, 'Printer Dead', 'JKDfbasid dfh vijadv ijsn vjnv jnv ijdfvn', 'pending', 'medium', 3, 2, '2025-05-27 14:18:23', 4, '2025-05-28 08:47:09', '2025-05-28 13:41:03', 1),
+(6, 'Lucy Live System Login Issue', 'I tried logging in into lucy live system but I couldn\'t login as the login page froze.', 'pending', 'low', NULL, 9, '2025-05-30 11:39:00', 5, NULL, NULL, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `incident_categories`
+--
+
+CREATE TABLE `incident_categories` (
+  `id` int(11) NOT NULL,
+  `category_name` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `incident_categories`
+--
+
+INSERT INTO `incident_categories` (`id`, `category_name`, `created_at`) VALUES
+(1, 'Hardware', '2025-05-27 10:38:31'),
+(4, 'Computer', '2025-05-27 10:43:23');
 
 -- --------------------------------------------------------
 
@@ -215,50 +293,7 @@ INSERT INTO `incident_logs` (`id`, `incident_id`, `user_id`, `action`, `created_
 (58, NULL, 1, 'Reset password for user ID 9', '2025-05-30 10:54:52'),
 (59, NULL, 1, 'Reset password for user ID 1', '2025-05-30 10:54:57'),
 (60, NULL, 1, 'Reset password for user ID 1', '2025-05-30 11:09:29'),
-(61, 6, 9, 'Incident reported by User ID: 9', '2025-05-30 11:39:00'),
-(62, 4, 8, 'Status changed to pending', '2025-06-02 13:48:53'),
-(63, 4, 8, 'Status changed to pending', '2025-06-02 13:51:49'),
-(64, 4, 8, 'Status changed to fixed', '2025-06-02 13:53:16'),
-(65, 4, 8, 'Status changed to pending', '2025-06-02 13:57:07'),
-(66, 4, 8, 'Status changed to fixed', '2025-06-02 13:57:17'),
-(67, 4, 8, 'Status changed to not fixed', '2025-06-02 13:57:26'),
-(68, NULL, 6, 'Reset password for user ID 3', '2025-06-02 14:04:10'),
-(69, NULL, 1, 'Reset password for user ID 3', '2025-06-02 14:05:05'),
-(70, NULL, 1, 'Reset password for user ID 1', '2025-06-02 14:09:01'),
-(71, NULL, 1, 'Reset password for user ID 3', '2025-06-02 14:09:43'),
-(72, NULL, 1, 'Reset password for user ID 9', '2025-06-02 14:09:50'),
-(73, 5, 3, 'Status changed to not fixed', '2025-06-02 14:12:52'),
-(74, 5, 3, 'Status changed to fixed', '2025-06-02 14:14:01'),
-(75, 5, 3, 'Status changed to fixed', '2025-06-02 14:16:49'),
-(76, 8, 9, 'Incident reported by User ID: 9', '2025-06-03 05:43:15'),
-(77, 8, 1, 'Assigned to IT Staff (User ID: 3)', '2025-06-03 05:44:53'),
-(78, 9, 2, 'Incident reported by User ID: 2', '2025-06-03 05:51:48'),
-(79, 9, 6, 'Assigned to IT Staff (User ID: 8)', '2025-06-03 05:52:13'),
-(80, 9, 1, 'Assigned to IT Staff (Mengistu)', '2025-06-03 05:53:14'),
-(81, 6, 1, 'Status updated to \'assigned\'', '2025-06-03 09:13:56'),
-(82, 6, 1, 'Status updated to \'pending\'', '2025-06-03 09:14:00'),
-(83, 6, 1, 'Assigned to IT Staff (User ID: Mengistu)', '2025-06-03 10:07:06'),
-(84, 4, 8, 'Status changed to fixed', '2025-06-03 12:30:39'),
-(85, 4, 8, 'Status changed to pending', '2025-06-03 12:30:51'),
-(86, 4, 8, 'Category changed to Access & Permissions', '2025-06-03 13:21:46'),
-(87, 4, 8, 'Category changed to Computer', '2025-06-03 13:22:23'),
-(88, 4, 8, 'Category changed to Access & Permissions', '2025-06-03 13:37:30'),
-(89, 4, 8, 'Category changed to Computer', '2025-06-03 13:37:52'),
-(90, 10, 9, 'Incident reported by User ID: 9', '2025-06-03 14:13:56'),
-(91, 10, 1, 'Assigned to IT Staff (User ID: Yehulashet)', '2025-06-04 08:08:49'),
-(92, NULL, 1, 'Reset password for user ID 10', '2025-06-04 08:09:48'),
-(93, 10, 10, 'Status changed to fixed', '2025-06-04 08:12:06'),
-(94, 10, 1, 'Assigned to IT Staff (Mengistu)', '2025-06-04 08:15:21'),
-(95, 10, 3, 'Status changed to pending', '2025-06-04 08:25:52'),
-(96, 10, 3, 'Status changed to fixed', '2025-06-04 08:26:17'),
-(97, 10, 3, 'Status changed to pending', '2025-06-04 08:28:34'),
-(98, 11, 2, 'Incident reported by User ID: 2', '2025-06-04 08:46:01'),
-(99, 11, 1, 'Assigned to IT Staff (User ID: Yehulashet)', '2025-06-04 08:46:22'),
-(100, 11, 10, 'Status changed to fixed', '2025-06-04 08:54:57'),
-(101, 11, 1, 'Assigned to IT Staff (Mengistu)', '2025-06-04 09:13:13'),
-(102, 11, 1, 'Assigned to IT Staff (Mengistu)', '2025-06-04 09:24:00'),
-(103, 11, 1, 'Assigned to IT Staff (Yehulashet)', '2025-06-04 09:24:16'),
-(104, 10, 3, 'Status changed to fixed', '2025-06-04 10:58:23');
+(61, 6, 9, 'Incident reported by User ID: 9', '2025-05-30 11:39:00');
 
 -- --------------------------------------------------------
 
@@ -281,8 +316,7 @@ CREATE TABLE `kb_articles` (
 --
 
 INSERT INTO `kb_articles` (`id`, `title`, `content`, `created_by`, `category_id`, `created_at`, `updated_at`) VALUES
-(1, 'How to reset your password?', 'Go to the login page and click on \"Forgot Password\".', NULL, 1, '2025-05-29 07:36:11', '2025-05-29 07:36:11'),
-(2, 'Internet Connection', 'If you have an internet connection issue follow the following steps to check then reach us only if it doesn\'t work.\r\n1. Check the cable is correctly plugged in the right port, both on the computer and the router/switch.\r\n2. check the network status on the network icon of the computer in the taskbar, usually found at the right bottom of the screen.\r\n3. unplug the network cable and plug it in again.\r\n4. restart your computer.\r\n5. reach us.', NULL, 2, '2025-06-03 11:02:16', '2025-06-03 11:02:16');
+(1, 'How to reset your password?', 'Go to the login page and click on \"Forgot Password\".', NULL, 1, '2025-05-29 07:36:11', '2025-05-29 07:36:11');
 
 -- --------------------------------------------------------
 
@@ -302,12 +336,7 @@ CREATE TABLE `kb_categories` (
 
 INSERT INTO `kb_categories` (`id`, `name`, `created_at`) VALUES
 (1, 'Access & Permissions', '2025-05-29 07:35:17'),
-(2, 'Network Issues', '2025-05-29 07:35:42'),
-(3, 'Printer', '2025-06-03 05:34:38'),
-(4, 'Computer', '2025-06-03 05:34:55'),
-(5, 'Scanner', '2025-06-03 05:35:04'),
-(6, 'Login & Authentication', '2025-06-03 11:48:08'),
-(7, 'Hardware', '2025-06-04 08:45:35');
+(2, 'Network Issues', '2025-05-29 07:35:42');
 
 -- --------------------------------------------------------
 
@@ -329,10 +358,7 @@ CREATE TABLE `kb_feedback` (
 --
 
 INSERT INTO `kb_feedback` (`id`, `article_id`, `user_id`, `feedback_type`, `comment`, `created_at`) VALUES
-(1, 1, 1, 'helpful', NULL, '2025-05-29 07:39:23'),
-(2, 2, 1, 'helpful', NULL, '2025-06-03 11:02:56'),
-(3, 2, 9, 'helpful', NULL, '2025-06-04 06:39:04'),
-(4, 1, 9, 'helpful', NULL, '2025-06-04 06:52:58');
+(1, 1, 1, 'helpful', NULL, '2025-05-29 07:39:23');
 
 -- --------------------------------------------------------
 
@@ -401,34 +427,7 @@ INSERT INTO `notifications` (`id`, `user_id`, `message`, `related_incident_id`, 
 (45, 9, 'Your incident (ID: 4) has been marked as not fixed.', 4, 1, '2025-05-28 11:42:08'),
 (46, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-05-28 11:42:39'),
 (47, 1, 'New incident reported', 6, 1, '2025-05-30 11:39:00'),
-(48, 6, 'New incident reported', 6, 1, '2025-05-30 11:39:00'),
-(49, 9, 'Your incident (ID: 4) has been marked as pending.', 4, 1, '2025-06-02 13:48:53'),
-(50, 9, 'Your incident (ID: 4) has been marked as pending.', 4, 1, '2025-06-02 13:51:49'),
-(51, 9, 'Your incident (ID: 4) has been marked as fixed.', 4, 1, '2025-06-02 13:53:16'),
-(52, 1, 'New incident reported', 8, 1, '2025-06-03 05:43:15'),
-(53, 6, 'New incident reported', 8, 1, '2025-06-03 05:43:15'),
-(54, 3, 'You have been assigned to an incident', 8, 1, '2025-06-03 05:44:53'),
-(55, 1, 'New incident reported', 9, 1, '2025-06-03 05:51:48'),
-(56, 6, 'New incident reported', 9, 1, '2025-06-03 05:51:48'),
-(57, 8, 'You have been assigned to an incident', 9, 1, '2025-06-03 05:52:13'),
-(58, 3, 'You have been assigned to an incident', 9, 1, '2025-06-03 05:53:14'),
-(59, 9, 'Your incident (ID: 6) has been marked as assigned.', 6, 1, '2025-06-03 09:13:56'),
-(60, 9, 'Your incident (ID: 6) has been marked as pending.', 6, 1, '2025-06-03 09:14:00'),
-(61, 3, 'You have been assigned to an incident', 6, 1, '2025-06-03 10:07:06'),
-(62, 1, 'New incident reported', 10, 1, '2025-06-03 14:13:56'),
-(63, 6, 'New incident reported', 10, 0, '2025-06-03 14:13:56'),
-(64, 10, 'You have been assigned to an incident', 10, 1, '2025-06-04 08:08:49'),
-(65, 3, 'You have been assigned to an incident', 10, 1, '2025-06-04 08:15:21'),
-(66, 9, 'Your incident (ID: 10) has been marked as fixed.', 10, 1, '2025-06-04 08:26:17'),
-(67, 9, 'Your incident (ID: 10) has been marked as pending.', 10, 1, '2025-06-04 08:28:34'),
-(68, 1, 'New incident reported', 11, 1, '2025-06-04 08:46:01'),
-(69, 6, 'New incident reported', 11, 1, '2025-06-04 08:46:01'),
-(70, 10, 'You have been assigned to an incident', 11, 1, '2025-06-04 08:46:22'),
-(71, 2, 'Your incident (ID: 11) has been marked as fixed.', 11, 1, '2025-06-04 08:54:57'),
-(72, 3, 'You have been assigned to an incident', 11, 1, '2025-06-04 09:13:13'),
-(73, 3, 'You have been assigned to an incident', 11, 1, '2025-06-04 09:24:00'),
-(74, 10, 'You have been assigned to an incident', 11, 0, '2025-06-04 09:24:16'),
-(75, 9, 'Your incident (ID: 10) has been marked as fixed.', 10, 0, '2025-06-04 10:58:23');
+(48, 6, 'New incident reported', 6, 1, '2025-05-30 11:39:00');
 
 -- --------------------------------------------------------
 
@@ -467,13 +466,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `created_at`, `force_password_change`, `branch_id`, `profile_picture`) VALUES
-(1, 'Aamon', 'aamon@example.com', '$2y$10$G4l9Z9712AdCNf8Wj.dOQOh7Sv.iKKu05xLBlbIJVcLhjTCESuaKu', 'admin', '2025-05-11 15:25:35', 0, 3, 'ab09a454aae866a7086e12669fd74e75.jpg'),
+(1, 'Aamon', 'aamon@example.com', '$2y$10$84ypjMT/qukoTqy853yRi.1ej9fKKFAL4h0UawOGfvPXMUWOKwZdi', 'staff', '2025-05-11 15:25:35', 0, 3, 'male4.jpg'),
 (2, 'Simon', 'simon@example.com', '$2y$10$HCl3ox5so7tHqYp8nmjL2uDBh/0SSzCuH.A46KBonrujkfN4jmS/u', 'user', '2025-05-11 15:30:52', 0, 4, NULL),
-(3, 'Mengistu', 'mengie@example.com', '$2y$10$UKy87nkuJFLX19xi4H/UrO9R8TSZyr83Zyewlm2j1Y.n2UvgN0WtG', 'staff', '2025-05-11 15:31:25', 0, 3, 'photo_2025-05-24_11-31-46.jpg'),
+(3, 'Mengistu', 'mengie@example.com', '$2y$10$cRCLC1wuOWWSuAWFNXgqQeNnzF/FpK7T/aueDVJejHyTZdqaUO75O', 'user', '2025-05-11 15:31:25', 0, 3, 'photo_2025-05-24_11-31-46.jpg'),
 (6, 'Mikiyas', 'miki@example.com', '$2y$10$jxn86HXCDfMq9yY3S7utxOvGNT7FjdkTptPjhzPQ0FFKdWvMUYqSq', 'admin', '2025-05-22 09:57:51', 0, 3, 'male2.jpg'),
-(8, 'Eleni', 'eleni@example.com', '$2y$10$y3qgtvdTyo4jk1ZElQkUXOKOTZL5eCVndbwJsOq2nPWWfsJqe.jGy', 'staff', '2025-05-22 10:40:33', 0, 3, 'female2.jpg'),
-(9, 'Shewit', 'shewit@example.com', '$2y$10$0kZthQODoqE.QXzzto/4Tu8Oqt9tAJkQ3kdl2tY63Vhi3BzpswWX6', 'user', '2025-05-24 07:51:49', 0, 5, 'female3.jpg'),
-(10, 'Yehulashet', 'yehualashet@example.com', '$2y$10$kh2DnBWiUCqDSFOWgUdUeOZVsfzcHUGLzyiWi4nNKY.F97ef5z5qW', 'staff', '2025-05-30 10:54:06', 0, 3, NULL);
+(8, 'Eleni', 'eleni@example.com', '$2y$10$O8h0QCvEYuGisBpKc3G23.LMNuSs3o0ShXB/x41OsnnZ/nPv45eg2', 'staff', '2025-05-22 10:40:33', 0, 3, 'female2.jpg'),
+(9, 'Shewit', 'shewit@example.com', '$2y$10$wGS7kLuW8A3QtFdO84tvq.HunnhcYA8fF2NOMyRK9nBA3ADQVhudi', 'user', '2025-05-24 07:51:49', 0, 5, 'female3.jpg'),
+(10, 'Yehulashet', 'yehualashet@example.com', '$2y$10$3sdlqLJUt2TRVdel8drsOeH8CSygXXncxW53ITewYVF.mJSNcb0xW', 'staff', '2025-05-30 10:54:06', 1, 3, NULL);
 
 -- --------------------------------------------------------
 
@@ -513,6 +512,30 @@ ALTER TABLE `branches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `faqs`
+--
+ALTER TABLE `faqs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `linked_incident` (`linked_incident`),
+  ADD KEY `category_id` (`category_id`);
+
+--
+-- Indexes for table `faq_articles`
+--
+ALTER TABLE `faq_articles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `faq_categories`
+--
+ALTER TABLE `faq_categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `category_name` (`category_name`);
+
+--
 -- Indexes for table `files`
 --
 ALTER TABLE `files`
@@ -527,7 +550,14 @@ ALTER TABLE `incidents`
   ADD KEY `assigned_to` (`assigned_to`),
   ADD KEY `submitted_by` (`submitted_by`),
   ADD KEY `fk_incidents_branch` (`branch_id`),
-  ADD KEY `incidents_ibfk_3` (`category_id`);
+  ADD KEY `category_id` (`category_id`);
+
+--
+-- Indexes for table `incident_categories`
+--
+ALTER TABLE `incident_categories`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `category_name` (`category_name`);
 
 --
 -- Indexes for table `incident_logs`
@@ -587,46 +617,70 @@ ALTER TABLE `branches`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `faqs`
+--
+ALTER TABLE `faqs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `faq_articles`
+--
+ALTER TABLE `faq_articles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `faq_categories`
+--
+ALTER TABLE `faq_categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `incidents`
 --
 ALTER TABLE `incidents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `incident_categories`
+--
+ALTER TABLE `incident_categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `incident_logs`
 --
 ALTER TABLE `incident_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=105;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `kb_articles`
 --
 ALTER TABLE `kb_articles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `kb_categories`
 --
 ALTER TABLE `kb_categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `kb_feedback`
 --
 ALTER TABLE `kb_feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -637,6 +691,21 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `faqs`
+--
+ALTER TABLE `faqs`
+  ADD CONSTRAINT `faqs_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `faqs_ibfk_2` FOREIGN KEY (`linked_incident`) REFERENCES `incidents` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `faqs_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `faq_categories` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `faq_articles`
+--
+ALTER TABLE `faq_articles`
+  ADD CONSTRAINT `faq_articles_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `faq_categories` (`id`),
+  ADD CONSTRAINT `faq_articles_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `files`
@@ -651,7 +720,7 @@ ALTER TABLE `incidents`
   ADD CONSTRAINT `fk_incidents_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `incidents_ibfk_1` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`),
   ADD CONSTRAINT `incidents_ibfk_2` FOREIGN KEY (`submitted_by`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `incidents_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `kb_categories` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `incidents_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `incident_categories` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `incident_logs`

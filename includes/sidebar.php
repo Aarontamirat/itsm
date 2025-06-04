@@ -22,7 +22,7 @@ if (isset($_SESSION['last_activity'])) {
 }
 ?>
 <!-- sidebar.php -->
-<aside id="sidebar" class="bg-white dark:bg-gray-900 bg-opacity-95 dark:bg-opacity-95 rounded-r-2xl shadow-2xl min-h-full fixed top-0 transition-all duration-500 ease-in-out w-64 overflow-hidden z-10 flex flex-col tech-border glow border-r-2 border-t-2 border-b-2 border-cyan-200 dark:border-cyan-800">
+<aside id="sidebar" class="bg-white dark:bg-gray-900 bg-opacity-95 dark:bg-opacity-75 rounded-r-2xl shadow-2xl min-h-full fixed top-0 transition-all duration-500 ease-in-out w-64 overflow-hidden z-10 flex flex-col tech-border glow border-r-2 border-t-2 border-b-2 border-cyan-200 dark:border-cyan-800">
   <div class="flex items-center justify-between p-4 border-b border-cyan-100 dark:border-cyan-800">
     <h2 class="text-2xl font-extrabold text-cyan-700 dark:text-cyan-300 tracking-wide transition-all duration-500 font-mono" id="sidebar-title">IT Support</h2>
     <div class="flex items-center gap-2">

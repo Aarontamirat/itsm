@@ -94,11 +94,11 @@ if (isset($_SESSION['last_activity'])) {
     </a>
     <a href="../user/report_incident.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
-      <span class="nav-text transition-all duration-300">Report Incident</span>
+      <span class="nav-text transition-all duration-300">Request Support</span>
     </a>
     <a href="../user/my_incident_history.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
-      <span class="nav-text transition-all duration-300">My Incidents</span>
+      <span class="nav-text transition-all duration-300">Incidents History</span>
     </a>
     <a href="../user/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>

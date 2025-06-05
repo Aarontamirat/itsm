@@ -197,8 +197,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="text-sm text-cyan-500">Category: ${article.name}</div>
         <div class="text-xs text-cyan-400 mt-1">Created at: ${new Date(article.created_at).toLocaleString()}</div>
         <div class="mt-3 flex gap-2">
-        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200 font-mono">Helpful</button>
-        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 font-mono">Not Helpful</button>
+        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200 font-mono">Good</button>
+        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 font-mono">Bad</button>
         </div>
       `;
 
@@ -211,7 +211,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.querySelectorAll('.feedbackBtn').forEach(btn => {
       btn.addEventListener('click', async e => {
         const articleId = e.target.dataset.articleId;
-        const feedbackType = e.target.textContent.toLowerCase().includes('helpful') ? 'helpful' : 'not_helpful';
+        const feedbackType = e.target.textContent.toLowerCase().includes('good') ? 'good' : 'bad';
         try {
         await axios.post('kb_feedback_api.php', { article_id: articleId, feedback_type: feedbackType });
         alert('Thank you for your feedback!');

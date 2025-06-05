@@ -8,11 +8,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $updated_by = $_SESSION['user_id'] ?? null; // the admin performing the action
 
   if (!$incident_id || !$new_status || !$updated_by) {
-    echo json_encode(['success' => false, 'message' => 'Missing data']);
+    echo json_encode(['error' => true, 'message' => 'Missing data']);
     exit;
   }
 
   // Update incident status
+
+// if the status is assigned and the status in the database is assigned, let it be updated, if not show an error to assign the incident to an IT staff
+  $stmt = $pdo->prepare("SELECT status FROM incidents WHERE id = ?");
+  $stmt->execute([$incident_id]);
+  $currentIncident = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($currentIncident && $new_status === 'assigned' && $currentIncident['status'] !== 'assigned') {
+    echo json_encode(['error' => true, 'message' => 'Database update failed']);
+    header("Location: incidents.php?error=Assign an IT staff before selecting this option");
+    exit;
+  }   
+  
   $stmt = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
   $stmt->bindParam(1, $new_status, PDO::PARAM_STR);
   $stmt->bindParam(2, $incident_id, PDO::PARAM_INT);
@@ -44,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: incidents.php?success=Status updated successfully");
     exit;
   } else {
-    echo json_encode(['success' => false, 'message' => 'Database update failed']);
-    header("Location: incidents.php?success=Status Database update failed");
+    echo json_encode(['error' => true, 'message' => 'Database update failed']);
+    header("Location: incidents.php?error=Status Database update failed");
     exit;
   }
 } else {
-  echo json_encode(['success' => false, 'message' => 'Invalid request']);
-  header("Location: incidents.php?success=Status Invalid Request");
+  echo json_encode(['error' => true, 'message' => 'Invalid request']);
+  header("Location: incidents.php?error=Status Invalid Request");
     exit;
 }
 

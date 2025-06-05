@@ -119,7 +119,21 @@ $staff = $staffStmt->fetchAll();
                     if (el) el.style.opacity = '0';
                 }, 3010);
             </script>
-        <?php endif; ?>
+            <?php elseif (isset($_GET['error'])): ?>
+            <div id="error-message" class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-center font-mono font-semibold opacity-0 transition-opacity duration-500">
+                <?= htmlspecialchars($_GET['error']) ?>
+            </div>
+            <script>
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '1';
+                }, 10);
+                setTimeout(function() {
+                    var el = document.getElementById('error-message');
+                    if (el) el.style.opacity = '0';
+                }, 3010);
+            </script>
+            <?php endif; ?>
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
             <div class="flex gap-2">
@@ -219,23 +233,52 @@ $staff = $staffStmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($incident['title']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['name']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['priority']) ?></td>
-                            <td class="p-3"><?= htmlspecialchars($incident['status']) ?></td>
+                            <td class="p-3">
+                                <?php 
+                                // UI green for fixed, red for pending and dull gray for rejected.
+                                if ($incident['status'] === 'fixed') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 font-semibold">Fixed</span>';
+                                } elseif ($incident['status'] === 'pending') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold animate-pulse">Pending</span>';
+                                } elseif ($incident['status'] === 'not fixed') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-orange-500 text-white font-semibold">Unfixed</span>';
+                                } elseif ($incident['status'] === 'rejected') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
+                                } elseif ($incident['status'] === 'rejected') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
+                                } else {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 font-semibold">' . htmlspecialchars($incident['status']) . '</span>';
+                                } 
+                                ?>
+                            </td>
                             <td class="p-3"><?= htmlspecialchars($incident['assigned_to']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['fixed_date']) ?></td>
                             <td class="p-3">
                                 <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                                    <?php
+                                        if ($incident['status'] !== 'fixed') {
+                                            ?>
                                     <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
+                                    <?php
+                                    } else{
+                                        
+                                    }
+                                    ?>
                    
                                     <form action="update_incident_status.php" method="POST" class="inline-block">
                                         <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
-                                        <div class="flex gap-2">
-                                            <select name="status" class="px-2 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono">
-                                                <option value="pending" <?= $incident['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                                <option value="assigned" <?= $incident['status'] === 'assigned' ? 'selected' : '' ?>>Assigned</option>
-                                                <option value="rejected" <?= $incident['status'] === 'rejected' ? 'selected' : '' ?>>Rejected</option>
-                                            </select>
-                                            <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Update</button>
-                                        </div>
+                                        <?php
+                                        if ($incident['status'] !== 'fixed') {
+                                            echo '<div class="flex gap-2">
+                                                <select name="status" class="px-2 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono">
+                                                    <option value="pending" <?= $incident["status"] === "pending" ? "selected" : "" ?>Pending</option>
+                                                    <option value="assigned" <?= $incident["status"] === "assigned" ? "selected" : "" ?>Assigned</option>
+                                                    <option value="rejected" <?= $incident["status"] === "rejected" ? "selected" : "" ?>Rejected</option>
+                                                </select>
+                                                <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Update</button>
+                                            </div>';
+                                        }
+                                        ?>
                                     </form>
                                     <a href="incident_history.php?id=<?= $incident['id'] ?>" class="bg-blue-400 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto text-center">History</a>
                                 </div>

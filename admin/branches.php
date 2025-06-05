@@ -14,7 +14,7 @@ $error = $_SESSION['error'] ?? '';
 unset($_SESSION['success'], $_SESSION['error']);
 
 // Fetch paginated branches
-$limit = 5;
+$limit = 10;
 $page = $_GET['page'] ?? 1;
 $offset = ($page - 1) * $limit;
 
@@ -91,6 +91,141 @@ $totalPages = ceil($total / $limit);
         </button>
       </div>
     </form>
+
+    <!-- Export to PDF Button -->
+    <div class="mb-6 flex justify-end">
+      <button id="export-pdf-btn"
+      class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500 to-green-400 hover:from-green-400 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg transition duration-300 font-mono tracking-widest">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Export to PDF
+      </button>
+    </div>
+    <?php
+    // Fetch all branches for PDF export
+    $allBranchesStmt = $pdo->query("SELECT * FROM branches ORDER BY created_at DESC");
+    $allBranches = $allBranchesStmt->fetchAll(PDO::FETCH_ASSOC);
+    ?>
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+      document.getElementById('export-pdf-btn').addEventListener('click', function () {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      // Table headers
+      const headers = ['#', 'Name', 'Location', 'Created At', 'Actions'];
+      const rows = [];
+      rows.push(headers);
+
+      // All branches data from PHP
+      <?php foreach ($allBranches as $branch): ?>
+        rows.push([
+        "<?= htmlspecialchars($branch['id']) ?>",
+        "<?= htmlspecialchars($branch['name']) ?>",
+        "<?= htmlspecialchars($branch['location']) ?>",
+        "<?= htmlspecialchars($branch['created_at']) ?>",
+        ""
+        ]);
+      <?php endforeach; ?>
+
+      // Set title
+      doc.setFont('courier', 'normal');
+      doc.setFontSize(18);
+      const pageWidth = doc.internal.pageSize.getWidth();
+      doc.text('Branch List', pageWidth / 2, 40, { align: 'center' });
+
+      // Table drawing with pagination and text wrapping
+      let startY = 60;
+      const rowHeight = 24;
+      const colWidths = [40, 120, 120, 120, 120];
+      const marginBottom = 40;
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const maxRowsPerPage = Math.floor((pageHeight - startY - marginBottom) / rowHeight);
+
+      // Helper to wrap text in a cell
+      function wrapText(text, maxWidth, fontSize) {
+        doc.setFontSize(fontSize);
+        return doc.splitTextToSize(text, maxWidth - 8); // 8pt padding
+      }
+
+      let rowIndex = 0;
+      while (rowIndex < rows.length) {
+        let x = 20;
+        let y = startY;
+        let rowsOnPage = 0;
+        // Draw rows for this page
+        while (rowsOnPage < maxRowsPerPage && rowIndex < rows.length) {
+        x = 20;
+        let maxCellHeight = rowHeight;
+        // Calculate wrapped lines for each cell
+        const wrappedCells = rows[rowIndex].map((cell, colIndex) => {
+          const fontSize = rowIndex === 0 ? 12 : 10;
+          const lines = wrapText(cell, colWidths[colIndex], fontSize);
+          if (lines.length * rowHeight > maxCellHeight) {
+          maxCellHeight = lines.length * rowHeight;
+          }
+          return lines;
+        });
+
+        // Draw each cell
+        wrappedCells.forEach((lines, colIndex) => {
+          doc.setFontSize(rowIndex === 0 ? 12 : 10);
+          doc.setFont(undefined, rowIndex === 0 ? 'bold' : 'normal');
+          let cellY = y;
+          lines.forEach(line => {
+          doc.text(line, x, cellY);
+          cellY += rowHeight;
+          });
+          // Draw cell border
+          doc.setDrawColor(200, 230, 255);
+          doc.rect(x - 2, y - rowHeight + 6, colWidths[colIndex], maxCellHeight, 'S');
+          x += colWidths[colIndex] || 100;
+        });
+
+        y += maxCellHeight;
+        rowsOnPage++;
+        rowIndex++;
+        }
+        // If more rows, add new page and re-draw title and headers
+        if (rowIndex < rows.length) {
+        doc.addPage();
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(18);
+        doc.text('Branch List', pageWidth / 2, 40, { align: 'center' });
+        // Redraw headers
+        x = 20;
+        y = startY;
+        const headerLines = headers.map((cell, colIndex) => wrapText(cell, colWidths[colIndex], 12));
+        let maxHeaderHeight = rowHeight;
+        headerLines.forEach((lines, colIndex) => {
+          doc.setFontSize(12);
+          doc.setFont(undefined, 'bold');
+          let cellY = y;
+          lines.forEach(line => {
+            doc.text(line, x, cellY);
+            cellY += rowHeight;
+          });
+          // Calculate max header height for this column
+          if (lines.length * rowHeight > maxHeaderHeight) {
+            maxHeaderHeight = lines.length * rowHeight;
+          }
+          doc.setDrawColor(200, 230, 255);
+          doc.rect(x - 2, y - rowHeight + 6, colWidths[colIndex], lines.length * rowHeight, 'S');
+          x += colWidths[colIndex] || 100;
+        });
+        y += maxHeaderHeight;
+        }
+      }
+
+      doc.save('branches.pdf');
+      });
+    </script>
 
     <div class="overflow-x-auto">
       <table class="w-full text-left border border-cyan-100 rounded-xl shadow font-mono">

@@ -264,8 +264,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold animate-pulse">Pending</span>';
                                 } elseif ($incident['status'] === 'not fixed') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-orange-500 text-white font-semibold">Unfixed</span>';
-                                } elseif ($incident['status'] === 'rejected') {
-                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
+                                } elseif ($incident['status'] === 'assigned') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-yellow-200 text-gray-500 font-semibold">Assigned</span>';
                                 } elseif ($incident['status'] === 'rejected') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
                                 } else {

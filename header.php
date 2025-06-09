@@ -9,6 +9,14 @@ if (!isset($_SESSION['user_id'])) {
   header("Location: ../login.php");
   exit();
 }
+
+if ($_SESSION['is_active'] == 0) {
+  $_SESSION['error'] = "Your account is blocked. Please contact the system administrator.";
+  header("Location: ../login.php");
+  exit();
+}
+
+
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);

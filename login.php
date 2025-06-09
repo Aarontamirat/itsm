@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($password) < 6) {
         $_SESSION['error'] = "Password must be at least 6 characters.";
     }
+
     
     if (!isset($_SESSION['error'])) {
         $stmt = $pdo->prepare(
@@ -41,12 +42,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
+
+        // Check if user exists and password matches
         if ($user && password_verify($password, $user['password'])) {
+
+
+            // check if user is_active
+            $stmt = $pdo->prepare("SELECT is_active FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $userStatus = $stmt->fetchColumn();
+            if ($userStatus == 0) {
+                $_SESSION['error'] = "Your account is blocked. Please contact the system administrator.";
+            }
+            // check if branch is_active
+            $stmt = $pdo->prepare("SELECT is_active FROM branches WHERE id = ?");
+            $stmt->execute([$user['branch_id']]);
+            $branchStatus = $stmt->fetchColumn();
+            if ($branchStatus == 0) {
+                $_SESSION['error'] = "Your branch account is blocked. Please contact the system administrator.";
+            }
+
+            if (isset($_SESSION['error'])) {
+                header("Location: login.php");
+                exit;
+            }
+
+            // Start session and set user data
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['branch_id'] = $user['branch_id'];
             $_SESSION['branch_name'] = $user['branch_name'];
+            $_SESSION['is_active'] = $user['is_active'];
             $_SESSION['last_activity'] = time();
 
             // check if password was reset

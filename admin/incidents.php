@@ -258,7 +258,7 @@ $staff = $staffStmt->fetchAll();
                                     <?php
                                         if ($incident['status'] !== 'fixed') {
                                             ?>
-                                    <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php' : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
+                                    <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php?id=' . $incident['id'] : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
                                     <?php
                                     } else{
                                         

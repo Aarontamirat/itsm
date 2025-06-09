@@ -111,6 +111,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             </script>
         <?php endif; ?>
 
+        <?php
+        // Filter by incident_id from GET if provided
+        if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+            $incident_id = (int)$_GET['id'];
+            // Filter the incidents array to only include the matching incident
+            $incidents = array_filter($incidents, function($incident) use ($incident_id) {
+                return $incident['id'] == $incident_id;
+            });
+            // Re-index the array
+            $incidents = array_values($incidents);
+        }
+        ?>
+
         <div class="overflow-x-auto rounded-xl shadow-inner mt-8">
             <?php if (count($incidents) === 0): ?>
                 <p class="text-center text-cyan-600 font-mono text-lg py-8">No unassigned incidents at the moment.</p>

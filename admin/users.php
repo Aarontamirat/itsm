@@ -138,6 +138,7 @@ $users = $stmt->fetchAll();
                         <th class="p-3 font-bold">Email</th>
                         <th class="p-3 font-bold">Branch</th>
                         <th class="p-3 font-bold">Role</th>
+                        <th class="p-3 font-bold">Status</th>
                         <th class="p-3 font-bold">Created At</th>
                         <th class="p-3 font-bold">Actions</th>
                     </tr>
@@ -150,6 +151,7 @@ $users = $stmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($user['email']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
                             <td class="p-3 capitalize"><?= htmlspecialchars($user['role']) ?></td>
+                            <td class="p-3 capitalize"><?= htmlspecialchars($user['is_active']) == 1 ? 'Active' : 'Inactive' ?></td>
                             <td class="p-3"><?= htmlspecialchars($user['created_at']) ?></td>
                             <td class="p-3 flex flex-col md:flex-row gap-2">
                                 <a href="edit_user.php?id=<?= $user['id'] ?>"

@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db = 'itsm';
+$db = 'itsmtest';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';

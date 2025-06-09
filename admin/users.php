@@ -37,6 +37,7 @@ $stmt = $pdo->prepare(
   users.name AS name,
   users.email AS email,
   users.role AS role,
+  users.is_active AS is_active,
   users.created_at AS created_at,
   branches.id AS branch_id,
   branches.name AS branch_name
@@ -151,8 +152,21 @@ $users = $stmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($user['email']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
                             <td class="p-3 capitalize"><?= htmlspecialchars($user['role']) ?></td>
-                            <td class="p-3 capitalize"><?= htmlspecialchars($user['is_active']) == 1 ? 'Active' : 'Inactive' ?></td>
+
+                            <?php
+                            if($user['is_active'] == 1) {
+                                $statusClass = 'p-3 capitalize bg-green rounded-lg';
+                                $statusText = 'Active';
+                                echo '<td class="p-3 capitalize bg-green rounded-lg">Active</td>';
+                            } elseif($user['is_active'] == 0) {
+                                $statusClass = 'p-3 capitalize bg-red text-white animation-pulse rounded-lg';
+                                $statusText = 'Inactive';
+                                echo '<td class="' . $statusClass . '">' .$statusText . '</td>';
+                            }
+                            ?>
+
                             <td class="p-3"><?= htmlspecialchars($user['created_at']) ?></td>
+
                             <td class="p-3 flex flex-col md:flex-row gap-2">
                                 <a href="edit_user.php?id=<?= $user['id'] ?>"
                                     class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Edit</a>

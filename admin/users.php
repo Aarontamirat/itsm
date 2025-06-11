@@ -18,40 +18,77 @@ $start_from = ($page - 1) * $results_per_page;
 
 
 // Fetch all branches
-$branchFilter = $_GET['branch_id'] ?? '';
 $branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
 
         
 
 // Fetch users
-if ($branchFilter) {
-    $stmt = $pdo->prepare("SELECT u.*, b.name AS branch_name FROM users u
-        LEFT JOIN branches b ON u.branch_id = b.id
-        WHERE u.branch_id = ?");
-    $stmt->execute([$branchFilter]);
-    $users = $stmt->fetchAll();
-} else {
-$stmt = $pdo->prepare(
-    "SELECT 
-  users.id AS id,
-  users.name AS name,
-  users.email AS email,
-  users.role AS role,
-  users.is_active AS is_active,
-  users.created_at AS created_at,
-  branches.id AS branch_id,
-  branches.name AS branch_name
-FROM 
-  users
-LEFT JOIN 
-  branches ON users.branch_id = branches.id 
-ORDER BY created_at DESC LIMIT ?, ?"
-);
-$stmt->bindValue(1, $start_from, PDO::PARAM_INT);
-$stmt->bindValue(2, $results_per_page, PDO::PARAM_INT);
+// Filters
+$branchFilter = $_GET['branch_id'] ?? '';
+$roleFilter = $_GET['role'] ?? '';
+$nameFilter = $_GET['name'] ?? '';
+$statusFilter = isset($_GET['status']) ? $_GET['status'] : '';
+
+// Build WHERE clause and params
+$where = [];
+$params = [];
+
+// Branch filter
+if ($branchFilter !== '') {
+    $where[] = 'u.branch_id = ?';
+    $params[] = $branchFilter;
+}
+
+// Role filter
+if ($roleFilter !== '') {
+    $where[] = 'u.role = ?';
+    $params[] = $roleFilter;
+}
+
+// Status filter (active/inactive)
+if ($statusFilter !== '') {
+    $where[] = 'u.is_active = ?';
+    $params[] = $statusFilter;
+}
+
+// Name filter (partial match)
+if ($nameFilter !== '') {
+    $where[] = 'u.name LIKE ?';
+    $params[] = '%' . $nameFilter . '%';
+}
+
+$whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+// Count total users for pagination (with filters)
+$countSql = "SELECT COUNT(*) FROM users u $whereSql";
+$countStmt = $pdo->prepare($countSql);
+$countStmt->execute($params);
+$total_users = $countStmt->fetchColumn();
+$total_pages = ceil($total_users / $results_per_page);
+
+// Fetch users with filters and pagination
+$sql = "SELECT 
+    u.id, u.name, u.email, u.role, u.is_active, u.created_at, 
+    b.id AS branch_id, b.name AS branch_name
+    FROM users u
+    LEFT JOIN branches b ON u.branch_id = b.id
+    $whereSql
+    ORDER BY u.created_at DESC
+    LIMIT ?, ?";
+$stmt = $pdo->prepare($sql);
+
+// Add pagination params
+$execParams = array_merge($params, [$start_from, $results_per_page]);
+foreach ($execParams as $k => $v) {
+    // Last two params are integers for LIMIT
+    if ($k >= count($params)) {
+        $stmt->bindValue($k + 1, $v, PDO::PARAM_INT);
+    } else {
+        $stmt->bindValue($k + 1, $v);
+    }
+}
 $stmt->execute();
 $users = $stmt->fetchAll();
-}
 ?>
 
 <!DOCTYPE html>
@@ -104,28 +141,84 @@ $users = $stmt->fetchAll();
             </script>
         <?php endif; ?>
 
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <a href="add_user.php" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+            <a href="add_user.php"
+               class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest w-full md:w-auto text-center">
                 + Add New User
             </a>
-            <div class="flex flex-col md:flex-row items-center gap-4">
-                <div>
-                    <a href="export_users_csv.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition">Export CSV</a>
-                    <a href="export_users_pdf.php<?php if ($branchFilter) echo '?branch_id=' . $branchFilter; ?>" class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition ml-2">Export PDF</a>
+            <div class="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+                <div class="flex gap-2 justify-center md:justify-start">
+                    <a href="export_users_csv.php<?php
+                        $params = [];
+                        if ($branchFilter !== '') $params[] = 'branch_id=' . urlencode($branchFilter);
+                        if ($roleFilter !== '') $params[] = 'role=' . urlencode($roleFilter);
+                        if ($statusFilter !== '') $params[] = 'status=' . urlencode($statusFilter);
+                        if ($nameFilter !== '') $params[] = 'name=' . urlencode($nameFilter);
+                        if ($params) echo '?' . implode('&', $params);
+                    ?>"
+                       class="inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition text-center">
+                        Export CSV
+                    </a>
+                    <a href="export_users_pdf.php<?php
+                        $params = [];
+                        if ($branchFilter !== '') $params[] = 'branch_id=' . urlencode($branchFilter);
+                        if ($roleFilter !== '') $params[] = 'role=' . urlencode($roleFilter);
+                        if ($statusFilter !== '') $params[] = 'status=' . urlencode($statusFilter);
+                        if ($nameFilter !== '') $params[] = 'name=' . urlencode($nameFilter);
+                        if ($params) echo '?' . implode('&', $params);
+                    ?>"
+                       class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition text-center">
+                        Export PDF
+                    </a>
                 </div>
-                <form method="get" class="flex items-center gap-2">
-                    <label for="branchFilter" class="font-mono text-cyan-700 font-semibold">Branch:</label>
-                    <select name="branch_id" id="branchFilter" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
-                        <option value="">All Branches</option>
-                        <?php foreach ($branches as $branch): ?>
-                            <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($branch['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
-                        Filter
-                    </button>
+                <form method="get" class="w-full flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center gap-2 lg:gap-4">
+                    <!-- Branch Filter -->
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 w-full lg:w-auto">
+                        <label for="branchFilter" class="font-mono text-cyan-700 font-semibold lg:mr-2">Branch:</label>
+                        <select name="branch_id" id="branchFilter"
+                                class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full lg:w-auto">
+                            <option value="">All Branches</option>
+                            <?php foreach ($branches as $branch): ?>
+                                <option value="<?= $branch['id'] ?>" <?= ($branchFilter == $branch['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($branch['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <!-- Role Filter -->
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 w-full lg:w-auto">
+                        <label for="roleFilter" class="font-mono text-cyan-700 font-semibold lg:mr-2">Role:</label>
+                        <select name="role" id="roleFilter"
+                                class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full lg:w-auto">
+                            <option value="">All Roles</option>
+                            <option value="admin" <?= ($roleFilter == 'admin') ? 'selected' : '' ?>>Admin</option>
+                            <option value="staff" <?= ($roleFilter == 'staff') ? 'selected' : '' ?>>Staff</option>
+                            <option value="user" <?= ($roleFilter == 'user') ? 'selected' : '' ?>>User</option>
+                        </select>
+                    </div>
+                    <!-- Status Filter -->
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 w-full lg:w-auto">
+                        <label for="statusFilter" class="font-mono text-cyan-700 font-semibold lg:mr-2">Status:</label>
+                        <select name="status" id="statusFilter"
+                                class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full lg:w-auto">
+                            <option value="">All</option>
+                            <option value="1" <?= (isset($_GET['status']) && $_GET['status'] === '1') ? 'selected' : '' ?>>Active</option>
+                            <option value="0" <?= (isset($_GET['status']) && $_GET['status'] === '0') ? 'selected' : '' ?>>Inactive</option>
+                        </select>
+                    </div>
+                    <!-- Name Search -->
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 w-full lg:w-auto">
+                        <label for="nameFilter" class="font-mono text-cyan-700 font-semibold lg:mr-2">Name:</label>
+                        <input type="text" name="name" id="nameFilter" value="<?= htmlspecialchars($nameFilter) ?>"
+                               placeholder="Search name..."
+                               class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full lg:w-auto" />
+                    </div>
+                    <div class="flex items-center w-full lg:w-auto">
+                        <button type="submit"
+                                class="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest w-full lg:w-auto">
+                            Filter
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -182,7 +275,11 @@ $users = $stmt->fetchAll();
                 <ul class="flex space-x-2 font-mono">
                     <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                         <li>
-                            <a href="?page=<?= $i ?><?= $branchFilter ? '&branch_id=' . $branchFilter : '' ?>"
+                            <a href="?page=<?= $i ?>
+                                <?= $branchFilter !== '' ? '&branch_id=' . urlencode($branchFilter) : '' ?>
+                                <?= $roleFilter !== '' ? '&role=' . urlencode($roleFilter) : '' ?>
+                                <?= $statusFilter !== '' ? '&status=' . urlencode($statusFilter) : '' ?>
+                                <?= $nameFilter !== '' ? '&name=' . urlencode($nameFilter) : '' ?>"
                                 class="px-4 py-2 <?= $i == $page ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 text-white font-bold' : 'bg-cyan-50 text-cyan-700' ?> rounded-lg shadow transition">
                                 <?= $i ?>
                             </a>

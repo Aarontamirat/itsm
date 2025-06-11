@@ -276,7 +276,10 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
             <th class="p-2">Saved Amount</th>
             <th class="p-2">Created</th>
             <th class="p-2">Fixed Date</th>
-            <th class="p-2">Time Taken to Fix</th>
+            <th class="p-2">Remark</th>
+            <th class="p-2">Issued to Fixed</th>
+            <th class="p-2">Issued to Assigned</th>
+            <th class="p-2">Assignment to Fixed</th>
             </tr>
         </thead>
         <tbody>
@@ -293,6 +296,37 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                     <td class="p-2"><?= $row['saved_amount'] ? number_format($row['saved_amount'], 2) . ' Birr' : '-' ?></td>
                     <td class="p-2"><?= $row['created_at'] ?></td>
                     <td class="p-2"><?= $row['fixed_date'] ?? '-' ?></td>
+                    <td class="p-2"><?= $row['remark'] ?? '-' ?></td>
+
+                    <!-- from created_at to fixed status time take -->
+                     <td class="px-6 py-4 whitespace-nowrap">
+                        <?php if ($row['status'] === 'fixed' && $row['created_at'] && $row['fixed_date']): ?>
+                            <?php
+                            $created = new DateTime($row['created_at']);
+                            $fixed = new DateTime($row['fixed_date']);
+                            $interval = $created->diff($fixed);
+                            echo $interval->format('%d days, %h hrs, %i mins');
+                            ?>
+                        <?php else: ?>
+                            N/A
+                        <?php endif; ?>
+                    </td>
+
+                    <!-- from created_at to assigned status time taken -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                    <?php if (($row['status'] === 'assigned' || $row['status'] === 'fixed') && $row['created_at'] && $row['assigned_date']): ?>
+                        <?php
+                        $created = new DateTime($row['created_at']);
+                        $assigned = new DateTime($row['assigned_date']);
+                        $interval = $created->diff($assigned);
+                        echo $interval->format('%d days, %h hrs, %i mins');
+                        ?>
+                    <?php else: ?>
+                        N/A
+                    <?php endif; ?>
+                    </td>
+                    
+                    <!-- from assigned to fixed status time taken -->
                     <td class="px-6 py-4 whitespace-nowrap">
                     <?php if ($row['status'] === 'fixed' && $row['fixed_date'] && $row['assigned_date']): ?>
                         <?php
@@ -305,6 +339,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                         N/A
                     <?php endif; ?>
                     </td>
+
                 </tr>
             <?php endforeach; ?>
             <?php else: ?>

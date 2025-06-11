@@ -65,8 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
     $incident_id = (int)$_POST['incident_id'];
     $status = $_POST['status'];
     $saved_amount = $_POST['saved_amount'] ?? '';
+    $remark = isset($_POST['remark']) ? trim($_POST['remark']) : '';
 
-    if (!in_array($status, ['pending', 'fixed', 'not fixed'])) {
+    if (!in_array($status, ['pending', 'fixed', 'not fixed', 'support'])) {
         $_SESSION['error'] = "Invalid status.";
     } else {
 
@@ -81,10 +82,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
         // set status of incident
         if ($status === 'fixed') {
             // when fixed
-            $update = $pdo->prepare("UPDATE incidents SET status = ?, fixed_date = NOW(), saved_amount = ? WHERE id = ?");
-            if($update->execute([$status, $saved_amount, $incident_id])){
+            $update = $pdo->prepare("UPDATE incidents SET status = ?, fixed_date = NOW(), saved_amount = ?, remark = ? WHERE id = ?");
+            if($update->execute([$status, $saved_amount, $remark, $incident_id])){
                 $saved_amount = true;
                 $updated = true;
+            }
+        } elseif ($status === 'support') {
+            // when support needed set assigned_to and assigned_date to null in the database
+            $update = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = NULL, assigned_date = NULL WHERE id = ?");
+            if($update->execute([$status, $incident_id])){
+                $saved_amount = true;
+                $updated = true;
+            }
+            // If previously fixed, reset fixed_date to null
+            if ($incid === 'fixed') {
+                $resetFixedDate = $pdo->prepare("UPDATE incidents SET fixed_date = NULL, saved_amount = NULL, remark = NULL WHERE id = ?");
+                if($resetFixedDate->execute([$incident_id])) {
+                $saved_amount = true;
+                $updated = true;
+            }
             }
         } else {
             // when not fixed
@@ -95,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             }
             // If previously fixed, reset fixed_date to null
             if ($incid === 'fixed') {
-                $resetFixedDate = $pdo->prepare("UPDATE incidents SET fixed_date = NULL, saved_amount = NULL WHERE id = ?");
+                $resetFixedDate = $pdo->prepare("UPDATE incidents SET fixed_date = NULL, saved_amount = NULL, remark = NULL WHERE id = ?");
                 if($resetFixedDate->execute([$incident_id])) {
                 $saved_amount = true;
                 $updated = true;
@@ -112,18 +128,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             $stmtUser->execute([$incident_id]);
             $incidentUser = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-            if ($incidentUser) {
+            // if need support is selected, notify the user who submitted the incident
+            if ($status === 'support' && $incidentUser) {
+                $userId = $incidentUser['submitted_by'];
+                $message = $_SESSION['name'] . ' asked for support for incident ' . $incident_id;
+                
+                // Insert into notifications for admins
+                $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll();
+                foreach ($admins as $admin) {
+                    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
+                    $stmt->execute([$admin['id'], $message, $incident_id]);
+                }
+
+            } elseif ($status !== 'support' && $incidentUser) {
                 $userId = $incidentUser['submitted_by'];
                 $message = "Your incident (ID: $incident_id) has been marked as $status.";
 
                 // Insert into notifications
                 $stmtNotif = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id, is_seen, created_at) VALUES (?, ?, ?, 0, NOW())");
                 $stmtNotif->execute([$userId, $message, $incident_id]);
+            } else {
+                $_SESSION['error'] = "Incident user not found.";
             }
         }
 
         $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
-        $log->execute([$incident_id, "Status changed to $status", $staff_id]);
+        $log->execute([$incident_id, "Status changed to $status by {$_SESSION['name']}", $staff_id]);
 
         $_SESSION['success'] = "Incident status updated.";
     }
@@ -282,6 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                             <option value="pending" <?= strtolower($incident['status']) === 'pending' ? 'selected' : '' ?>>Pending</option>
                                             <option value="fixed" <?= strtolower($incident['status']) === 'fixed' ? 'selected' : '' ?>>Fixed</option>
                                             <option value="not fixed" <?= strtolower($incident['status']) === 'not fixed' ? 'selected' : '' ?>>Not Fixed</option>
+                                            <option class="bg-red-500 text-white" value="support" <?= strtolower($incident['status']) === 'support' ? 'selected' : '' ?>>Need Support</option>
                                         </select>
                                         <input type="number" name="saved_amount" step="0.01" min="0" class="border p-2 rounded-lg font-mono w-32 bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition" placeholder="Estimated cost">
                                         <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-4 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
@@ -304,6 +335,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                     </tbody>
                 </table>
             </div>
+
+            <!-- Modal for entering remark when status is set to 'fixed' -->
+            <div id="remark-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
+                    <h3 class="text-xl font-bold mb-4 text-cyan-700 font-mono">Add Remark for Fixed Incident</h3>
+                    <form id="remark-form" class="flex flex-col gap-4">
+                        <input type="hidden" name="incident_id" id="modal-incident-id">
+                        <input type="hidden" name="status" value="fixed">
+                        <input type="hidden" name="saved_amount" id="modal-saved-amount">
+                        <label class="font-mono text-cyan-700">Remark:</label>
+                        <textarea name="remark" id="modal-remark" rows="3" required class="border rounded-lg p-2 font-mono bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300"></textarea>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="closeRemarkModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-mono hover:bg-gray-300">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-cyan-600 text-white rounded-lg font-mono hover:bg-cyan-700">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    // Only intercept forms that update status
+                    if (form.querySelector('select[name="status"]')) {
+                        var status = form.querySelector('select[name="status"]').value;
+                        if (status === 'fixed') {
+                            e.preventDefault();
+                            // Show modal and fill hidden fields
+                            document.getElementById('remark-modal').classList.remove('hidden');
+                            document.getElementById('modal-incident-id').value = form.querySelector('input[name="incident_id"]').value;
+                            document.getElementById('modal-saved-amount').value = form.querySelector('input[name="saved_amount"]').value;
+                            // Store reference to the original form for later
+                            window._originalForm = form;
+                        }
+                    }
+                });
+            });
+
+            // Modal form submit
+            document.getElementById('remark-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Create a new form and submit with all original + remark fields
+                var origForm = window._originalForm;
+                if (!origForm) return;
+                var formData = new FormData(origForm);
+                formData.set('status', 'fixed');
+                formData.set('incident_id', document.getElementById('modal-incident-id').value);
+                formData.set('saved_amount', document.getElementById('modal-saved-amount').value);
+                formData.append('remark', document.getElementById('modal-remark').value);
+
+                // Create a temporary form to submit
+                var tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = origForm.action || '';
+                for (var [key, value] of formData.entries()) {
+                    var input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    tempForm.appendChild(input);
+                }
+                document.body.appendChild(tempForm);
+                tempForm.submit();
+            });
+
+            // Close modal
+            function closeRemarkModal() {
+                document.getElementById('remark-modal').classList.add('hidden');
+                document.getElementById('modal-remark').value = '';
+            }
+            </script>
+
             <?php
             // Pagination controls
             if ($totalPages > 1): ?>

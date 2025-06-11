@@ -30,7 +30,9 @@
       SUM(status IN ('not fixed', 'assigned', 'support')) AS open_count, 
       SUM(status = 'fixed') AS resolved_count, 
       SUM(status = 'pending') AS pending_count 
-      FROM incidents");
+      FROM incidents
+      WHERE user_id = :user_id");
+    $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
     $stmt->execute();
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $openIncidents = $row['open_count'] ?? 0;
@@ -40,7 +42,9 @@
     // Fetch incidents by status for bar chart (using status as category)
     $categories = [];
     $categoryCounts = [];
-    $catStmt = $pdo->query("SELECT status, COUNT(*) as count FROM incidents GROUP BY status");
+    $catStmt = $pdo->prepare("SELECT status, COUNT(*) as count FROM incidents WHERE user_id = :user_id GROUP BY status");
+    $catStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+    $catStmt->execute();
     while ($catRow = $catStmt->fetch(PDO::FETCH_ASSOC)) {
       $categories[] = ucfirst($catRow['status']);
       $categoryCounts[] = $catRow['count'];
@@ -48,7 +52,9 @@
 
     // Fetch recent activity (last 3 incidents)
     $recentIncidents = [];
-    $recentStmt = $pdo->query("SELECT created_at, title, status, assigned_to FROM incidents ORDER BY created_at DESC LIMIT 3");
+    $recentStmt = $pdo->prepare("SELECT created_at, title, status, assigned_to FROM incidents WHERE user_id = :user_id ORDER BY created_at DESC LIMIT 3");
+    $recentStmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
+    $recentStmt->execute();
     while ($recentRow = $recentStmt->fetch(PDO::FETCH_ASSOC)) {
       // Get assigned_to name from users table
       $assignedName = '';

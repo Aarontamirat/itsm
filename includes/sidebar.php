@@ -64,10 +64,6 @@ if (isset($_SESSION['last_activity'])) {
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
       <span class="nav-text transition-all duration-300">Reports</span>
     </a>
-    <a href="../admin/incident_history.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📁</span>
-      <span class="nav-text transition-all duration-300">Audit Logs</span>
-    </a>
     <!-- For IT Staff -->
     <?php }elseif($_SESSION['role'] === 'staff'){ ?>
     <a href="../it_staff/it_staff_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
@@ -81,10 +77,6 @@ if (isset($_SESSION['last_activity'])) {
     <a href="../it_staff/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
       <span class="nav-text transition-all duration-300">Knowledge Base</span>
-    </a>
-    <a href="../it_staff/reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
-      <span class="nav-text transition-all duration-300">Reports</span>
     </a>
     <!-- For End User -->
     <?php }elseif ($_SESSION['role'] === 'user'){ ?>

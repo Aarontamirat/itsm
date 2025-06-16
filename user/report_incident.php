@@ -10,14 +10,33 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user') {
 
 $errors = [];
 
+// auto assign
+function autoAssignITStaff(PDO $pdo, $branchId) {
+    $stmt = $pdo->prepare("
+        SELECT u.id, COUNT(i.id) as workload
+        FROM users u
+        LEFT JOIN incidents i ON i.assigned_to = u.id AND i.status IN ('pending', 'assigned')
+        INNER JOIN staff_branch_assignments sba ON sba.staff_id = u.id
+        WHERE sba.branch_id = ? AND u.role = 'staff'
+        GROUP BY u.id
+        ORDER BY workload ASC
+        LIMIT 1
+    ");
+    $stmt->execute([$branchId]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title']);
     $description = trim($_POST['description']);
     $priority = $_POST['priority'];
-    // $branch = $_POST['branch_name'];
     $user_id = $_SESSION['user_id'];
     $branch_id = $_SESSION['branch_id'];
     $category_id = $_POST['category_id'];
+    // auto assignment IT Staff
+    $autoAssigned = autoAssignITStaff($pdo, $branch_id);
+    $assignedTo = $autoAssigned ? $autoAssigned['id'] : null;
 
     if (empty($title)) $errors[] = 'Title is required.';
     if (empty($description)) $errors[] = 'Description is required.';
@@ -26,10 +45,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($category_id)) $errors[] = 'Please select an incident category.';
 
     if (empty($errors)) {
+
         // Insert incident
-        $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, ?, 'Pending', ?, ?, NOW())");
-        $stmt->execute([$title, $description, $category_id, $priority, $user_id, $branch_id]);
-        $incident_id = $pdo->lastInsertId();
+        if($assignedTo === null) {
+            $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, ?, 'pending', ?, ?, NOW())");
+            $stmt->execute([$title, $description, $category_id, $priority, $user_id, $branch_id]);
+            $incident_id = $pdo->lastInsertId();
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, assigned_to, status, submitted_by, branch_id, assigned_date, created_at) VALUES (?, ?, ?, ?, ?, 'assigned', ?, ?, NOW(), NOW())");
+            $stmt->execute([$title, $description, $category_id, $priority, $assignedTo, $user_id, $branch_id]);
+            $incident_id = $pdo->lastInsertId();
+        }
 
         // Handle file upload
         if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
@@ -43,12 +69,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Inside incident submission logic
+        // Update notifications for ADMINS
         $admins = $pdo->query("SELECT id FROM users WHERE role = 'admin'")->fetchAll();
         foreach ($admins as $admin) {
             $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
             $stmt->execute([$admin['id'], "New incident reported", $incident_id]);
         }
+        // update noitifications table for assigned IT_staff
+        $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
+        $stmt->execute([$assignedTo, "You have been assigned to an incident", $incident_id]);
+
+
+
         // Add to incident logs
         $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");
         $log->execute([$incident_id, "Incident reported by User ID: $user_id", $user_id]);

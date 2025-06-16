@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             }
         } elseif ($status === 'support') {
             // when support needed set assigned_to and assigned_date to null in the database
-            $update = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = NULL, assigned_date = NULL WHERE id = ?");
-            if($update->execute([$status, $incident_id])){
+            $update = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = NULL, assigned_date = NULL, remark = ? WHERE id = ?");
+            if($update->execute([$status, $remark, $incident_id])){
                 $saved_amount = true;
                 $updated = true;
             }
@@ -339,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             <!-- Modal for entering remark when status is set to 'fixed' -->
             <div id="remark-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
                 <div class="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-                    <h3 class="text-xl font-bold mb-4 text-cyan-700 font-mono">Add Remark for Fixed Incident</h3>
+                    <h3 class="text-xl font-bold mb-4 text-cyan-700 font-mono">Add Remark</h3>
                     <form id="remark-form" class="flex flex-col gap-4">
                         <input type="hidden" name="incident_id" id="modal-incident-id">
                         <input type="hidden" name="status" value="fixed">
@@ -360,6 +360,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                     // Only intercept forms that update status
                     if (form.querySelector('select[name="status"]')) {
                         var status = form.querySelector('select[name="status"]').value;
+
+                        // when fixed
                         if (status === 'fixed') {
                             e.preventDefault();
                             // Show modal and fill hidden fields
@@ -367,7 +369,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                             document.getElementById('modal-incident-id').value = form.querySelector('input[name="incident_id"]').value;
                             document.getElementById('modal-saved-amount').value = form.querySelector('input[name="saved_amount"]').value;
                             // Store reference to the original form for later
-                            window._originalForm = form;
+                            window._originalFormFixed = form;
+                        }
+
+                        // when need support
+                        if (status === 'support') {
+                            e.preventDefault();
+                            // Show modal and fill hidden fields
+                            document.getElementById('remark-modal').classList.remove('hidden');
+                            document.getElementById('modal-incident-id').value = form.querySelector('input[name="incident_id"]').value;
+                            // Store reference to the original form for later
+                            window._originalFormSupport = form;
                         }
                     }
                 });
@@ -377,27 +389,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
             document.getElementById('remark-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 // Create a new form and submit with all original + remark fields
-                var origForm = window._originalForm;
-                if (!origForm) return;
-                var formData = new FormData(origForm);
-                formData.set('status', 'fixed');
-                formData.set('incident_id', document.getElementById('modal-incident-id').value);
-                formData.set('saved_amount', document.getElementById('modal-saved-amount').value);
-                formData.append('remark', document.getElementById('modal-remark').value);
+                var origFormFixed = window._originalFormFixed;
+                var origFormSupport = window._originalFormSupport;
+                if (origFormFixed) {
+                    var formData = new FormData(origFormFixed);
+                    formData.set('status', 'fixed');
+                    formData.set('incident_id', document.getElementById('modal-incident-id').value);
+                    formData.set('saved_amount', document.getElementById('modal-saved-amount').value);
+                    formData.append('remark', document.getElementById('modal-remark').value);
 
-                // Create a temporary form to submit
-                var tempForm = document.createElement('form');
-                tempForm.method = 'POST';
-                tempForm.action = origForm.action || '';
-                for (var [key, value] of formData.entries()) {
-                    var input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    tempForm.appendChild(input);
+                    // Create a temporary form to submit
+                    var tempForm = document.createElement('form');
+                    tempForm.method = 'POST';
+                    tempForm.action = origFormFixed.action || '';
+                    for (var [key, value] of formData.entries()) {
+                        var input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        tempForm.appendChild(input);
+                    }
+                    document.body.appendChild(tempForm);
+                    tempForm.submit();
+                } else if (origFormSupport) {
+                    var formData = new FormData(origFormSupport);
+                    formData.set('status', 'support');
+                    formData.set('incident_id', document.getElementById('modal-incident-id').value);
+                    formData.append('remark', document.getElementById('modal-remark').value);
+
+                    // Create a temporary form to submit
+                    var tempForm = document.createElement('form');
+                    tempForm.method = 'POST';
+                    tempForm.action = origFormSupport.action || '';
+                    for (var [key, value] of formData.entries()) {
+                        var input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        tempForm.appendChild(input);
+                    }
+                    document.body.appendChild(tempForm);
+                    tempForm.submit();
+                } else {
+                    return;
                 }
-                document.body.appendChild(tempForm);
-                tempForm.submit();
             });
 
             // Close modal

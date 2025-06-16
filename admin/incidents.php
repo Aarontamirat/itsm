@@ -223,6 +223,8 @@ $staff = $staffStmt->fetchAll();
                         <th class="p-3 font-bold">Status</th>
                         <th class="p-3 font-bold">Assigned To</th>
                         <th class="p-3 font-bold">Fixed Date</th>
+                        <th class="p-3 font-bold">Rejected Reason</th>
+                        <th class="p-3 font-bold">Remark</th>
                         <th class="p-3 font-bold">Actions</th>
                     </tr>
                 </thead>
@@ -242,8 +244,8 @@ $staff = $staffStmt->fetchAll();
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold animate-pulse">Pending</span>';
                                 } elseif ($incident['status'] === 'not fixed') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-orange-500 text-white font-semibold">Unfixed</span>';
-                                } elseif ($incident['status'] === 'rejected') {
-                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
+                                } elseif ($incident['status'] === 'assigned') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold">assigned</span>';
                                 } elseif ($incident['status'] === 'rejected') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-semibold">Rejected</span>';
                                 } else {
@@ -253,10 +255,12 @@ $staff = $staffStmt->fetchAll();
                             </td>
                             <td class="p-3"><?= htmlspecialchars($incident['assigned_to']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['fixed_date']) ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['rejection_reason']) ?? '' ?></td>
+                            <td class="p-3"><?= htmlspecialchars($incident['remark']) ?></td>
                             <td class="p-3">
                                 <div class="flex flex-col md:flex-row gap-2 md:items-center">
                                     <?php
-                                        if ($incident['status'] !== 'fixed') {
+                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected')) {
                                             ?>
                                     <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php?id=' . $incident['id'] : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
                                     <?php
@@ -268,18 +272,40 @@ $staff = $staffStmt->fetchAll();
                                     <form action="update_incident_status.php" method="POST" class="inline-block">
                                         <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
                                         <?php
-                                        if ($incident['status'] !== 'fixed') {
+                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected')) {
                                             echo '<div class="flex gap-2">
                                                 <select name="status" class="px-2 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono">
-                                                    <option value="pending" <?= $incident["status"] === "pending" ? "selected" : "" ?>Pending</option>
-                                                    <option value="assigned" <?= $incident["status"] === "assigned" ? "selected" : "" ?>Assigned</option>
-                                                    <option value="rejected" <?= $incident["status"] === "rejected" ? "selected" : "" ?>Rejected</option>
+                                                    <option value="pending" '.($incident["status"] === "pending" ? "selected" : "").'>Pending</option>
+                                                    <option value="assigned" '.($incident["status"] === "assigned" ? "selected" : "").'>Assigned</option>
                                                 </select>
                                                 <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-3 py-1 rounded-lg shadow transition">Update</button>
                                             </div>';
                                         }
                                         ?>
                                     </form>
+
+                                    <!-- Reject Button (for Admin/Staff) -->
+                                     <?php
+                                     if (($incident['status'] === 'pending')) {
+                                        echo '<button class="bg-red-600 text-white px-3 py-1 rounded" onclick="openRejectModal(' . $incident['id'] .')">Reject</button>';
+                                     }
+                                        ?>
+
+                                        <!-- Reject Modal -->
+                                        <div id="rejectModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+                                        <div class="bg-white p-6 rounded-lg w-full max-w-md">
+                                            <h2 class="text-xl font-bold mb-4">Reject Incident</h2>
+                                            <form id="rejectForm">
+                                            <input type="hidden" name="incident_id" id="reject_incident_id">
+                                            <textarea name="rejection_reason" required class="w-full p-2 border rounded" placeholder="Enter reason..."></textarea>
+                                            <div class="mt-4 flex justify-end gap-2">
+                                                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 bg-gray-400 rounded">Cancel</button>
+                                                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded">Reject</button>
+                                            </div>
+                                            </form>
+                                        </div>
+                                        </div>
+
                                     <a href="incident_history.php?id=<?= $incident['id'] ?>" class="bg-blue-400 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto text-center">History</a>
                                 </div>
                             </td>
@@ -305,6 +331,35 @@ $staff = $staffStmt->fetchAll();
             </nav>
         </div>
     </div>
+
+    <script>
+  function openRejectModal(id) {
+    document.getElementById('reject_incident_id').value = id;
+    document.getElementById('rejectModal').classList.remove('hidden');
+  }
+
+  function closeRejectModal() {
+    document.getElementById('rejectModal').classList.add('hidden');
+  }
+
+  document.getElementById('rejectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('reject_incident.php', {
+      method: 'POST',
+      body: formData
+    }).then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Incident rejected.');
+          location.reload();
+        } else {
+          alert('Error rejecting: ' + data.message);
+        }
+      });
+  });
+</script>
+
 </body>
 
 </html>

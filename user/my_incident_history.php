@@ -96,6 +96,8 @@ $incidents = $stmt->fetchAll();
                         default => 'text-red-600',
                     };
                     echo '<p><span class="font-semibold">Status:</span> <span class="' . $status_class . '">' . htmlspecialchars($incident['status']) . '</span></p>';
+                    echo '<p><span class="font-semibold">Rejection Reason:</span> ' . htmlspecialchars($incident['rejection_reason']) . '</p>';
+                    echo '<p><span class="font-semibold">Rejected At:</span> ' . htmlspecialchars($incident['rejected_at']) . '</p>';
                     echo '<p><span class="font-semibold">Created:</span> ' . htmlspecialchars($incident['created_at']) . '</p>';
                     echo '</div>';
                 } else {

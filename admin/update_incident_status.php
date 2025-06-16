@@ -23,11 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['error' => true, 'message' => 'Database update failed']);
     header("Location: incidents.php?error=Assign an IT staff before selecting this option");
     exit;
-  }   
-  
-  $stmt = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
-  $stmt->bindParam(1, $new_status, PDO::PARAM_STR);
-  $stmt->bindParam(2, $incident_id, PDO::PARAM_INT);
+  }elseif ($currentIncident && $new_status === 'pending' && $currentIncident['status'] === 'assigned') {
+    $stmt = $pdo->prepare("UPDATE incidents SET status = ?, assigned_to = null, assigned_date = null WHERE id = ?");
+    $stmt->bindParam(1, $new_status, PDO::PARAM_STR);
+    $stmt->bindParam(2, $incident_id, PDO::PARAM_INT);
+  } else {
+    $stmt = $pdo->prepare("UPDATE incidents SET status = ? WHERE id = ?");
+    $stmt->bindParam(1, $new_status, PDO::PARAM_STR);
+    $stmt->bindParam(2, $incident_id, PDO::PARAM_INT);
+  }
 
   if ($stmt->execute()) {
     // Fetch the user who created the incident

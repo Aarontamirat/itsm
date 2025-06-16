@@ -48,6 +48,10 @@ if (isset($_SESSION['last_activity'])) {
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏢</span>
       <span class="nav-text transition-all duration-300">Branches</span>
     </a>
+    <a href="../admin/assign_staff_branches.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
+      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏢</span>
+      <span class="nav-text transition-all duration-300">Assignments</span>
+    </a>
     <a href="../admin/categories.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
       <span class="text-xl transition-transform duration-300 group-hover:scale-110">📂</span>
       <span class="nav-text transition-all duration-300">Categories</span>

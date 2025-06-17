@@ -15,15 +15,15 @@ $data = json_decode(file_get_contents('php://input'), true);
 $article_id = $data['article_id'] ?? null;
 $feedback_type = $data['feedback_type'] ?? null;
 
-if (!in_array($feedback_type, ['helpful', 'not_helpful']) || !$article_id) {
+if (!in_array($feedback_type, ['good', 'bad']) || !$article_id) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid input']);
     exit;
 }
 
 // Prevent duplicate feedback by same user on same article for same feedback_type (optional)
-$stmt = $pdo->prepare("SELECT id FROM kb_feedback WHERE user_id = ? AND article_id = ? AND feedback_type = ?");
-$stmt->execute([$user_id, $article_id, $feedback_type]);
+$stmt = $pdo->prepare("SELECT id FROM kb_feedback WHERE user_id = ? AND article_id = ?");
+$stmt->execute([$user_id, $article_id]);
 if ($stmt->fetch()) {
     http_response_code(409);
     echo json_encode(['error' => 'Feedback already submitted']);

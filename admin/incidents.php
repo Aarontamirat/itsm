@@ -288,9 +288,13 @@ $staff = $staffStmt->fetchAll();
 
                                     <!-- Reject Button (for Admin/Staff) -->
                                      <?php
-                                     if (($incident['status'] === 'pending')) {
+                                    if (
+                                        $incident['status'] === 'pending' ||
+                                        $incident['status'] === 'assigned' ||
+                                        $incident['status'] === 'support'
+                                    ) {
                                         echo '<button class="bg-red-600 text-white px-3 py-1 rounded" onclick="openRejectModal(' . $incident['id'] .')">Reject</button>';
-                                     }
+                                    }
                                         ?>
 
                                         <!-- Reject Modal -->

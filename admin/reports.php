@@ -485,6 +485,36 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
     }
   </script> -->
 <script>
+function exportToCSV() {
+    const table = document.getElementById("reportTable");
+    let csv = [];
+    // Get headers
+    const headers = [];
+    table.querySelectorAll("thead th").forEach(th => {
+        headers.push('"' + th.innerText.replace(/"/g, '""') + '"');
+    });
+    csv.push(headers.join(","));
+
+    // Get rows
+    table.querySelectorAll("tbody tr").forEach(tr => {
+        const row = [];
+        tr.querySelectorAll("td").forEach(td => {
+            row.push('"' + td.innerText.replace(/"/g, '""') + '"');
+        });
+        if(row.length) csv.push(row.join(","));
+    });
+
+    // Download CSV
+    const csvContent = csv.join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "incident_report.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'pt', 'a4');

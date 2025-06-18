@@ -74,6 +74,8 @@ function diffMinutes($start, $end) {
     <meta charset="UTF-8">
     <title>IT Staff Reports</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-gray-100">
 
@@ -120,14 +122,11 @@ function diffMinutes($start, $end) {
     <!-- Filters & Export -->
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
         <div class="flex gap-2 justify-center md:justify-start">
-            <a href="export_staff_report_csv.php"
-               class="inline-block px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition text-center">
-                Export CSV
-            </a>
-            <a href="export_staff_report_pdf.php"
-               class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition text-center">
-                Export PDF
-            </a>
+            <!-- Export to PDF Button -->
+    <button id="export-pdf-btn"
+        class="px-4 py-2 bg-gradient-to-r from-purple-500 via-blue-400 to-teal-300 hover:from-teal-400 hover:to-purple-500 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+        PDF Report
+    </button>
         </div>
         <form method="get" class="w-full flex flex-col lg:flex-row flex-wrap items-stretch lg:items-center gap-2 lg:gap-4">
             <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 w-full lg:w-auto">
@@ -145,7 +144,7 @@ function diffMinutes($start, $end) {
                 <select name="status" id="status"
                         class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full lg:w-auto">
                     <option value="">All Status</option>
-                    <?php foreach (['pending','assigned','not fixed','fixed','rejected'] as $status): ?>
+                    <?php foreach (['pending','assigned','not fixed','fixed','fixed_confirmed','rejected'] as $status): ?>
                         <option value="<?= $status ?>" <?= $filters['status'] === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -205,10 +204,14 @@ function diffMinutes($start, $end) {
                 </tr>
             </thead>
             <tbody>
-            <?php foreach ($incidents as $incident): 
-                $total_saved += $incident['saved_amount'] ?? 0;
-                $assigned_to_fixed = diffMinutes($incident['assigned_date'], $incident['fixed_date']);
-                $total_time_seconds += ($assigned_to_fixed ?? 0) * 3600;
+            <?php
+            // Show table rows only if any filter is set (not just non-empty)
+            $filterSet = isset($_GET['from_date']) || isset($_GET['to_date']) || isset($_GET['status']) || isset($_GET['branch_id']) || isset($_GET['category_id']);
+            if ($filterSet):
+                foreach ($incidents as $incident): 
+                    $total_saved += $incident['saved_amount'] ?? 0;
+                    $assigned_to_fixed = diffMinutes($incident['assigned_date'], $incident['fixed_date']);
+                    $total_time_seconds += ($assigned_to_fixed ?? 0) * 3600;
             ?>
                 <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
                     <td class="p-3"><?= $incident['id'] ?></td>
@@ -229,7 +232,14 @@ function diffMinutes($start, $end) {
                     <td class="p-3"><?= round(diffMinutes($incident['created_at'], $incident['assigned_date']), 2) ?> mins</td>
                     <td class="p-3"><?= round($assigned_to_fixed, 2) ?> mins</td>
                 </tr>
-            <?php endforeach; ?>
+            <?php
+                endforeach;
+            else:
+            ?>
+                <tr>
+                    <td colspan="13" class="text-center p-6 text-cyan-400 font-mono">Please use the filter above to view incidents.</td>
+                </tr>
+            <?php endif; ?>
             </tbody>
         </table>
     </div>
@@ -240,6 +250,110 @@ function diffMinutes($start, $end) {
         <div><strong>Total Saved Amount:</strong> Br <?= number_format($total_saved, 2) ?></div>
         <div><strong>Total Time Taken to Fix:</strong> <?= round($total_time_seconds / 3600, 2) ?> minutes</div>
     </div>
+
+    
+    <script>
+    document.getElementById('export-pdf-btn').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'pt', 'a4');
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(12);
+
+        // Cover page content
+        const employeeName = <?= json_encode($_SESSION['name'] ?? ''); ?>;
+        const dateGenerated = new Date().toLocaleString();
+        const fromDate = <?= json_encode($filters['from_date'] ?? ''); ?>;
+        const toDate = <?= json_encode($filters['to_date'] ?? ''); ?>;
+
+        // Modern cover design
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        // Gradient-like header bar
+        doc.setFillColor(8, 145, 178);
+        doc.rect(0, 0, pageWidth, 80, 'F');
+
+        // Accent circle
+        doc.setFillColor(59, 130, 246);
+        doc.circle(pageWidth - 100, 60, 40, 'F');
+
+        // Title
+        doc.setFontSize(32);
+        doc.setTextColor(255, 255, 255);
+        doc.text("IT Staff Incident Report", pageWidth / 2, 55, { align: "center" });
+
+        // Card-like info box
+        doc.setFillColor(236, 254, 255);
+        doc.roundedRect(60, 120, pageWidth - 120, 210, 18, 18, 'F');
+
+        doc.setFontSize(15);
+        doc.setTextColor(8, 145, 178);
+        doc.text("Employee Name:", 100, 170);
+        doc.setTextColor(30, 41, 59);
+        doc.text(employeeName, 260, 170);
+
+        // Job Position label and blank line
+        doc.setTextColor(8, 145, 178);
+        doc.text("Job Position:", 100, 200);
+        doc.setDrawColor(30, 41, 59);
+        doc.setLineWidth(0.7);
+        doc.line(250, 200, 500, 200); // blank line
+
+        doc.setFontSize(15);
+        doc.setTextColor(8, 145, 178);
+        doc.text("Date of Report Generation:", 100, 240);
+        doc.setTextColor(30, 41, 59);
+        doc.text(dateGenerated, 350, 240);
+
+        doc.setTextColor(8, 145, 178);
+        doc.text("Report Period:", 100, 280);
+        doc.setTextColor(30, 41, 59);
+        doc.text(`${fromDate || '-'} to ${toDate || '-'}`, 230, 280);
+
+        // Footer for signatures (modern, spaced)
+        doc.setDrawColor(8, 145, 178);
+        doc.setLineWidth(1);
+        doc.line(100, pageHeight - 110, 350, pageHeight - 110);
+        doc.line(pageWidth - 350, pageHeight - 110, pageWidth - 100, pageHeight - 110);
+
+        doc.setFontSize(13);
+        doc.setTextColor(8, 145, 178);
+        doc.text("Employee Signature", 100, pageHeight - 95);
+        doc.text("Manager Signature (Mikiyas Wendimu)", pageWidth - 350, pageHeight - 95);
+
+        // Add a new page for the table
+        doc.addPage();
+
+        // Table headers
+        const headers = [[
+            "ID", "Title", "Status", "Branch", "Submitted By", "Category",
+            "Saved Amount", "Created", "Fixed Date", "Remark",
+            "Created - Fixed", "Created - Assigned", "Assigned - Fixed"
+        ]];
+
+        // Table body
+        const rows = [];
+        document.querySelectorAll('table tbody tr').forEach(tr => {
+            const row = [];
+            tr.querySelectorAll('td').forEach(td => {
+            row.push(td.innerText.trim());
+            });
+            rows.push(row);
+        });
+
+        doc.setFontSize(12);
+        doc.text("IT Staff Incident Report", 40, 40);
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 60,
+            styles: { font: "courier", fontSize: 9 },
+            headStyles: { fillColor: [8, 145, 178] }
+        });
+
+        doc.save('staff_incident_report.pdf');
+        });
+        </script>
 </div>
 </body>
 </html>

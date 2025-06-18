@@ -9,7 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'staff') {
 
 $staff_id = $_SESSION['user_id'];
 // Pagination settings
-            $perPage = 5;
+            $perPage = 10;
             $totalStmt = $pdo->prepare(
                 "SELECT COUNT(*) FROM incidents WHERE assigned_to = ?" . 
                 (isset($_GET['title']) && $_GET['title'] !== '' ? " AND title LIKE ?" : "")

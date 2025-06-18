@@ -61,10 +61,10 @@ $staff_id = $_SESSION['user_id'];
 
 
 // Handle status update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST['status'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST['status'], $_POST['saved_amount'])) {
     $incident_id = (int)$_POST['incident_id'];
     $status = $_POST['status'];
-    $saved_amount = $_POST['saved_amount'] ?? '';
+    $saved_amount = $_POST['saved_amount'];
     $remark = isset($_POST['remark']) ? trim($_POST['remark']) : '';
 
     if (!in_array($status, ['pending', 'fixed', 'not fixed', 'support'])) {
@@ -290,6 +290,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                 // UI green for fixed, red for pending and dull gray for rejected.
                                 if ($incident['status'] === 'fixed') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 font-semibold">Fixed</span>';
+                                } elseif ($incident['status'] === 'fixed_confirmed') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-green-300 text-white font-semibold">Fixed Confirmed</span>';
                                 } elseif ($incident['status'] === 'pending') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold animate-pulse">Pending</span>';
                                 } elseif ($incident['status'] === 'not fixed') {
@@ -306,29 +308,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
                                 <td class="p-3 whitespace-nowrap"
                                     onclick="event.stopPropagation();">
                                     <!-- status -->
-                                    <form method="POST" class="flex flex-col md:flex-row items-center gap-2">
-                                        <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>">
-                                        <select name="status" class="border p-2 text-sm rounded-lg font-mono bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition">
-                                            <option value="pending" <?= strtolower($incident['status']) === 'pending' ? 'selected' : '' ?>>Pending</option>
-                                            <option value="fixed" <?= strtolower($incident['status']) === 'fixed' ? 'selected' : '' ?>>Fixed</option>
-                                            <option value="not fixed" <?= strtolower($incident['status']) === 'not fixed' ? 'selected' : '' ?>>Not Fixed</option>
-                                            <option class="bg-red-500 text-white" value="support" <?= strtolower($incident['status']) === 'support' ? 'selected' : '' ?>>Need Support</option>
-                                        </select>
-                                        <input type="number" name="saved_amount" step="0.01" min="0" class="border p-2 rounded-lg font-mono w-32 bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition" placeholder="Estimated cost">
-                                        <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-4 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
-                                            Update
-                                        </button>
-                                        <a href="kb_list.php" class="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Solution</a>
+                                     <div class="flex flex-col md:flex-row items-center gap-2">
                                         <?php
-                                            // Fetch image path for this incident
-                                            $imgStmt = $pdo->prepare("SELECT `filepath` FROM files WHERE incident_id = ? LIMIT 1");
-                                            $imgStmt->execute([$incident['id']]);
-                                            $imgPath = $imgStmt->fetchColumn();
-                                            if ($imgPath):
+                                        if ($incident['status'] !== 'fixed_confirmed') {
                                         ?>
-                                            <a href="<?= htmlspecialchars($imgPath) ?>" target="_blank" class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Image</a>
-                                        <?php endif; ?>
-                                    </form>
+                                        <form method="POST" class="flex flex-col md:flex-row items-center gap-2">
+                                            <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>">
+                                            <select name="status" class="border p-2 text-sm rounded-lg font-mono bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition">
+                                                <option value="pending" <?= strtolower($incident['status']) === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                                <option value="fixed" <?= strtolower($incident['status']) === 'fixed' ? 'selected' : '' ?>>Fixed</option>
+                                                <option value="not fixed" <?= strtolower($incident['status']) === 'not fixed' ? 'selected' : '' ?>>Not Fixed</option>
+                                                <option class="bg-red-500 text-white" value="support" <?= strtolower($incident['status']) === 'support' ? 'selected' : '' ?>>Need Support</option>
+                                            </select>
+                                            <input type="number" name="saved_amount" step="0.01" min="0" class="border p-2 rounded-lg font-mono w-32 bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition" placeholder="Estimated cost">
+                                            <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-4 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
+                                                Update
+                                            </button>
+                                        </form>
+                                        <?php } ?>
+
+                                        <div class="flex flex-col md:flex-row items-center gap-2">
+                                            <a href="kb_list.php" class="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Solution</a>
+                                            <?php
+                                                // Fetch image path for this incident
+                                                $imgStmt = $pdo->prepare("SELECT `filepath` FROM files WHERE incident_id = ? LIMIT 1");
+                                                $imgStmt->execute([$incident['id']]);
+                                                $imgPath = $imgStmt->fetchColumn();
+                                                if ($imgPath):
+                                            ?>
+                                                <a href="<?= htmlspecialchars($imgPath) ?>" target="_blank" class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Image</a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

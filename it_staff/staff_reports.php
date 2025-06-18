@@ -222,9 +222,9 @@ function diffMinutes($start, $end) {
                     <td class="p-3"><?= $incident['submitted_by_name'] ?></td>
                     <td class="p-3"><?= $incident['category_name'] ?></td>
                     <td class="p-3">Br <?= number_format($incident['saved_amount'], 2) ?></td>
-                    <td class="p-3"><?= $incident['created_at'] ?></td>
-                    <td class="p-3"><?= $incident['fixed_date'] ?></td>
-                    <td class="p-3"><?= $incident['status'] === 'not fixed' ? 'Unresolved' : '' ?></td>
+                    <td class="p-3"><?= $incident['created_at'] ?? '-' ?></td>
+                    <td class="p-3"><?= $incident['fixed_date'] ?? '-' ?></td>
+                    <td class="p-3"><?= $incident['remark'] ?? '-' ?></td>
                     <td class="p-3"><?= round(diffMinutes($incident['created_at'], $incident['fixed_date']), 2) ?> mins</td>
                     <td class="p-3"><?= round(diffMinutes($incident['created_at'], $incident['assigned_date']), 2) ?> mins</td>
                     <td class="p-3"><?= round($assigned_to_fixed, 2) ?> mins</td>

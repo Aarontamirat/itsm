@@ -249,41 +249,45 @@ function updateNotificationUI(notifications, userRole) {
     });
 
     // Attach event listeners after rendering
-    notifList.querySelectorAll('.confirm-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const id = this.getAttribute('data-id');
-        fetch('../confirm_fixed.php', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({incident_id: id})
-        }).then(res => res.json()).then(resp => {
-          if (resp.success) {
-            this.textContent = 'Confirmed';
-            this.disabled = true;
-            this.classList.add('opacity-60');
-          }
-        });
+    notifList.addEventListener('click', function(e) {
+      // Confirm button
+      if (e.target.classList.contains('confirm-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target;
+      const id = btn.getAttribute('data-id');
+      fetch('../confirm_fixed.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({incident_id: id})
+      }).then(res => res.json()).then(resp => {
+        if (resp.success) {
+        btn.textContent = 'Confirmed';
+        btn.disabled = true;
+        btn.classList.add('opacity-60');
+        }
       });
-    });
-    notifList.querySelectorAll('.reopen-btn').forEach(btn => {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const id = this.getAttribute('data-id');
-        fetch('../reopen_incident.php', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({incident_id: id})
-        }).then(res => res.json()).then(resp => {
-          if (resp.success) {
-            this.textContent = 'Reopened';
-            this.disabled = true;
-            this.classList.add('opacity-60');
-          }
-        });
+      }
+      // Reopen button
+      if (e.target.classList.contains('reopen-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target;
+      const id = btn.getAttribute('data-id');
+      fetch('../reopen_incident.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({incident_id: id})
+      }).then(res => res.json()).then(resp => {
+        if (resp.success) {
+        btn.textContent = 'Reopened';
+        btn.disabled = true;
+        btn.classList.add('opacity-60');
+        } else {
+        btn.textContent = 'Error';
+        }
       });
+      }
     });
 
   } else {

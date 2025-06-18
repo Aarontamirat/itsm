@@ -240,6 +240,8 @@ $staff = $staffStmt->fetchAll();
                                 // UI green for fixed, red for pending and dull gray for rejected.
                                 if ($incident['status'] === 'fixed') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-green-100 text-green-700 font-semibold">Fixed</span>';
+                                } elseif ($incident['status'] === 'fixed_confirmed') {
+                                    echo '<span class="inline-block px-2 py-1 rounded-full bg-green-400 text-white font-semibold">Confirmed</span>';
                                 } elseif ($incident['status'] === 'pending') {
                                     echo '<span class="inline-block px-2 py-1 rounded-full bg-red-100 text-red-700 font-semibold animate-pulse">Pending</span>';
                                 } elseif ($incident['status'] === 'not fixed') {

@@ -373,22 +373,104 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Totals -->
-    <div class="mt-10 bg-white p-6 rounded shadow">
-    <h2 class="text-xl font-semibold mb-4">📈 Summary</h2>
-    <p class="text-lg mb-4">💰 <strong>Total Saved Amount:</strong> <?= number_format($totalSaved, 2) ?> Birr</p>
+        <!-- Totals -->
+        <div class="mt-10 bg-white p-6 rounded shadow">
+            <h2 class="text-xl font-semibold mb-4">📈 Summary</h2>
+            <p class="text-lg mb-2">📝 <strong>Total Incidents:</strong> <?= $totalIncidents ?></p>
+            <p class="text-lg mb-2">💰 <strong>Total Saved Amount:</strong> <?= number_format($totalSaved, 2) ?> Birr</p>
 
-    <?php if (count($monthlySavings) > 0): ?>
-        <h3 class="font-medium text-md mb-2">📅 Monthly Breakdown:</h3>
-        <ul class="list-disc ml-6">
-        <?php foreach ($monthlySavings as $entry): ?>
-            <li><?= htmlspecialchars($entry['month']) ?>: <strong><?= number_format($entry['total'], 2) ?> Birr</strong></li>
-        <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
-    </div>
+            <?php
+            // Calculate total time taken to fix (assigned_date to fixed_date) for all fixed incidents in current filter
+            $timeQuery = "
+            SELECT assigned_date, fixed_date
+            FROM incidents i
+            $whereSQL
+            AND i.status = 'fixed'
+            AND assigned_date IS NOT NULL
+            AND fixed_date IS NOT NULL
+            ";
+            $timeStmt = $pdo->prepare($timeQuery);
+            $timeStmt->execute($params);
+            $totalSeconds = 0;
+            $countFixed = 0;
+            while ($row = $timeStmt->fetch(PDO::FETCH_ASSOC)) {
+            $assigned = new DateTime($row['assigned_date']);
+            $fixed = new DateTime($row['fixed_date']);
+            $diff = $fixed->getTimestamp() - $assigned->getTimestamp();
+            if ($diff > 0) {
+                $totalSeconds += $diff;
+                $countFixed++;
+            }
+            }
+            // Format total time taken
+            $days = floor($totalSeconds / 86400);
+            $hours = floor(($totalSeconds % 86400) / 3600);
+            $minutes = floor(($totalSeconds % 3600) / 60);
+            ?>
+            <p class="text-lg mb-4">
+            ⏱️ <strong>Total Time Taken to Fix (Assigned → Fixed):</strong>
+            <?= $countFixed > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : 'N/A' ?>
+            </p>
+
+            <?php if (count($monthlySavings) > 0): ?>
+            <h3 class="font-medium text-md mb-2">📅 Monthly Breakdown:</h3>
+            <ul class="list-disc ml-6">
+            <?php
+                foreach ($monthlySavings as $entry):
+                    // Get number of incidents and total time taken to fix for this month
+                    $month = $entry['month'];
+                    $incidentCountStmt = $pdo->prepare("
+                        SELECT COUNT(*) FROM incidents 
+                        WHERE DATE_FORMAT(fixed_date, '%Y-%m') = :month AND status = 'fixed'
+                        " . ($where ? " AND " . implode(' AND ', array_map(function($w) {
+                            // Remove status filter for this count, since we already filter by status above
+                            return strpos($w, 'i.status') === false ? $w : '1=1';
+                        }, $where)) : '')
+                    );
+                    $incidentCountParams = array_merge($params, [':month' => $month]);
+                    $incidentCountStmt->execute($incidentCountParams);
+                    $fixedCount = $incidentCountStmt->fetchColumn();
+
+                    // Total time taken to fix for this month
+                    $timeStmt = $pdo->prepare("
+                        SELECT assigned_date, fixed_date FROM incidents 
+                        WHERE DATE_FORMAT(fixed_date, '%Y-%m') = :month AND status = 'fixed'
+                        AND assigned_date IS NOT NULL AND fixed_date IS NOT NULL
+                        " . ($where ? " AND " . implode(' AND ', array_map(function($w) {
+                            return strpos($w, 'i.status') === false ? $w : '1=1';
+                        }, $where)) : '')
+                    );
+                    $timeStmt->execute($incidentCountParams);
+                    $totalSeconds = 0;
+                    $count = 0;
+                    while ($row = $timeStmt->fetch(PDO::FETCH_ASSOC)) {
+                        $assigned = new DateTime($row['assigned_date']);
+                        $fixed = new DateTime($row['fixed_date']);
+                        $diff = $fixed->getTimestamp() - $assigned->getTimestamp();
+                        if ($diff > 0) {
+                            $totalSeconds += $diff;
+                            $count++;
+                        }
+                    }
+                    $days = floor($totalSeconds / 86400);
+                    $hours = floor(($totalSeconds % 86400) / 3600);
+                    $minutes = floor(($totalSeconds % 3600) / 60);
+            ?>
+                <li>
+                    <?= htmlspecialchars($entry['month']) ?>: 
+                    <strong><?= number_format($entry['total'], 2) ?> Birr</strong>
+                    <br>
+                    📝 <strong>Incidents Fixed:</strong> <?= $fixedCount ?>
+                    <br>
+                    ⏱️ <strong>Total Time to Fix:</strong>
+                    <?= $count > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : 'N/A' ?>
+                </li>
+            <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
         </div>
-  <script>
+    </div>
+  <!-- <script>
     function exportToCSV() {
       const table = document.getElementById("reportTable");
       const wb = XLSX.utils.table_to_book(table, {sheet:"Report"});
@@ -401,6 +483,69 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
       doc.autoTable({ html: '#reportTable' });
       doc.save('report.pdf');
     }
-  </script>
+  </script> -->
+<script>
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'pt', 'a4');
+    const table = document.getElementById("reportTable");
+
+    // Title
+    doc.setFontSize(18);
+    doc.text("Incident Report", doc.internal.pageSize.getWidth() / 2, 40, { align: "center" });
+
+    // Prepare columns and rows
+    const headers = [];
+    const data = [];
+    const ths = table.querySelectorAll("thead th");
+    ths.forEach(th => headers.push(th.innerText.trim()));
+
+    const trs = table.querySelectorAll("tbody tr");
+    trs.forEach(tr => {
+        const row = [];
+        tr.querySelectorAll("td").forEach(td => {
+            row.push(td.innerText.trim());
+        });
+        if(row.length) data.push(row);
+    });
+
+    // AutoTable
+    doc.autoTable({
+        head: [headers],
+        body: data,
+        startY: 60,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [59, 130, 246],
+            textColor: 255,
+            fontStyle: 'bold',
+            halign: 'center'
+        },
+        bodyStyles: {
+            halign: 'center',
+            valign: 'middle'
+        },
+        alternateRowStyles: {
+            fillColor: [245, 245, 245]
+        },
+        styles: {
+            fontSize: 9,
+            cellPadding: 4,
+            overflow: 'linebreak'
+        },
+        margin: { left: 20, right: 20 }
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.getWidth() - 60, doc.internal.pageSize.getHeight() - 10);
+    }
+
+    doc.save('incident_report.pdf');
+}
+</script>
 </body>
 </html>

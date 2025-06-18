@@ -89,6 +89,7 @@ $incidents = $stmt->fetchAll();
                     // Display status with color coding
                     $status_class = match ($incident['status']) {
                         'fixed' => 'text-green-600',
+                        'fixed_confirmed' => 'text-green-600',
                         'pending' => 'text-red-600',
                         'not fixed' => 'text-orange-600',
                         'assigned' => 'text-yellow-600',
@@ -272,6 +273,7 @@ $incidents = $stmt->fetchAll();
                                     <?php
                                     $status_class = match ($incident['status']) {
                                         'fixed' => 'bg-green-400 rounded-lg px-1 text-white',
+                                        'fixed_confirmed' => 'bg-green-400 rounded-lg px-1 text-white',
                                         'pending' => 'bg-red-400 rounded-lg px-1 text-white animate-pulse',
                                         'not fixed' => 'bg-orange-400 rounded-lg px-1 text-white',
                                         'assigned' => 'bg-yellow-400 rounded-lg px-1 text-white',

@@ -202,6 +202,230 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
+
+
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+    function generateMaintenanceForm(data) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Header
+        doc.setFontSize(18);
+        doc.text('Lucy Insurance S.C', 105, 18, { align: 'center' });
+
+        // Title
+        doc.setFontSize(16);
+        doc.text('Maintenance Request Form', 105, 32, { align: 'center' });
+
+        // Date (top right, under title)
+        const today = new Date();
+        const dateStr = today.toLocaleDateString();
+        doc.setFontSize(12);
+        doc.text(`Date: ${dateStr}`, 180, 40, { align: 'right' });
+
+        // Table headers (expanded, no Branch)
+        let startY = 50;
+        doc.setFontSize(12);
+        doc.setFillColor(220, 230, 241);
+        doc.rect(15, startY, 180, 10, 'F');
+        doc.setTextColor(0, 70, 140);
+        doc.text('Title', 20, startY + 7);
+        doc.text('Description', 60, startY + 7);
+        doc.text('Priority', 130, startY + 7);
+        doc.text('Category', 155, startY + 7);
+
+        // Calculate dynamic row height based on text size
+        const titleLines = doc.splitTextToSize(data.title, 35);
+        const descLines = doc.splitTextToSize(data.description, 60);
+        const maxLines = Math.max(titleLines.length, descLines.length, 1);
+        const rowHeight = maxLines * 7 + 6; // 7px per line, plus padding
+
+        // Table row (expanded columns, dynamic height)
+        doc.setTextColor(0, 0, 0);
+        startY += 10;
+        doc.setFontSize(11);
+        doc.rect(15, startY, 180, rowHeight);
+
+        // Draw vertical dividing lines between columns
+        // Columns: Title (15-55), Description (55-125), Priority (125-150), Category (150-195)
+        doc.line(55, startY, 55, startY + rowHeight);   // Title/Description
+        doc.line(125, startY, 125, startY + rowHeight); // Description/Priority
+        doc.line(150, startY, 150, startY + rowHeight); // Priority/Category
+
+        // Draw each cell's text, line by line
+        let textY = startY + 7;
+        for (let i = 0; i < maxLines; i++) {
+            doc.text(titleLines[i] || '', 20, textY);
+            doc.text(descLines[i] || '', 60, textY);
+            if (i === 0) {
+            doc.text(data.priority, 130, textY);
+            doc.text(data.category, 155, textY);
+            }
+            textY += 7;
+        }
+
+        // Place signature columns near the bottom of the page
+        let pageHeight = doc.internal.pageSize.getHeight();
+        let sigY = pageHeight - 40; // 40 units from the bottom
+        const col1X = 25, col2X = 120;
+        doc.setFontSize(12);
+        doc.text('Name:', col1X, sigY);
+        doc.text('Name:', col2X, sigY);
+        doc.line(col1X, sigY + 1, col1X + 70, sigY + 1);
+        doc.line(col2X, sigY + 1, col2X + 70, sigY + 1);
+
+        // Signature lines
+        doc.text('Signature:', col1X, sigY + 10);
+        doc.text('Signature:', col2X, sigY + 10);
+        doc.line(col1X, sigY + 11, col1X + 70, sigY + 11);
+        doc.line(col2X, sigY + 11, col2X + 70, sigY + 11);
+
+        // Date under signature
+        doc.setFontSize(10);
+        doc.text(`Date: ${dateStr}`, col1X, sigY + 20);
+        doc.text(`Date: ${dateStr}`, col2X, sigY + 20);
+
+        doc.save('maintenance_request_form.pdf');
+        }
+
+        // On successful submit, trigger PDF
+        <?php if (isset($message)): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            generateMaintenanceForm({
+            title: <?= json_encode($title ?? '') ?>,
+            description: <?= json_encode($description ?? '') ?>,
+            priority: <?= json_encode($priority ?? '') ?>,
+            category: <?= json_encode(isset($category_id) ? ($pdo->query("SELECT name FROM kb_categories WHERE id=" . intval($category_id))->fetchColumn() ?: '') : '') ?>,
+            });
+        }, 500);
+        });
+        <?php endif; ?>
+
+
+
+        // LETTER FORM
+        function generateLetterForm(data) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Techy Letterhead
+        doc.setFillColor(0, 212, 255);
+        doc.rect(0, 0, 210, 18, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(22);
+        doc.setTextColor(0, 51, 102);
+        doc.text('Lucy Insurance S.C', 12, 13);
+
+        // Logo (optional, if you have a base64 image)
+        // doc.addImage('data:image/png;base64,...', 'PNG', 170, 3, 30, 12);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text('Head Office: Addis Ababa, Ethiopia', 12, 22);
+        doc.text('Tel: +251-11-1234567 | Email: info@lucyinsurance.com', 12, 28);
+
+        // Decorative tech lines
+        doc.setDrawColor(0, 212, 255);
+        doc.setLineWidth(2);
+        doc.line(10, 34, 200, 34);
+        doc.setDrawColor(0, 51, 102);
+        doc.setLineWidth(0.5);
+        doc.line(10, 36, 200, 36);
+
+        // Date (top right, techy box)
+        const today = new Date();
+        const dateStr = today.toLocaleDateString();
+        doc.setFillColor(30, 41, 59);
+        doc.roundedRect(150, 20, 48, 12, 3, 3, 'F');
+        doc.setFont('courier', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Date: ${dateStr}`, 154, 28);
+
+        // Recipient (left)
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(0, 51, 102);
+        doc.text('To: IT Support Department', 12, 48);
+
+        // Subject
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.setTextColor(0, 212, 255);
+        doc.text('Subject: Maintenance Request', 12, 60);
+
+        // Salutation
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(30, 41, 59);
+        doc.text('Dear IT Support Team,', 12, 72);
+
+        // Body
+        let bodyY = 82;
+        const bodyText = [
+            "I would like to formally request maintenance support for the following issue:",
+            "",
+            `Title: ${data.title}`,
+            `Description: ${data.description}`,
+            `Priority: ${data.priority}`,
+            `Category: ${data.category}`,
+            "",
+            "Please address this request at your earliest convenience.",
+            "",
+            "Thank you for your prompt attention."
+        ];
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(30, 41, 59);
+        doc.text(doc.splitTextToSize(bodyText.join('\n'), 180), 12, bodyY);
+
+        // Signature block (bottom right, techy)
+        let pageHeight = doc.internal.pageSize.getHeight();
+        let sigY = pageHeight - 50;
+        doc.setDrawColor(0, 212, 255);
+        doc.setLineWidth(1.2);
+        doc.line(130, sigY + 18, 200, sigY + 18);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(0, 51, 102);
+        doc.text('Sincerely,', 130, sigY);
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text('Name & Signature', 130, sigY + 26);
+
+        // Footer tech bar
+        doc.setFillColor(0, 212, 255);
+        doc.rect(0, pageHeight - 12, 210, 12, 'F');
+        doc.setFont('courier', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Lucy Insurance S.C - ITSM Incident Report', 12, pageHeight - 4);
+
+        doc.save('maintenance_request_form.pdf');
+        }
+
+        // On successful submit, trigger PDF
+        <?php if (isset($message)): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            generateLetterForm({
+            title: <?= json_encode($title ?? '') ?>,
+            description: <?= json_encode($description ?? '') ?>,
+            priority: <?= json_encode($priority ?? '') ?>,
+            category: <?= json_encode(isset($category_id) ? ($pdo->query("SELECT name FROM kb_categories WHERE id=" . intval($category_id))->fetchColumn() ?: '') : '') ?>,
+            });
+        }, 500);
+        });
+        <?php endif; ?>
+    </script>
+
+    
+
 </body>
 
 </html>

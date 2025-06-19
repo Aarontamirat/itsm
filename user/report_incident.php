@@ -193,6 +193,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="text" disabled name="branch" value="<?= htmlspecialchars($_SESSION['branch_name']) ?>" class="w-full p-3 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900" readonly>
             </div>
 
+            <div class="flex flex-row gap-4 justify-center items-center mt-4">
+                <button type="button"
+                    onclick="generateMaintenanceForm({
+                        title: document.querySelector('[name=title]').value,
+                        description: document.querySelector('[name=description]').value,
+                        priority: document.querySelector('[name=priority]').value,
+                        category: document.querySelector('#category').options[document.querySelector('#category').selectedIndex].text
+                    })"
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-lg px-6 py-2 shadow transition duration-200"
+                >
+                    Download Maintenance Form PDF
+                </button>
+                <button type="button"
+                    onclick="generateLetterForm({
+                        title: document.querySelector('[name=title]').value,
+                        description: document.querySelector('[name=description]').value,
+                        priority: document.querySelector('[name=priority]').value,
+                        category: document.querySelector('#category').options[document.querySelector('#category').selectedIndex].text
+                    })"
+                    class="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow transition duration-200"
+                >
+                    Download Letter Form PDF
+                </button>
+            </div>
+
             <!-- submit button -->
             <div class="flex flex-col md:flex-row gap-4 justify-center items-center mt-6">
                 <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-8 py-3 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
@@ -325,8 +350,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(11);
         doc.setTextColor(30, 41, 59);
-        doc.text('Head Office: Addis Ababa, Ethiopia', 12, 22);
-        doc.text('Tel: +251-11-1234567 | Email: info@lucyinsurance.com', 12, 28);
+        // Fetch branch location from PHP (from database)
+        <?php
+        // Get branch location from DB using branch_id in session
+        $branchLocation = '';
+        if (!empty($_SESSION['branch_id'])) {
+            $stmt = $pdo->prepare("SELECT location FROM branches WHERE id = ?");
+            $stmt->execute([$_SESSION['branch_id']]);
+            $branchLocation = $stmt->fetchColumn() ?: '';
+        }
+        ?>
+        doc.text('Branch: ' + <?= json_encode($_SESSION['branch_name'] ?? '') ?>, 12, 22);
+        doc.text('Location: ' + <?= json_encode($branchLocation) ?>, 12, 28);
 
         // Decorative tech lines
         doc.setDrawColor(0, 212, 255);

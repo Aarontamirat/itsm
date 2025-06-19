@@ -308,7 +308,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                             echo $interval->format('%d days, %h hrs, %i mins');
                             ?>
                         <?php else: ?>
-                            N/A
+                            -
                         <?php endif; ?>
                     </td>
 
@@ -322,7 +322,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                         echo $interval->format('%d days, %h hrs, %i mins');
                         ?>
                     <?php else: ?>
-                        N/A
+                        -
                     <?php endif; ?>
                     </td>
                     
@@ -336,7 +336,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                         echo $interval->format('%d days, %h hrs, %i mins');
                         ?>
                     <?php else: ?>
-                        N/A
+                        -
                     <?php endif; ?>
                     </td>
 
@@ -375,9 +375,9 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
 
         <!-- Totals -->
         <div class="mt-10 bg-white p-6 rounded shadow">
-            <h2 class="text-xl font-semibold mb-4">📈 Summary</h2>
-            <p class="text-lg mb-2">📝 <strong>Total Incidents:</strong> <?= $totalIncidents ?></p>
-            <p class="text-lg mb-2">💰 <strong>Total Saved Amount:</strong> <?= number_format($totalSaved, 2) ?> Birr</p>
+            <h2 class="text-xl font-semibold mb-4">Summary</h2>
+            <p class="text-lg mb-2"><strong>Total Incidents:</strong> <?= $totalIncidents ?></p>
+            <p class="text-lg mb-2"><strong>Total Saved Amount:</strong> <?= number_format($totalSaved, 2) ?> Birr</p>
 
             <?php
             // Calculate total time taken to fix (assigned_date to fixed_date) for all fixed incidents in current filter
@@ -408,12 +408,12 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
             $minutes = floor(($totalSeconds % 3600) / 60);
             ?>
             <p class="text-lg mb-4">
-            ⏱️ <strong>Total Time Taken to Fix (Assigned → Fixed):</strong>
-            <?= $countFixed > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : 'N/A' ?>
+            <strong>Total Time Taken to Fix (Assigned to Fixed):</strong>
+            <?= $countFixed > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : '-' ?>
             </p>
 
             <?php if (count($monthlySavings) > 0): ?>
-            <h3 class="font-medium text-md mb-2">📅 Monthly Breakdown:</h3>
+            <h3 class="font-medium text-md mb-2">Monthly Breakdown:</h3>
             <ul class="list-disc ml-6">
             <?php
                 foreach ($monthlySavings as $entry):
@@ -460,10 +460,10 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                     <?= htmlspecialchars($entry['month']) ?>: 
                     <strong><?= number_format($entry['total'], 2) ?> Birr</strong>
                     <br>
-                    📝 <strong>Incidents Fixed:</strong> <?= $fixedCount ?>
+                    <strong>Incidents Fixed:</strong> <?= $fixedCount ?>
                     <br>
-                    ⏱️ <strong>Total Time to Fix:</strong>
-                    <?= $count > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : 'N/A' ?>
+                    <strong>Total Time to Fix:</strong>
+                    <?= $count > 0 ? "{$days} days, {$hours} hrs, {$minutes} mins" : '-' ?>
                 </li>
             <?php endforeach; ?>
             </ul>

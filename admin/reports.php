@@ -420,7 +420,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                     // Get number of incidents and total time taken to fix for this month
                     $month = $entry['month'];
                     $incidentCountStmt = $pdo->prepare("
-                        SELECT COUNT(*) FROM incidents 
+                        SELECT COUNT(*) FROM incidents i
                         WHERE DATE_FORMAT(fixed_date, '%Y-%m') = :month AND status = 'fixed'
                         " . ($where ? " AND " . implode(' AND ', array_map(function($w) {
                             // Remove status filter for this count, since we already filter by status above
@@ -433,7 +433,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Total time taken to fix for this month
                     $timeStmt = $pdo->prepare("
-                        SELECT assigned_date, fixed_date FROM incidents 
+                        SELECT assigned_date, fixed_date FROM incidents i
                         WHERE DATE_FORMAT(fixed_date, '%Y-%m') = :month AND status = 'fixed'
                         AND assigned_date IS NOT NULL AND fixed_date IS NOT NULL
                         " . ($where ? " AND " . implode(' AND ', array_map(function($w) {
@@ -565,6 +565,33 @@ function exportToPDF() {
         },
         margin: { left: 20, right: 20 }
     });
+
+    // Get summary and monthly breakdown from the DOM
+    let summaryText = "";
+    const summaryDiv = document.querySelector('.mt-10.bg-white.p-6.rounded.shadow');
+    if (summaryDiv) {
+        // Get all <p> and <li> inside summary
+        const ps = summaryDiv.querySelectorAll('p');
+        ps.forEach(p => {
+            summaryText += p.innerText + "\n";
+        });
+
+        const monthlyHeader = summaryDiv.querySelector('h3');
+        if (monthlyHeader) {
+            summaryText += "\n" + monthlyHeader.innerText + "\n";
+        }
+        const lis = summaryDiv.querySelectorAll('ul li');
+        lis.forEach(li => {
+            summaryText += "- " + li.innerText + "\n";
+        });
+    }
+
+    // Add summary below the table
+    let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 100;
+    doc.setFontSize(13);
+    doc.text("Summary", 30, finalY);
+    doc.setFontSize(10);
+    doc.text(summaryText, 30, finalY + 20, { maxWidth: doc.internal.pageSize.getWidth() - 60 });
 
     // Footer
     const pageCount = doc.internal.getNumberOfPages();

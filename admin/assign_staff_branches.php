@@ -9,8 +9,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 
 // Get staff and branches
-$staff = $pdo->query("SELECT id, name FROM users WHERE role = 'staff'")->fetchAll();
-$branches = $pdo->query("SELECT id, name FROM branches")->fetchAll();
+$staff = $pdo->query("SELECT id, name FROM users WHERE role = 'staff' ORDER BY name ASC")->fetchAll();
+$branches = $pdo->query("SELECT id, name FROM branches ORDER BY name ASC")->fetchAll();
 ?>
 
 <!DOCTYPE html>

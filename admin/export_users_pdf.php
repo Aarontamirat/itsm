@@ -2,17 +2,41 @@
 require_once('../libs/tcpdf/tcpdf.php');
 require '../config/db.php';
 
+// Get filters from query string
 $branchFilter = $_GET['branch_id'] ?? '';
+$roleFilter = $_GET['role'] ?? '';
+$statusFilter = $_GET['status'] ?? '';
+$nameFilter = $_GET['name'] ?? '';
 
-if ($branchFilter) {
-    $stmt = $pdo->prepare("SELECT u.*, b.name AS branch_name FROM users u
-        LEFT JOIN branches b ON u.branch_id = b.id
-        WHERE u.branch_id = ?");
-    $stmt->execute([$branchFilter]);
-} else {
-    $stmt = $pdo->query("SELECT u.*, b.name AS branch_name FROM users u
-        LEFT JOIN branches b ON u.branch_id = b.id");
+// Build dynamic WHERE clause
+$where = [];
+$params = [];
+
+if ($branchFilter !== '') {
+    $where[] = 'u.branch_id = ?';
+    $params[] = $branchFilter;
 }
+if ($roleFilter !== '') {
+    $where[] = 'u.role = ?';
+    $params[] = $roleFilter;
+}
+if ($statusFilter !== '') {
+    $where[] = 'u.is_active = ?';
+    $params[] = $statusFilter;
+}
+if ($nameFilter !== '') {
+    $where[] = 'u.name LIKE ?';
+    $params[] = '%' . $nameFilter . '%';
+}
+
+$sql = "SELECT u.*, b.name AS branch_name FROM users u
+        LEFT JOIN branches b ON u.branch_id = b.id";
+if ($where) {
+    $sql .= " WHERE " . implode(' AND ', $where);
+}
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 
 $pdf = new TCPDF();
 $pdf->AddPage();
@@ -26,6 +50,7 @@ $html .= '<table border="1" cellpadding="4">
   <th>Name</th>
   <th>Email</th>
   <th>Role</th>
+  <th>Status</th>
   <th>Branch</th>
 </tr>
 </thead>
@@ -36,7 +61,8 @@ foreach ($stmt as $row) {
         <td>' . $row['id'] . '</td>
         <td>' . htmlspecialchars($row['name']) . '</td>
         <td>' . htmlspecialchars($row['email']) . '</td>
-        <td>' . $row['role'] . '</td>
+        <td>' . htmlspecialchars($row['role']) . '</td>
+        <td>' . htmlspecialchars($row['is_active']) . '</td>
         <td>' . ($row['branch_name'] ?? 'N/A') . '</td>
       </tr>';
 }

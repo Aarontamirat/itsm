@@ -11,6 +11,7 @@ if (!in_array($user_role, ['admin', 'staff'])) {
 
 $type = $_GET['type'] ?? '';
 $id = $_GET['id'] ?? null;
+$created_by = $_SESSION['user_id'] ?? '';
 
 function esc($str) {
   return htmlspecialchars($str, ENT_QUOTES);
@@ -43,6 +44,7 @@ if ($type === 'add_article' || $type === 'edit_article') {
     }
     echo '
       <input type="hidden" name="action" value="'.($type === 'add_article' ? 'add_article' : 'edit_article').'">
+      <input type="hidden" name="created_by" value="'.esc($created_by).'">
       <label class="block mb-5 font-mono font-semibold text-cyan-700">Title
         <input type="text" name="title" value="'.esc($title).'" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">
       </label>
@@ -90,6 +92,7 @@ if ($type === 'add_category' || $type === 'edit_category') {
     }
     echo '
       <input type="hidden" name="action" value="'.($type === 'add_category' ? 'add_category' : 'edit_category').'">
+      <input type="hidden" name="created_by" value="'.esc($created_by).'">
       <label class="block mb-7 font-mono font-semibold text-cyan-700">Category Name
       <input type="text" name="cat_name" value="'.esc($name).'" required class="w-full border border-cyan-300 focus:border-cyan-500 rounded-xl p-3 mt-2 bg-cyan-50 focus:bg-white transition font-mono text-cyan-900 shadow-inner">
       </label>
@@ -111,6 +114,7 @@ if ($type === 'delete_article' && $id) {
     echo '<form id="deleteForm">';
     echo '<input type="hidden" name="action" value="delete_article">';
     echo '<input type="hidden" name="id" value="'.esc($id).'">';
+    echo '<input type="hidden" name="created_by" value="'.esc($created_by).'">';
     echo '<div class="flex justify-end gap-3 mt-4">';
     echo '<button type="button" class="modalCloseBtn bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>';
     echo '<button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>';
@@ -124,6 +128,7 @@ if ($type === 'delete_category' && $id) {
     echo '<form id="deleteForm">';
     echo '<input type="hidden" name="action" value="delete_category">';
     echo '<input type="hidden" name="id" value="'.esc($id).'">';
+    echo '<input type="hidden" name="created_by" value="'.esc($created_by).'">';
     echo '<div class="flex justify-end gap-3 mt-4">';
     echo '<button type="button" class="modalCloseBtn bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>';
     echo '<button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Delete</button>';

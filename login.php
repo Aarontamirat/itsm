@@ -29,6 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error'] = "Password must be at least 6 characters.";
     }
 
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 0660eb26c8987d4d0ac88f329e02f7130f3f461f
     if (!isset($_SESSION['error'])) {
         $stmt = $pdo->prepare(
             "SELECT u.*, 
@@ -40,12 +44,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
+
+        // Check if user exists and password matches
         if ($user && password_verify($password, $user['password'])) {
+
+
+            // check if user is_active
+            $stmt = $pdo->prepare("SELECT is_active FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $userStatus = $stmt->fetchColumn();
+            if ($userStatus == 0) {
+                $_SESSION['error'] = "Your account is blocked. Please contact the system administrator.";
+            }
+            // check if branch is_active
+            $stmt = $pdo->prepare("SELECT is_active FROM branches WHERE id = ?");
+            $stmt->execute([$user['branch_id']]);
+            $branchStatus = $stmt->fetchColumn();
+            if ($branchStatus == 0) {
+                $_SESSION['error'] = "Your branch account is blocked. Please contact the system administrator.";
+            }
+
+            if (isset($_SESSION['error'])) {
+                header("Location: login.php");
+                exit;
+            }
+
+            // Start session and set user data
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role'] = $user['role'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['branch_id'] = $user['branch_id'];
             $_SESSION['branch_name'] = $user['branch_name'];
+            $_SESSION['is_active'] = $user['is_active'];
             $_SESSION['last_activity'] = time();
 
             // check if password was reset
@@ -165,9 +195,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (isset($_SESSION['error'])): ?>
             <div id="error-message"
                 class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-centefont-mono font-semibold opacity-0 transition-opacity duration-500">
+<<<<<<< HEAD
                 <?php
                     echo htmlspecialchars($_SESSION['error']);
                     unset($_SESSION['error']);
+=======
+                <?php 
+                        echo htmlspecialchars($_SESSION['error']); 
+                        unset($_SESSION['error']);
+>>>>>>> 0660eb26c8987d4d0ac88f329e02f7130f3f461f
                     ?>
             </div>
             <script>

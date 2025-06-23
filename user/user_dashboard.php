@@ -15,6 +15,7 @@ $statuses = [
   'pending' => 0,
   'assigned' => 0,
   'fixed' => 0,
+  'fixed_confirmed' => 0,
   'not_fixed' => 0,
   'rejected' => 0
 ];
@@ -34,6 +35,9 @@ foreach ($result as $row) {
       break;
     case 'fixed':
       $statuses['fixed'] = $row['count'];
+      break;
+    case 'fixed_confirmed':
+      $statuses['fixed_confirmed'] = $row['count'];
       break;
     case 'not fixed':
       $statuses['not_fixed'] = $row['count'];
@@ -54,6 +58,7 @@ $statuses = [
   'pending' => 0,
   'assigned' => 0,
   'fixed' => 0,
+  'fixed_confirmed' => 0,
   'not_fixed' => 0,
   'rejected' => 0
 ];
@@ -73,6 +78,9 @@ foreach ($result as $row) {
       break;
     case 'fixed':
       $statuses['fixed'] = $row['count'];
+      break;
+    case 'fixed_confirmed':
+      $statuses['fixed_confirmed'] = $row['count'];
       break;
     case 'not fixed':
       $statuses['not_fixed'] = $row['count'];
@@ -127,6 +135,11 @@ foreach ($result as $row) {
         <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono">
           <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed']; ?></span>
           <span class="text-lg font-semibold text-cyan-700">Fixed</span>
+        </div>
+        <!-- Fixed Confirmed Tickets -->
+        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono">
+          <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed_confirmed']; ?></span>
+          <span class="text-lg font-semibold text-cyan-700">Fixed Confirmed</span>
         </div>
         <!-- Not Fixed Tickets -->
         <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-gray-400 flex flex-col items-center font-mono">

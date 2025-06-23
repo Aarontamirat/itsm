@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $branch_id = $_POST['branch_id'];
     $role  = $_POST['role'];
+    $is_active = isset($_POST['is_active']) ? 1 : 0;
 
     // Validate inputs
     if (empty($name)) $errors[] = 'Name is required.';
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($name) > 50) $errors[] = 'Name must not exceed 50 characters.';
     if (strlen($email) < 5) $errors[] = 'Email must be at least 5 characters long.';
     if (strlen($email) > 100) $errors[] = 'Email must not exceed 100 characters.';
+    if (!is_numeric($is_active)) $errors[] = 'Invalid active status.';
 
     // Check if email already exists
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND id != ?");
@@ -65,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // if free of errors run the update function 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, branch_id = ?, role = ? WHERE id = ?");
-        $stmt->execute([$name, $email, $branch_id, $role, $user_id]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, branch_id = ?, role = ?, is_active = ? WHERE id = ?");
+        $stmt->execute([$name, $email, $branch_id, $role, $is_active, $user_id]);
 
         $_SESSION['success'] = "User updated successfully.";
         header("Location: users.php");
@@ -157,6 +159,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="staff" <?= $current_user['role'] === 'staff' ? 'selected' : '' ?>>IT Staff</option>
                     <option value="user" <?= $current_user['role'] === 'user' ? 'selected' : '' ?>>End User</option>
                 </select>
+            </div>
+
+            <!-- is_active checkbox -->
+            <div class="flex items-center">
+                <input type="checkbox" name="is_active" id="is_active" value="1"
+                    class="h-4 w-4 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
+                    <?= (!isset($current_user['is_active']) || $current_user['is_active'] == '1') ? 'checked' : 'unchecked' ?>>
+                <label for="is_active" class="ml-2 block text-cyan-700 font-semibold font-mono">
+                    Active
+                </label>
             </div>
 
             <!-- update button -->

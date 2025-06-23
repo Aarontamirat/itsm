@@ -16,17 +16,19 @@ function respond($msg, $success = true) {
     exit;
 }
 
+$created_by = $_SESSION['user_id'] ?? null; // Assuming user_id is stored in session
+
 if ($action === 'add_article') {
     $title = trim($_POST['title'] ?? '');
     $content = trim($_POST['content'] ?? '');
     $category_id = $_POST['category_id'] ?? null;
 
-    if ($title === '' || $content === '' || !$category_id || !is_numeric($category_id)) {
+    if ($title === '' || $content === '' || !$category_id || !is_numeric($category_id) || !$created_by) {
         respond('Invalid input', false);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO kb_articles (title, content, category_id, created_at) VALUES (?, ?, ?, NOW())");
-    $stmt->execute([$title, $content, $category_id]);
+    $stmt = $pdo->prepare("INSERT INTO kb_articles (title, content, category_id, created_by, created_at) VALUES (?, ?, ?, ?, NOW())");
+    $stmt->execute([$title, $content, $category_id, $created_by]);
 
     respond('Article added successfully');
 
@@ -57,11 +59,11 @@ if ($action === 'add_article') {
 
 } elseif ($action === 'add_category') {
     $kb_categories = trim($_POST['cat_name'] ?? '');
-    if ($kb_categories === '') {
+    if ($kb_categories === '' || !$created_by) {
         respond('Category name required', false);
     }
-    $stmt = $pdo->prepare("INSERT INTO kb_categories (name, created_at) VALUES (?, NOW())");
-    $stmt->execute([$kb_categories]);
+    $stmt = $pdo->prepare("INSERT INTO kb_categories (name, created_by, created_at) VALUES (?, ?, NOW())");
+    $stmt->execute([$kb_categories, $created_by]);
 
     respond('Category added successfully');
 

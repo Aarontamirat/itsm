@@ -197,10 +197,14 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="text-sm text-cyan-500">Category: ${article.name}</div>
         <div class="text-xs text-cyan-400 mt-1">Created at: ${new Date(article.created_at).toLocaleString()}</div>
         <div class="mt-3 flex gap-2">
-        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200 font-mono">Helpful</button>
-        <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 font-mono">Not Helpful</button>
+          <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200 font-mono">Good</button>
+          <button data-article-id="${article.id}" class="feedbackBtn px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 font-mono">Bad</button>
+          ${<?= json_encode($is_admin_or_staff) ?> ? `
+            <button data-article-id="${article.id}" class="editArticleBtn px-3 py-1 bg-cyan-100 text-cyan-800 rounded hover:bg-cyan-200 font-mono">Edit</button>
+            <button data-article-id="${article.id}" class="deleteArticleBtn px-3 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200 font-mono">Delete</button>
+          ` : ''}
         </div>
-      `;
+            `;
 
       card.appendChild(header);
       card.appendChild(content);
@@ -211,7 +215,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.querySelectorAll('.feedbackBtn').forEach(btn => {
       btn.addEventListener('click', async e => {
         const articleId = e.target.dataset.articleId;
-        const feedbackType = e.target.textContent.toLowerCase().includes('helpful') ? 'helpful' : 'not_helpful';
+        const feedbackType = e.target.textContent.toLowerCase().includes('good') ? 'good' : 'bad';
         try {
         await axios.post('kb_feedback_api.php', { article_id: articleId, feedback_type: feedbackType });
         alert('Thank you for your feedback!');
@@ -250,45 +254,66 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     // MODAL FUNCTIONS (Add/Edit/Delete for categories and articles)
     <?php if($is_admin_or_staff): ?>
     addArticleBtn?.addEventListener('click', () => {
-    openModal('add_article');
+      openModal('add_article');
     });
     addCategoryBtn?.addEventListener('click', () => {
-    openModal('add_category');
+      openModal('add_category');
     });
 
-    async function openModal(type, id = null) {
-    modalBackdrop.classList.remove('hidden');
-    modalContent.innerHTML = 'Loading...';
+    // Pass the current logged in user from PHP to JS
+    const createdBy = <?= json_encode($_SESSION['user_id'] ?? '') ?>;
 
-    try {
+    async function openModal(type, id = null) {
+      modalBackdrop.classList.remove('hidden');
+      modalContent.innerHTML = 'Loading...';
+
+      try {
       const response = await axios.get('kb_modal_content.php', { params: { type, id } });
       modalContent.innerHTML = response.data;
 
       // Bind form submit after modal loads
       const form = modalContent.querySelector('form');
       form?.addEventListener('submit', async e => {
-      e.preventDefault();
-      const formData = new FormData(form);
+        e.preventDefault();
+        const formData = new FormData(form);
+        formData.append('created_by', createdBy);
 
-      try {
+        try {
         const submitResponse = await axios.post('kb_crud_api.php', formData);
         alert(submitResponse.data.message);
         closeModal();
         fetchArticles();
-      } catch (error) {
+        } catch (error) {
         alert(error.response?.data?.message || 'Error processing request');
-      }
+        }
       });
 
       // Bind modal close button
       modalContent.querySelector('.modalCloseBtn')?.addEventListener('click', closeModal);
 
-    } catch (error) {
+      } catch (error) {
       modalContent.innerHTML = '<p class="text-red-600">Failed to load modal content.</p>';
-    }
+      }
     }
 
+    // Edit Article: delegate event to articlesContainer
+    articlesContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('editArticleBtn')) {
+      const articleId = e.target.dataset.articleId;
+      openModal('edit_article', articleId);
+      }
+    });
+
+    // Edit Article: delegate event to articlesContainer
+    articlesContainer.addEventListener('click', function(e) {
+      if (e.target.classList.contains('deleteArticleBtn')) {
+      const articleId = e.target.dataset.articleId;
+      openModal('delete_article', articleId);
+      }
+    });
     <?php endif; ?>
+
+
   </script>
 </body>
 </html>

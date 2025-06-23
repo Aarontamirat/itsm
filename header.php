@@ -9,6 +9,14 @@ if (!isset($_SESSION['user_id'])) {
   header("Location: ../login.php");
   exit();
 }
+
+if ($_SESSION['is_active'] == 0) {
+  $_SESSION['error'] = "Your account is blocked. Please contact the system administrator.";
+  header("Location: ../login.php");
+  exit();
+}
+
+
 $user_id = $_SESSION['user_id'];
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
@@ -215,6 +223,7 @@ function updateNotificationUI(notifications, userRole) {
     notifCounter.textContent = notifications.length;
     notifCounter.classList.remove('hidden');
     notifications.forEach(n => {
+      let hasFixed = n.message && n.message.includes('has been marked as fixed');
       notifList.innerHTML += `
       <a href="${baseUrl}${n.related_incident_id}" 
          class="block px-5 py-3 mb-2 last:mb-0 text-base font-medium text-slate-100 glass border-l-4 border-cyan-500 shadow-lg hover:bg-slate-900/80 hover:border-cyan-300 transition-all duration-200 rounded-xl group relative overflow-hidden backdrop-blur-md"
@@ -229,9 +238,58 @@ function updateNotificationUI(notifications, userRole) {
           <svg class="inline-block mr-1 -mt-0.5" width="11" height="11" fill="none" viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" rx="2" stroke="#38bdf8" stroke-width="1"/><path d="M6 3v3l1.5 1.5" stroke="#818cf8" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>
           ${n.created_at ? new Date(n.created_at).toLocaleString() : ''}
         </span>
+        ${hasFixed ? `
+          <div class="flex gap-2 my-3 ml-2">
+            <button class="confirm-btn tech-btn px-3 py-1 text-xs" data-id="${n.related_incident_id}">Confirm</button>
+            <button class="reopen-btn tech-btn px-3 py-1 text-xs bg-pink-600 hover:bg-pink-700" style="background:linear-gradient(90deg,#f43f5e 0%,#818cf8 100%);" data-id="${n.related_incident_id}">Reopen</button>
+          </div>
+        ` : ''}
       </a>
       `;
     });
+
+    // Attach event listeners after rendering
+    notifList.addEventListener('click', function(e) {
+      // Confirm button
+      if (e.target.classList.contains('confirm-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target;
+      const id = btn.getAttribute('data-id');
+      fetch('../confirm_fixed.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({incident_id: id})
+      }).then(res => res.json()).then(resp => {
+        if (resp.success) {
+        btn.textContent = 'Confirmed';
+        btn.disabled = true;
+        btn.classList.add('opacity-60');
+        }
+      });
+      }
+      // Reopen button
+      if (e.target.classList.contains('reopen-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = e.target;
+      const id = btn.getAttribute('data-id');
+      fetch('../reopen_incident.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({incident_id: id})
+      }).then(res => res.json()).then(resp => {
+        if (resp.success) {
+        btn.textContent = 'Reopened';
+        btn.disabled = true;
+        btn.classList.add('opacity-60');
+        } else {
+        btn.textContent = 'Error';
+        }
+      });
+      }
+    });
+
   } else {
     notifCounter.classList.add('hidden');
     notifList.innerHTML = '<p class="px-4 py-2 text-base text-cyan-200">No new notifications</p>';

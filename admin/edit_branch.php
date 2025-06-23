@@ -51,6 +51,22 @@ if (!$branch) die('Branch not found');
         <input type="text" name="location" id="location" value="<?= htmlspecialchars($branch['location']) ?>" required
           class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono" />
       </div>
+      
+      <div>
+        <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="phone">Phone Number</label>
+        <input type="text" name="phone" id="phone" value="<?= htmlspecialchars($branch['phone'] ?? '') ?>" required
+          class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono" />
+      </div>
+      <div>
+        <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="email">Email</label>
+        <input type="email" name="email" id="email" value="<?= htmlspecialchars($branch['email'] ?? '') ?>" required
+          class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-green-200 focus:outline-none transition duration-200 font-mono" />
+      </div>
+
+      <div class="flex items-center">
+        <input type="checkbox" name="is_active" id="is_active" value="1" class="h-5 w-5 text-cyan-600 border-cyan-300 rounded focus:ring-cyan-400" <?= $branch['is_active'] ? 'checked' : '' ?>>
+        <label for="is_active" class="ml-2 text-cyan-700 font-semibold font-mono select-none">Active</label>
+      </div>
       <button type="submit"
         class="w-full py-2 px-4 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
         Update Branch

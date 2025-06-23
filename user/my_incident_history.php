@@ -86,7 +86,19 @@ $incidents = $stmt->fetchAll();
                     echo '<p><span class="font-semibold">Description:</span> ' . htmlspecialchars($incident['description']) . '</p>';
                     echo '<p><span class="font-semibold">Category:</span> ' . htmlspecialchars($incident['name']) . '</p>';
                     echo '<p><span class="font-semibold">Priority:</span> ' . htmlspecialchars($incident['priority']) . '</p>';
-                    echo '<p><span class="font-semibold">Status:</span> ' . htmlspecialchars($incident['status']) . '</p>';
+                    // Display status with color coding
+                    $status_class = match ($incident['status']) {
+                        'fixed' => 'text-green-600',
+                        'fixed_confirmed' => 'text-green-600',
+                        'pending' => 'text-red-600',
+                        'not fixed' => 'text-orange-600',
+                        'assigned' => 'text-yellow-600',
+                        'rejected' => 'text-gray-600',
+                        default => 'text-red-600',
+                    };
+                    echo '<p><span class="font-semibold">Status:</span> <span class="' . $status_class . '">' . htmlspecialchars($incident['status']) . '</span></p>';
+                    echo '<p><span class="font-semibold">Rejection Reason:</span> ' . htmlspecialchars($incident['rejection_reason']) . '</p>';
+                    echo '<p><span class="font-semibold">Rejected At:</span> ' . htmlspecialchars($incident['rejected_at']) . '</p>';
                     echo '<p><span class="font-semibold">Created:</span> ' . htmlspecialchars($incident['created_at']) . '</p>';
                     echo '</div>';
                 } else {
@@ -257,7 +269,20 @@ $incidents = $stmt->fetchAll();
                                 <td class="p-3"><?= htmlspecialchars($incident['description']) ?></td>
                                 <td class="p-3"><?= htmlspecialchars($incident['name']) ?></td>
                                 <td class="p-3"><?= htmlspecialchars($incident['priority']) ?></td>
-                                <td class="p-3 capitalize"><?= htmlspecialchars($incident['status']) ?></td>
+                                <td class="p-3">
+                                    <?php
+                                    $status_class = match ($incident['status']) {
+                                        'fixed' => 'bg-green-400 rounded-lg px-1 text-white',
+                                        'fixed_confirmed' => 'bg-green-400 rounded-lg px-1 text-white',
+                                        'pending' => 'bg-red-400 rounded-lg px-1 text-white animate-pulse',
+                                        'not fixed' => 'bg-orange-400 rounded-lg px-1 text-white',
+                                        'assigned' => 'bg-yellow-400 rounded-lg px-1 text-white',
+                                        'rejected' => 'bg-gray-400 rounded-lg px-1 text-white',
+                                        default => 'bg-red-400 rounded-lg px-1 text-white animate-pulse',
+                                    };
+                                    ?>
+                                    <span class="<?= $status_class ?>"><?= htmlspecialchars($incident['status']) ?></span>
+                                </td>
                                 <td class="p-3"><?= htmlspecialchars($incident['created_at']) ?></td>
                             </tr>
                         <?php endforeach ?>

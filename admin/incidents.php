@@ -148,9 +148,13 @@ $staff = $staffStmt->fetchAll();
                 $stmt = $pdo->prepare(
                     "SELECT 
                         incidents.*,
-                        c.name AS name
+                        c.name AS name,
+                        u.id AS user_id,
+                        u.name AS assigned_to
                     FROM 
                         incidents
+                    LEFT JOIN 
+                        users u ON incidents.assigned_to = u.id
                     LEFT JOIN
                         kb_categories c ON incidents.category_id = c.id
                     WHERE 

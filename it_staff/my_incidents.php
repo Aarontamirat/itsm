@@ -8,56 +8,70 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'staff') {
 }
 
 $staff_id = $_SESSION['user_id'];
-// Pagination settings
+            // Build dynamic WHERE clause and parameters for search filters
+            $where = ["i.assigned_to = ?"];
+            $params = [$staff_id];
+
+            // Title filter
+            if (isset($_GET['title']) && $_GET['title'] !== '') {
+                $where[] = "i.title LIKE ?";
+                $params[] = '%' . $_GET['title'] . '%';
+            }
+
+            // Status filter
+            if (isset($_GET['statuss']) && $_GET['statuss'] !== '') {
+                $where[] = "i.status = ?";
+                $params[] = $_GET['statuss'];
+            }
+
+            // Branch filter
+            if (isset($_GET['branch_id']) && $_GET['branch_id'] !== '') {
+                $where[] = "i.branch_id = ?";
+                $params[] = $_GET['branch_id'];
+            }
+
+            // Submitter filter
+            if (isset($_GET['submitted_by']) && $_GET['submitted_by'] !== '') {
+                $where[] = "i.submitted_by = ?";
+                $params[] = $_GET['submitted_by'];
+            }
+
+            // Date range filter
+            if (!empty($_GET['date_from'])) {
+                $where[] = "DATE(i.created_at) >= ?";
+                $params[] = $_GET['date_from'];
+            }
+            if (!empty($_GET['date_to'])) {
+                $where[] = "DATE(i.created_at) <= ?";
+                $params[] = $_GET['date_to'];
+            }
+
+            $whereSql = count($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+            // Pagination settings
             $perPage = 10;
             $totalStmt = $pdo->prepare(
-                "SELECT COUNT(*) FROM incidents WHERE assigned_to = ?" . 
-                (isset($_GET['title']) && $_GET['title'] !== '' ? " AND title LIKE ?" : "")
+                "SELECT COUNT(*) FROM incidents i $whereSql"
             );
-            if (isset($_GET['title']) && $_GET['title'] !== '') {
-                $search = '%' . $_GET['title'] . '%';
-                $totalStmt->execute([$staff_id, $search]);
-            } else {
-                $totalStmt->execute([$staff_id]);
-            }
+            $totalStmt->execute($params);
             $totalIncidents = (int)$totalStmt->fetchColumn();
             $totalPages = max(1, ceil($totalIncidents / $perPage));
             $page = isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0 ? (int)$_GET['page'] : 1;
             $offset = ($page - 1) * $perPage;
 
-            // Fetch paginated incidents
-            if (isset($_GET['title']) && $_GET['title'] !== '') {
-                $stmt = $pdo->prepare(
-                    "SELECT i.*, u.name AS submitted_by_name, c.name AS name 
-                     FROM incidents i 
-                     LEFT JOIN users u ON i.submitted_by = u.id
-                     LEFT JOIN kb_categories c ON i.category_id = c.id 
-                     WHERE i.title LIKE ? AND i.assigned_to = ?
-                     ORDER BY i.created_at DESC
-                     LIMIT ? OFFSET ?"
-                );
-                $stmt->bindValue(1, '%' . $_GET['title'] . '%', PDO::PARAM_STR);
-                $stmt->bindValue(2, $staff_id, PDO::PARAM_INT);
-                $stmt->bindValue(3, $perPage, PDO::PARAM_INT);
-                $stmt->bindValue(4, $offset, PDO::PARAM_INT);
-                $stmt->execute();
-                $incidents = $stmt->fetchAll();
-            } else {
-                $stmt = $pdo->prepare(
-                    "SELECT i.*, u.name AS submitted_by_name, c.name AS name 
-                     FROM incidents i 
-                     LEFT JOIN users u ON i.submitted_by = u.id
-                     LEFT JOIN kb_categories c ON i.category_id = c.id 
-                     WHERE i.assigned_to = ?
-                     ORDER BY i.created_at DESC
-                     LIMIT ? OFFSET ?"
-                );
-                $stmt->bindValue(1, $staff_id, PDO::PARAM_INT);
-                $stmt->bindValue(2, $perPage, PDO::PARAM_INT);
-                $stmt->bindValue(3, $offset, PDO::PARAM_INT);
-                $stmt->execute();
-                $incidents = $stmt->fetchAll();
-            }
+            // Fetch paginated incidents with all filters
+            $limit = (int)$perPage;
+            $offsetInt = (int)$offset;
+            $sql = "SELECT i.*, u.name AS submitted_by_name, c.name AS name 
+                 FROM incidents i 
+                 LEFT JOIN users u ON i.submitted_by = u.id
+                 LEFT JOIN kb_categories c ON i.category_id = c.id 
+                 $whereSql
+                 ORDER BY i.created_at DESC
+                 LIMIT $limit OFFSET $offsetInt";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $incidents = $stmt->fetchAll();
 
 
 // Handle status update
@@ -212,9 +226,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
     <?php endif; ?>
 
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <form method="get" class="flex items-center gap-2 w-full md:w-auto">
+        <form method="get" class="flex flex-col md:flex-row items-center gap-2 w-full md:w-auto">
+            <!-- Incident Title -->
             <input type="text" name="title" placeholder="Search by Incident Title" value="<?= isset($_GET['title']) ? htmlspecialchars($_GET['title']) : '' ?>"
-            class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full md:w-64" />
+            class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono w-full md:w-48" />
+
+            <!-- Status Filter -->
+            <select name="statuss" class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36">
+            <option value="">All Status</option>
+            <?php
+            $statuses = ['pending', 'fixed', 'not fixed', 'support', 'assigned', 'rejected', 'fixed_confirmed'];
+            foreach ($statuses as $statusOpt):
+            ?>
+                <option value="<?= $statusOpt ?>" <?= (isset($_GET['statuss']) && $_GET['statuss'] === $statusOpt) ? 'selected' : '' ?>>
+                <?= ucfirst(str_replace('_', ' ', $statusOpt)) ?>
+                </option>
+            <?php endforeach; ?>
+            </select>
+
+            <!-- Branch Filter -->
+            <select name="branch_id" class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36">
+            <option value="">All Branches</option>
+            <?php
+            $branches = $pdo->query("SELECT id, name FROM branches ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($branches as $branch):
+            ?>
+                <option value="<?= $branch['id'] ?>" <?= (isset($_GET['branch_id']) && $_GET['branch_id'] == $branch['id']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($branch['name']) ?>
+                </option>
+            <?php endforeach; ?>
+            </select>
+
+            <!-- Submitter Filter -->
+            <select name="submitted_by" class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36">
+            <option value="">All Submitters</option>
+            <?php
+            $submitters = $pdo->query("SELECT DISTINCT u.id, u.name FROM users u INNER JOIN incidents i ON i.submitted_by = u.id ORDER BY u.name ASC")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($submitters as $submitter):
+            ?>
+                <option value="<?= $submitter['id'] ?>" <?= (isset($_GET['submitted_by']) && $_GET['submitted_by'] == $submitter['id']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($submitter['name']) ?>
+                </option>
+            <?php endforeach; ?>
+            </select>
+
+            <!-- Date Range -->
+            <input type="date" name="date_from" value="<?= isset($_GET['date_from']) ? htmlspecialchars($_GET['date_from']) : '' ?>"
+            class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36" placeholder="From" />
+            <input type="date" name="date_to" value="<?= isset($_GET['date_to']) ? htmlspecialchars($_GET['date_to']) : '' ?>"
+            class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36" placeholder="To" />
+
             <button type="submit" class="px-4 py-2 bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition duration-300 font-mono tracking-widest">
             Search
             </button>

@@ -28,7 +28,8 @@
     // Open Incidents
     $stmt = $pdo->prepare("SELECT 
       SUM(status IN ('not fixed', 'assigned', 'support')) AS open_count, 
-      SUM(status = 'fixed') AS resolved_count, 
+      SUM(status = 'fixed_confirmed') AS resolved_count,
+      SUM(status = 'fixed') AS pending_confirm_count,
       SUM(status = 'pending') AS pending_count 
       FROM incidents
       WHERE assigned_to = :user_id");
@@ -37,6 +38,7 @@
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $openIncidents = $row['open_count'] ?? 0;
     $resolvedIncidents = $row['resolved_count'] ?? 0;
+    $pendingResolvedIncidents = $row['pending_confirm_count'] ?? 0;
     $pendingIncidents = $row['pending_count'] ?? 0;
 
     // Fetch incidents by status for bar chart (using status as category)
@@ -94,7 +96,15 @@
         <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $resolvedIncidents; ?></div>
         <div class="text-green-500 mt-2 font-mono">Incidents Resolved</div>
       </div>
-      <!-- Card 3: Pending Incidents -->
+      <!-- Card 3: Incidents not confirmed -->
+      <div class="bg-green-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400 hover:scale-105 transition-transform duration-200">
+        <svg class="w-12 h-12 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $pendingResolvedIncidents; ?></div>
+        <div class="text-green-500 mt-2 font-mono">Unconfirmed Incidents</div>
+      </div>
+      <!-- Card 4: Pending Incidents -->
       <div class="bg-yellow-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-yellow-400 hover:scale-105 transition-transform duration-200">
         <svg class="w-12 h-12 text-yellow-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path d="M12 8v4l3 3"></path>

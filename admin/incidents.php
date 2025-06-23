@@ -262,7 +262,7 @@ $staff = $staffStmt->fetchAll();
                             <td class="p-3">
                                 <div class="flex flex-col md:flex-row gap-2 md:items-center">
                                     <?php
-                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected')) {
+                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected') && ($incident['status'] !== 'fixed_confirmed')) {
                                             ?>
                                     <a href="<?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'assign_incidents.php?id=' . $incident['id'] : 'reassign_incidents.php?id='.$incident['id'] ?>" class="bg-green-400 hover:bg-green-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto"> <?= ($incident['assigned_to'] == '') || ($incident['assigned_to'] == null) ? 'Assign' : 'Reassign' ?> </a>
                                     <?php
@@ -274,7 +274,7 @@ $staff = $staffStmt->fetchAll();
                                     <form action="update_incident_status.php" method="POST" class="inline-block">
                                         <input type="hidden" name="incident_id" value="<?= $incident['id'] ?>" />
                                         <?php
-                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected')) {
+                                        if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected') && ($incident['status'] !== 'fixed_confirmed')) {
                                             echo '<div class="flex gap-2">
                                                 <select name="status" class="px-2 py-1 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono">
                                                     <option value="pending" '.($incident["status"] === "pending" ? "selected" : "").'>Pending</option>

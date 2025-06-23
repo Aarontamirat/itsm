@@ -132,6 +132,10 @@ function priorityBadge($priority) {
                     <span class="text-cyan-700 font-semibold">Saved Amount:</span>
                     <span><?= h($incident['saved_amount']) ?></span>
                 </div>
+                <div class="mb-3">
+                    <span class="text-cyan-700 font-semibold">Remark:</span>
+                    <span><?= h($incident['remark']) ?></span>
+                </div>
             </div>
         </div>
 

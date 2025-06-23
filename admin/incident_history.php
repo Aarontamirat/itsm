@@ -96,9 +96,9 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </script>
     <?php endif; ?>
 
-    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-      <div></div>
-      <form method="GET" action="export_incident_logs.php" class="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
+    <div class="w-full mb-8">
+      <form method="GET" action="export_incident_logs.php"
+        class="flex flex-wrap gap-4 items-end w-full bg-cyan-50 bg-opacity-70 rounded-xl p-4 shadow-inner border border-cyan-100">
         <?php
         // Fetch users and incidents for dropdowns
         $userStmt = $pdo->query("SELECT id, name FROM users ORDER BY name ASC");
@@ -107,39 +107,49 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $incidentStmt = $pdo->query("SELECT id, title FROM incidents ORDER BY id DESC");
         $incidents = $incidentStmt->fetchAll(PDO::FETCH_ASSOC);
         ?>
-        <div>
-          <label class="block text-xs font-mono text-cyan-700">User</label>
-          <select name="user_id" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        <div class="flex flex-col min-w-[140px] flex-1 sm:flex-none">
+          <label class="block text-xs font-mono text-cyan-700 mb-1">User</label>
+          <select name="user_id"
+            class="px-4 py-2 rounded-lg border border-cyan-200 bg-white text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none font-mono transition duration-200">
             <option value="">All Users</option>
             <?php foreach ($users as $user): ?>
               <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div>
-          <label class="block text-xs font-mono text-cyan-700">Incident</label>
-          <select name="incident_id" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        <div class="flex flex-col min-w-[180px] flex-1 sm:flex-none">
+          <label class="block text-xs font-mono text-cyan-700 mb-1">Incident</label>
+          <select name="incident_id"
+            class="px-4 py-2 rounded-lg border border-cyan-200 bg-white text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none font-mono transition duration-200">
             <option value="">All Incidents</option>
             <?php foreach ($incidents as $incident): ?>
               <option value="<?= $incident['id'] ?>">#<?= $incident['id'] ?> - <?= htmlspecialchars($incident['title']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div>
-          <label class="block text-xs font-mono text-cyan-700">From</label>
-          <input type="date" name="from" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        <div class="flex flex-col min-w-[120px] flex-1 sm:flex-none">
+          <label class="block text-xs font-mono text-cyan-700 mb-1">From</label>
+          <input type="date" name="from"
+            class="px-4 py-2 rounded-lg border border-cyan-200 bg-white text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none font-mono transition duration-200">
         </div>
-        <div>
-          <label class="block text-xs font-mono text-cyan-700">To</label>
-          <input type="date" name="to" class="px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono">
+        <div class="flex flex-col min-w-[120px] flex-1 sm:flex-none">
+          <label class="block text-xs font-mono text-cyan-700 mb-1">To</label>
+          <input type="date" name="to"
+            class="px-4 py-2 rounded-lg border border-cyan-200 bg-white text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none font-mono transition duration-200">
         </div>
-        <div class="flex gap-2 mt-2 md:mt-6">
+        <div class="flex gap-2 mt-2 sm:mt-6 w-full sm:w-auto justify-end">
           <button type="submit" name="format" value="csv"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-mono font-semibold shadow transition">
+            class="px-4 py-2 bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white rounded-lg font-mono font-semibold shadow transition flex items-center gap-2 w-full sm:w-auto justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17l4 4 4-4m-4-5v9"/>
+            </svg>
             Export CSV
           </button>
           <button type="submit" name="format" value="pdf"
-            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-mono font-semibold shadow transition">
+            class="px-4 py-2 bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white rounded-lg font-mono font-semibold shadow transition flex items-center gap-2 w-full sm:w-auto justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
             Export PDF
           </button>
         </div>

@@ -144,7 +144,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                     <select name="status" class="p-2 border rounded">
                     <option value="">All Statuses</option>
-                    <?php foreach (['pending', 'assigned', 'not fixed', 'fixed', 'rejected'] as $status): ?>
+                    <?php foreach (['pending', 'assigned', 'not fixed', 'fixed', 'fixed_confirmed', 'rejected'] as $status): ?>
                             <option value="<?= $status ?>" <?= ($_GET['status'] ?? '') == $status ? 'selected' : '' ?>>
                             <?= ucfirst($status) ?>
                             </option>
@@ -204,7 +204,7 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                     // Status Distribution Data
                     <?php
                             $statusCounts = [];
-                            $statusList = ['pending', 'assigned', 'not fixed', 'fixed', 'rejected'];
+                            $statusList = ['pending', 'assigned', 'not fixed', 'fixed', 'fixed_confirmed', 'rejected'];
                             foreach ($statusList as $status) {
                                     $stmt = $pdo->prepare("SELECT COUNT(*) FROM incidents i $whereSQL AND i.status = :status");
                                     $stmt->execute(array_merge($params, [':status' => $status]));
@@ -247,7 +247,8 @@ $monthlySavings = $monthStmt->fetchAll(PDO::FETCH_ASSOC);
                                                     '#f59e42', // pending
                                                     '#3b82f6', // assigned
                                                     '#ef4444', // not fixed
-                                                    '#10b981', // fixed
+                                                    '#6666ff', // fixed
+                                                    '#1a770e', // fixed_confirmed
                                                     '#6b7280'  // rejected
                                             ]
                                     }]

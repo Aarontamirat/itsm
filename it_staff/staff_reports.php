@@ -252,6 +252,7 @@ function diffMinutes($start, $end) {
     </div>
 
     
+    <!-- PDF Export Script with Summary -->
     <script>
     document.getElementById('export-pdf-btn').addEventListener('click', function () {
         const { jsPDF } = window.jspdf;
@@ -321,7 +322,7 @@ function diffMinutes($start, $end) {
         doc.text("Employee Signature", 100, pageHeight - 95);
         doc.text("Manager Signature (Mikiyas Wendimu)", pageWidth - 350, pageHeight - 95);
 
-        // Add a new page for the table
+        // Add a new page for the table and summary
         doc.addPage();
 
         // Table headers
@@ -336,7 +337,7 @@ function diffMinutes($start, $end) {
         document.querySelectorAll('table tbody tr').forEach(tr => {
             const row = [];
             tr.querySelectorAll('td').forEach(td => {
-            row.push(td.innerText.trim());
+                row.push(td.innerText.trim());
             });
             rows.push(row);
         });
@@ -351,9 +352,30 @@ function diffMinutes($start, $end) {
             headStyles: { fillColor: [8, 145, 178] }
         });
 
+        // Add summary below the table
+        // Get summary values from the DOM
+        // Use a more specific selector and avoid optional chaining for compatibility
+        var summaryDiv = document.querySelector('.mt-6.bg-cyan-50.flex');
+        if (!summaryDiv) summaryDiv = document.querySelector('.mt-6.bg-cyan-50');
+        var summaryItems = summaryDiv ? summaryDiv.querySelectorAll('div') : [];
+        var totalIncidents = summaryItems.length > 0 ? summaryItems[0].innerText : '';
+        var totalSaved = summaryItems.length > 1 ? summaryItems[1].innerText : '';
+        var totalTime = summaryItems.length > 2 ? summaryItems[2].innerText : '';
+
+        let summaryY = doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY + 30 : 120;
+        doc.setFontSize(13);
+        doc.setTextColor(8, 145, 178);
+        doc.text("Summary", 40, summaryY);
+
+        doc.setFontSize(11);
+        doc.setTextColor(30, 41, 59);
+        doc.text(totalIncidents, 60, summaryY + 25);
+        doc.text(totalSaved, 60, summaryY + 45);
+        doc.text(totalTime, 60, summaryY + 65);
+
         doc.save('staff_incident_report.pdf');
-        });
-        </script>
+    });
+    </script>
 </div>
 </body>
 </html>

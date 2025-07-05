@@ -139,8 +139,26 @@ $incidents = $stmt->fetchAll();
             </script>
         <?php endif; ?>
 
-        <!-- Date Filter -->
+        <!-- Incidents Filters -->
         <form method="GET" class="mb-8 flex flex-col md:flex-row items-center gap-4 justify-center">
+            
+            <!-- title and description search -->
+            <input type="text" name="search" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" placeholder="Search your incidents..." class="p-3 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900 font-mono focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 w-full md:w-96" />
+            
+            <!-- status filter -->
+            <select name="status" class="px-3 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 font-mono w-full md:w-36">
+            <option value="">All Status</option>
+            <?php
+            $statuses = ['pending', 'fixed', 'not fixed', 'support', 'assigned', 'rejected', 'fixed_confirmed'];
+            foreach ($statuses as $statusOpt):
+            ?>
+                <option value="<?= $statusOpt ?>" <?= (isset($_GET['status']) && $_GET['status'] === $statusOpt) ? 'selected' : '' ?>>
+                <?= ucfirst(str_replace('_', ' ', $statusOpt)) ?>
+                </option>
+            <?php endforeach; ?>
+            </select>
+
+            <!-- date filter -->
             <label class="font-mono text-cyan-700">
             From:
             <input type="date" name="from_date" value="<?= isset($_GET['from_date']) ? htmlspecialchars($_GET['from_date']) : '' ?>" class="p-2 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200" />
@@ -149,25 +167,34 @@ $incidents = $stmt->fetchAll();
             To:
             <input type="date" name="to_date" value="<?= isset($_GET['to_date']) ? htmlspecialchars($_GET['to_date']) : '' ?>" class="p-2 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200" />
             </label>
+            
+            <!-- filter -->
             <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
             Filter
             </button>
         </form>
 
         <?php
-        // Date filter logic
+        // // Date filter logic
         $from_date = isset($_GET['from_date']) && $_GET['from_date'] !== '' ? $_GET['from_date'] : null;
         $to_date = isset($_GET['to_date']) && $_GET['to_date'] !== '' ? $_GET['to_date'] : null;
 
         // Search logic
         $search = isset($_GET['search']) && $_GET['search'] !== '' ? '%' . $_GET['search'] . '%' : null;
 
+        // Status logic
+        $status = isset($_GET['status']) ? trim($_GET['status']) : '';
+
         $where = ["i.submitted_by = :user_id"];
         $params = ['user_id' => $user_id];
 
         if ($search) {
             $where[] = "(i.title LIKE :search OR i.description LIKE :search)";
-            $params['search'] = $search;
+            $params['search'] = '%' . $search . '%';
+        }
+        if ($status) {
+            $where[] = "i.status = :status";
+            $params['status'] = $status;
         }
         if ($from_date) {
             $where[] = "DATE(i.created_at) >= :from_date";
@@ -207,42 +234,25 @@ $incidents = $stmt->fetchAll();
         $incidents = $stmt->fetchAll();
         ?>
 
-        <!-- Search -->
-        <form method="GET" class="mb-8 flex flex-col md:flex-row items-center gap-4 justify-center">
-            <input type="text" name="search" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>" placeholder="Search your incidents..." class="p-3 border border-cyan-200 rounded-lg bg-cyan-50 text-cyan-900 font-mono focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 w-full md:w-96" />
-            <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-6 py-2 transform hover:scale-105 transition duration-300 font-mono tracking-widest">
-                Search
-            </button>
-        </form>
-
         <?php
-        // Search logic
-        $search = isset($_GET['search']) && $_GET['search'] !== '' ? '%' . $_GET['search'] . '%' : null;
-        if ($search) {
-            $stmt = $pdo->prepare(
-                "SELECT i.*, c.name
-                FROM incidents i
-                LEFT JOIN kb_categories c ON i.category_id = c.id
-                WHERE i.submitted_by = ? AND (i.title LIKE ? OR i.description LIKE ?)
-                ORDER BY i.created_at DESC
-                LIMIT ?, ?"
-            );
-            $stmt->bindValue(1, $user_id, PDO::PARAM_INT);
-            $stmt->bindValue(2, $search, PDO::PARAM_STR);
-            $stmt->bindValue(3, $search, PDO::PARAM_STR);
-            $stmt->bindValue(4, $start_from, PDO::PARAM_INT);
-            $stmt->bindValue(5, $results_per_page, PDO::PARAM_INT);
-            $stmt->execute();
-            $incidents = $stmt->fetchAll();
-
-            // For pagination with search
-            $countStmt = $pdo->prepare(
-                "SELECT COUNT(*) FROM incidents WHERE submitted_by = ? AND (title LIKE ? OR description LIKE ?)"
-            );
-            $countStmt->execute([$user_id, $search, $search]);
-            $total_incidents = $countStmt->fetchColumn();
-            $total_pages = ceil($total_incidents / $results_per_page);
+        // pagination logic
+        if ($page < 1 || $page > $total_pages) {
+            $page = 1; // Reset to first page if out of bounds
         }
+        $start_from = ($page - 1) * $results_per_page;
+        if ($start_from < 0) {
+            $start_from = 0; // Ensure start_from is not negative
+        }
+        if ($total_incidents === 0) {
+            $incidents = []; // No incidents found
+        }
+        // Display the incidents
+        if ($total_incidents > 0 && empty($incidents)) {
+            $_SESSION['error'] = 'No incidents found for the given filters.';
+            header('Location: user/my_incident_history.php');
+            exit;
+        }
+
         ?>
 
         <div class="overflow-x-auto rounded-xl shadow-inner">
@@ -297,8 +307,17 @@ $incidents = $stmt->fetchAll();
                 <ul class="flex space-x-2 font-mono">
                     <?php
                     $queryString = '';
-                    if ($search) {
-                        $queryString = '&search=' . urlencode($_GET['search']);
+                    // if ($search) {
+                    //     $queryString = '&search=' . urlencode($_GET['search']);
+                    // }
+                    if ($status) {
+                        $queryString = '&status=' . urlencode($_GET['status']);
+                    }
+                    if ($from_date) {
+                        $queryString = '&from_date=' . urlencode($_GET['from_date']);
+                    }
+                    if ($to_date) {
+                        $queryString = '&to_date=' . urlencode($_GET['to_date']);
                     }
                     for ($i = 1; $i <= $total_pages; $i++): ?>
                         <li>

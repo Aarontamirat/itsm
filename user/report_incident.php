@@ -51,10 +51,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, status, submitted_by, branch_id, created_at) VALUES (?, ?, ?, ?, 'pending', ?, ?, NOW())");
             $stmt->execute([$title, $description, $category_id, $priority, $user_id, $branch_id]);
             $incident_id = $pdo->lastInsertId();
+
         } else {
             $stmt = $pdo->prepare("INSERT INTO incidents (title, description, category_id, priority, assigned_to, status, submitted_by, branch_id, assigned_date, created_at) VALUES (?, ?, ?, ?, ?, 'assigned', ?, ?, NOW(), NOW())");
             $stmt->execute([$title, $description, $category_id, $priority, $assignedTo, $user_id, $branch_id]);
             $incident_id = $pdo->lastInsertId();
+
+            // update noitifications table for assigned IT_staff
+            $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
+            $stmt->execute([$assignedTo, "You have been assigned to an incident", $incident_id]);
         }
 
         // Handle file upload
@@ -75,11 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
             $stmt->execute([$admin['id'], "New incident reported", $incident_id]);
         }
-        // update noitifications table for assigned IT_staff
-        $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, related_incident_id) VALUES (?, ?, ?)");
-        $stmt->execute([$assignedTo, "You have been assigned to an incident", $incident_id]);
-
-
 
         // Add to incident logs
         $log = $pdo->prepare("INSERT INTO incident_logs (incident_id, action, user_id, created_at) VALUES (?, ?, ?, NOW())");

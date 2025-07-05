@@ -224,8 +224,12 @@ function updateNotificationUI(notifications, userRole) {
     notifCounter.classList.remove('hidden');
     notifications.forEach(n => {
       let hasFixed = n.message && n.message.includes('has been marked as fixed');
+      // Determine URL based on related_project_id
+      let url = (n.related_project_id !== null && n.related_project_id !== undefined)
+        ? `projects.php?id=${n.related_project_id}`
+        : `${baseUrl}${n.related_incident_id}`;
       notifList.innerHTML += `
-      <a href="${baseUrl}${n.related_incident_id}" 
+      <a href="${url}" 
          class="block px-5 py-3 mb-2 last:mb-0 text-base font-medium text-slate-100 glass border-l-4 border-cyan-500 shadow-lg hover:bg-slate-900/80 hover:border-cyan-300 transition-all duration-200 rounded-xl group relative overflow-hidden backdrop-blur-md"
          style="border-radius: 0.85rem; border-left: 3px solid #38bdf8; box-shadow: 0 2px 10px 0 #38bdf844; position: relative; overflow: hidden; padding-left: 1.2rem; min-height: 44px;"
         >

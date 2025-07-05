@@ -5,9 +5,9 @@ require 'config/db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
-    $sessionExpired = isset($_POST['error']) ? $_POST['error'] : '';
+    $sessionExpired = isset($_POST) ? $_POST['error'] : '';
 
-    if ($sessionExpired) {
+    if($sessionExpired) {
         $_SESSION['error'] = $sessionExpired;
         header("Location: login.php");
         exit;
@@ -29,10 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['error'] = "Password must be at least 6 characters.";
     }
 
-<<<<<<< HEAD
-=======
     
->>>>>>> 0660eb26c8987d4d0ac88f329e02f7130f3f461f
     if (!isset($_SESSION['error'])) {
         $stmt = $pdo->prepare(
             "SELECT u.*, 
@@ -40,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             FROM users u
             JOIN branches b ON u.branch_id = b.id
             WHERE u.email = ?"
-        );
+        ); 
         $stmt->execute([$email]);
         $user = $stmt->fetch();
 
@@ -195,15 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (isset($_SESSION['error'])): ?>
             <div id="error-message"
                 class="mb-4 text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2 text-centefont-mono font-semibold opacity-0 transition-opacity duration-500">
-<<<<<<< HEAD
-                <?php
-                    echo htmlspecialchars($_SESSION['error']);
-                    unset($_SESSION['error']);
-=======
                 <?php 
                         echo htmlspecialchars($_SESSION['error']); 
                         unset($_SESSION['error']);
->>>>>>> 0660eb26c8987d4d0ac88f329e02f7130f3f461f
                     ?>
             </div>
             <script>

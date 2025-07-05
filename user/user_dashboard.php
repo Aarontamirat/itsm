@@ -121,36 +121,36 @@ foreach ($result as $row) {
 
           <!-- Status Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-        <!-- Pending Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-yellow-400 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-yellow-500 mb-2"><?php echo $statuses['pending']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Pending</span>
-        </div>
-        <!-- Assigned Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-blue-500 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-blue-500 mb-2"><?php echo $statuses['assigned']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Assigned</span>
-        </div>
-        <!-- Fixed Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Fixed</span>
-        </div>
-        <!-- Fixed Confirmed Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed_confirmed']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Fixed Confirmed</span>
-        </div>
-        <!-- Not Fixed Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-gray-400 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-gray-500 mb-2"><?php echo $statuses['not_fixed']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Not Fixed</span>
-        </div>
-        <!-- Rejected Tickets -->
-        <div class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-red-500 flex flex-col items-center font-mono">
-          <span class="text-5xl font-extrabold text-red-500 mb-2"><?php echo $statuses['rejected']; ?></span>
-          <span class="text-lg font-semibold text-cyan-700">Rejected</span>
-        </div>
+            <!-- Pending Tickets -->
+            <a href="my_incident_history.php?status=pending" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-yellow-500 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-yellow-500 mb-2"><?php echo $statuses['pending']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Pending</span>
+            </a>
+            <!-- Assigned Tickets -->
+            <a href="my_incident_history.php?status=assigned" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-blue-500 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-blue-500 mb-2"><?php echo $statuses['assigned']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Assigned</span>
+            </a>
+            <!-- Fixed Tickets -->
+            <a href="my_incident_history.php?status=fixed" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Fixed</span>
+            </a>
+            <!-- Fixed Confirmed Tickets -->
+            <a href="my_incident_history.php?status=fixed_confirmed" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-green-500 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-green-500 mb-2"><?php echo $statuses['fixed_confirmed']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Fixed Confirmed</span>
+            </a>
+            <!-- Not Fixed Tickets -->
+            <a href="my_incident_history.php?status=not fixed" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-gray-400 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-gray-500 mb-2"><?php echo $statuses['not_fixed']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Not Fixed</span>
+            </a>
+            <!-- Rejected Tickets -->
+            <a href="my_incident_history.php?status=rejected" class="bg-cyan-50 bg-opacity-80 rounded-xl shadow-lg p-6 border-t-4 border-red-500 flex flex-col items-center font-mono hover:scale-105 transition-transform duration-200">
+              <span class="text-5xl font-extrabold text-red-500 mb-2"><?php echo $statuses['rejected']; ?></span>
+              <span class="text-lg font-semibold text-cyan-700">Rejected</span>
+            </a>
           </div>
         </div>
       </main>

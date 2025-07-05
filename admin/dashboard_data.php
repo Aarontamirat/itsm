@@ -15,7 +15,7 @@ foreach ($userRoles as $role) {
 }
 
 // Count incidents by status
-$statuses = ['fixed', 'pending', 'not fixed', 'assigned'];
+$statuses = ['fixed', 'pending', 'not fixed', 'assigned', 'fixed_confirmed'];
 foreach ($statuses as $status) {
   $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM incidents WHERE status = ?");
   $stmt->bindParam(1, $status, PDO::PARAM_STR);

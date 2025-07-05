@@ -27,8 +27,9 @@
 
     // Open Incidents
     $stmt = $pdo->prepare("SELECT 
-      SUM(status IN ('not fixed', 'assigned', 'support')) AS open_count, 
+      SUM(status IN ('assigned', 'support')) AS open_count, 
       SUM(status = 'fixed_confirmed') AS resolved_count,
+      SUM(status = 'not fixed') AS unfixed_count,
       SUM(status = 'fixed') AS pending_confirm_count,
       SUM(status = 'pending') AS pending_count 
       FROM incidents
@@ -40,6 +41,7 @@
     $resolvedIncidents = $row['resolved_count'] ?? 0;
     $pendingResolvedIncidents = $row['pending_confirm_count'] ?? 0;
     $pendingIncidents = $row['pending_count'] ?? 0;
+    $unfixedIncidents = $row['unfixed_count'] ?? 0;
 
     // Fetch incidents by status for bar chart (using status as category)
     $categories = [];
@@ -78,41 +80,49 @@
 
       <!-- Cards Section -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <!-- Card 1: Open Incidents -->
-      <div class="bg-cyan-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-cyan-400 hover:scale-105 transition-transform duration-200">
-        <svg class="w-12 h-12 text-cyan-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M9 17v-2a4 4 0 0 1 8 0v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
-        <rect x="2" y="17" width="20" height="5" rx="2"></rect>
-        </svg>
-        <div class="text-3xl font-extrabold font-mono text-cyan-700"><?php echo $openIncidents; ?></div>
-        <div class="text-cyan-500 mt-2 font-mono">Open Incidents</div>
-      </div>
-      <!-- Card 2: Incidents Resolved -->
-      <div class="bg-green-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400 hover:scale-105 transition-transform duration-200">
-        <svg class="w-12 h-12 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M5 13l4 4L19 7"></path>
-        </svg>
-        <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $resolvedIncidents; ?></div>
-        <div class="text-green-500 mt-2 font-mono">Incidents Resolved</div>
-      </div>
-      <!-- Card 3: Incidents not confirmed -->
-      <div class="bg-green-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400 hover:scale-105 transition-transform duration-200">
-        <svg class="w-12 h-12 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M5 13l4 4L19 7"></path>
-        </svg>
-        <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $pendingResolvedIncidents; ?></div>
-        <div class="text-green-500 mt-2 font-mono">Unconfirmed Incidents</div>
-      </div>
-      <!-- Card 4: Pending Incidents -->
-      <div class="bg-yellow-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-yellow-400 hover:scale-105 transition-transform duration-200">
-        <svg class="w-12 h-12 text-yellow-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M12 8v4l3 3"></path>
-        <circle cx="12" cy="12" r="10"></circle>
-        </svg>
-        <div class="text-3xl font-extrabold font-mono text-yellow-700"><?php echo $pendingIncidents; ?></div>
-        <div class="text-yellow-500 mt-2 font-mono">Pending Incidents</div>
-      </div>
+        <!-- Card 1: Open Incidents -->
+        <a href="my_incidents.php?statuss=assigned" class="bg-cyan-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-cyan-400 hover:scale-105 transition-transform duration-200">
+          <svg class="w-12 h-12 text-cyan-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 17v-2a4 4 0 0 1 8 0v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+          <rect x="2" y="17" width="20" height="5" rx="2"></rect>
+          </svg>
+          <div class="text-3xl font-extrabold font-mono text-cyan-700"><?php echo $openIncidents; ?></div>
+          <div class="text-cyan-500 mt-2 font-mono">Open Incidents</div>
+        </a>
+        <!-- Card 2: Incidents Resolved -->
+        <a href="my_incidents.php?statuss=fixed_confirmed" class="bg-green-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400 hover:scale-105 transition-transform duration-200">
+          <svg class="w-12 h-12 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"></path>
+          </svg>
+          <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $resolvedIncidents; ?></div>
+          <div class="text-green-500 mt-2 font-mono">Incidents Resolved</div>
+        </a>
+        <!-- Card 3: Incidents not confirmed -->
+        <a href="my_incidents.php?statuss=fixed" class="bg-green-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-green-400 hover:scale-105 transition-transform duration-200">
+          <svg class="w-12 h-12 text-green-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M5 13l4 4L19 7"></path>
+          </svg>
+          <div class="text-3xl font-extrabold font-mono text-green-700"><?php echo $pendingResolvedIncidents; ?></div>
+          <div class="text-green-500 mt-2 font-mono">Unconfirmed Incidents</div>
+        </a>
+        <!-- Card 4: Pending Incidents -->
+        <a href="my_incidents.php?statuss=pending" class="bg-yellow-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-yellow-400 hover:scale-105 transition-transform duration-200">
+          <svg class="w-12 h-12 text-yellow-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 8v4l3 3"></path>
+          <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+          <div class="text-3xl font-extrabold font-mono text-yellow-700"><?php echo $pendingIncidents; ?></div>
+          <div class="text-yellow-500 mt-2 font-mono">Pending Incidents</div>
+        </a>
+        <!-- Card 5: Unfixed Incidents -->
+        <a href="my_incidents.php?statuss=not fixed" class="bg-red-50 bg-opacity-90 rounded-xl shadow-lg p-6 flex flex-col items-center border-t-4 border-red-400 hover:scale-105 transition-transform duration-200">
+          <svg class="w-12 h-12 text-red-500 mb-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          <div class="text-3xl font-extrabold font-mono text-red-700"><?php echo $unfixedIncidents; ?></div>
+          <div class="text-red-500 mt-2 font-mono">Unfixed Incidents</div>
+        </a>
       </div>
 
       <!-- Charts Section -->

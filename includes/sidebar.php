@@ -33,81 +33,143 @@ if (isset($_SESSION['last_activity'])) {
       </button>
     </div>
   </div>
-  <nav class="space-y-2 px-4 flex-1 mt-4">
+  <nav class="flex-1 overflow-y-auto overflow-x-hidden">
     <!-- For Admin -->
     <?php if ($_SESSION['role'] === 'admin'){ ?>
-    <a href="../admin/admin_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+
+      <!-- dashboard -->
+    <a href="../admin/admin_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Dashboard">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🏠</span>
       <span class="nav-text transition-all duration-300">Dashboard</span>
     </a>
-    <a href="../admin/users.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">👥</span>
+
+    <!-- users -->
+    <a href="../admin/users.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Users">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">👤</span>
       <span class="nav-text transition-all duration-300">Users</span>
     </a>
-    <a href="../admin/branches.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏢</span>
+
+    <!-- branches -->
+    <a href="../admin/branches.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Branches">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🏢</span>
       <span class="nav-text transition-all duration-300">Branches</span>
     </a>
-    <a href="../admin/assign_staff_branches.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏢</span>
+
+    <!-- assignments -->
+    <a href="../admin/assign_staff_branches.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Assignments">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🔗</span>
       <span class="nav-text transition-all duration-300">Assignments</span>
     </a>
-    <a href="../admin/categories.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📂</span>
+
+    <!-- Categories -->
+    <a href="../admin/categories.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Categories">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🗂️</span>
       <span class="nav-text transition-all duration-300">Categories</span>
     </a>
-    <a href="../admin/incidents.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+
+    <!-- Incidents -->
+    <a href="../admin/incidents.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Incidents">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🚨</span>
       <span class="nav-text transition-all duration-300">Incidents</span>
     </a>
-    <a href="../admin/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+
+    <!-- Projects -->
+    <a href="../admin/projects.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Projects">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📁</span>
+      <span class="nav-text transition-all duration-300">Projects</span>
+    </a>
+
+    <!-- Knowledge Base -->
+    <a href="../admin/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Knowledge Base">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📚</span>
       <span class="nav-text transition-all duration-300">Knowledge Base</span>
     </a>
-    <a href="../admin/reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
-      <span class="nav-text transition-all duration-300">Reports</span>
+
+    <!-- Project Reports -->
+    <a href="../admin/project_reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Project Reports">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Project Reports</span>
     </a>
-    <a href="../admin/incident_history.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📁</span>
-      <span class="nav-text transition-all duration-300">Audit Logs</span>
+
+    <!-- Incident Reports -->
+    <a href="../admin/reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Incident Report">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Incident Reports</span>
     </a>
+
+    <!-- Database -->
+    <a href="../admin/backup.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Database">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🗄️</span>
+      <span class="nav-text transition-all duration-300">Database</span>
+    </a>
+
     <!-- For IT Staff -->
     <?php }elseif($_SESSION['role'] === 'staff'){ ?>
-    <a href="../it_staff/it_staff_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+
+    <!-- Dashboard -->
+    <a href="../it_staff/it_staff_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Dashboard">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🏠</span>
       <span class="nav-text transition-all duration-300">Dashboard</span>
     </a>
-    <a href="../it_staff/my_incidents.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
-      <span class="nav-text transition-all duration-300">My Incidents</span>
+
+    <!-- Incidents -->
+    <a href="../it_staff/my_incidents.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Incidents">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🚨</span>
+      <span class="nav-text transition-all duration-300">Incidents</span>
     </a>
-    <a href="../it_staff/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+
+    <!-- Projects -->
+    <a href="../it_staff/projects.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Projects">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📁</span>
+      <span class="nav-text transition-all duration-300">Projects</span>
+    </a>
+
+    <!-- Knowledge Base -->
+    <a href="../it_staff/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Knowledge Base">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📚</span>
       <span class="nav-text transition-all duration-300">Knowledge Base</span>
     </a>
-    <a href="../it_staff/staff_reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📊</span>
-      <span class="nav-text transition-all duration-300">Reports</span>
+
+    <!-- Incident Reports -->
+    <a href="../it_staff/staff_reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Incident Report">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Incident Reports</span>
     </a>
+
+    <!-- Project Reports -->
+    <a href="../it_staff/project_reports.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Project Reports">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📊</span>
+      <span class="nav-text transition-all duration-300">Project Reports</span>
+    </a>
+
+
     <!-- For End User -->
     <?php }elseif ($_SESSION['role'] === 'user'){ ?>
-    <a href="../user/user_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">🏠</span>
+
+    <!-- Dashboard -->
+    <a href="../user/user_dashboard.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Dashboard">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🏠</span>
       <span class="nav-text transition-all duration-300">Dashboard</span>
     </a>
-    <a href="../user/report_incident.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+
+    <!-- Report Incident -->
+    <a href="../user/report_incident.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Report Incident">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">🆘</span>
       <span class="nav-text transition-all duration-300">Request Support</span>
     </a>
-    <a href="../user/my_incident_history.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">📝</span>
+
+    <!-- Incidents History -->
+    <a href="../user/my_incident_history.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Incidents History">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📜</span>
       <span class="nav-text transition-all duration-300">Incidents History</span>
     </a>
-    <a href="../user/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-3 py-2 transition-all duration-300 font-mono font-semibold">
-      <span class="text-xl transition-transform duration-300 group-hover:scale-110">❓</span>
+
+    <!-- Knowledge Base -->
+    <a href="../user/kb_list.php" class="group flex items-center space-x-3 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-gray-800 rounded-lg px-4 py-2 transition-all duration-300 font-mono font-semibold" title="Knowledge Base">
+      <span class="text-2xl flex-shrink-0 transition-transform duration-300 group-hover:scale-110">📚</span>
       <span class="nav-text transition-all duration-300">Knowledge Base</span>
     </a>
+
     <!-- Routing Error -->
     <?php }else { ?>
     <p class="block bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 p-2 rounded text-center font-mono">ROUTING ERROR</p>
@@ -124,45 +186,37 @@ if (isset($_SESSION['last_activity'])) {
 
   let collapsed = false;
 
-  // Set sidebar width on page load based on screen size
-  function setSidebarInitialWidth() {
-    if (window.innerWidth >= 1208) { // md breakpoint (Tailwind: 768px)
-      sidebar.classList.add('w-64');
-      sidebar.classList.remove('w-16');
-      navTextEls.forEach(el => {
-        el.classList.remove('opacity-0');
-        el.classList.remove('w-0');
-      });
-      title.classList.remove('opacity-0');
-      title.classList.remove('w-0');
-      collapsed = false;
-      toggleIcon.style.transform = 'rotate(0deg)';
-    } else {
+  function setSidebarState(isCollapsed) {
+    if (isCollapsed) {
       sidebar.classList.add('w-16');
       sidebar.classList.remove('w-64');
       navTextEls.forEach(el => {
-        el.classList.add('opacity-0');
-        el.classList.add('w-0');
+        el.classList.add('opacity-0', 'w-0');
       });
-      title.classList.add('opacity-0');
-      title.classList.add('w-0');
-      collapsed = true;
+      title.classList.add('opacity-0', 'w-0');
       toggleIcon.style.transform = 'rotate(90deg)';
+      collapsed = true;
+    } else {
+      sidebar.classList.add('w-64');
+      sidebar.classList.remove('w-16');
+      navTextEls.forEach(el => {
+        el.classList.remove('opacity-0', 'w-0');
+      });
+      title.classList.remove('opacity-0', 'w-0');
+      toggleIcon.style.transform = 'rotate(0deg)';
+      collapsed = false;
     }
   }
 
-  setSidebarInitialWidth();
-  window.addEventListener('resize', setSidebarInitialWidth);
+  // Load saved state from localStorage
+  const savedCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  setSidebarState(savedCollapsed);
 
   toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('w-64');
-    sidebar.classList.toggle('w-16');
-    navTextEls.forEach(el => el.classList.toggle('opacity-0'));
-    navTextEls.forEach(el => el.classList.toggle('w-0'));
-    title.classList.toggle('opacity-0');
-    title.classList.toggle('w-0');
-    // Animate toggle icon (rotate)
     collapsed = !collapsed;
-    toggleIcon.style.transform = collapsed ? 'rotate(90deg)' : 'rotate(0deg)';
+    setSidebarState(collapsed);
+    // Save state
+    localStorage.setItem('sidebarCollapsed', collapsed);
   });
 </script>
+

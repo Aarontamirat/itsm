@@ -100,7 +100,7 @@ $staff = $staffStmt->fetchAll();
       <?php include '../includes/sidebar.php'; ?>
     <?php include '../header.php'; ?>
 
-    <div class="max-w-6xl ms-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 fade-in tech-border glow mt-8">
+    <div class="max-w-7xl ms-auto bg-white bg-opacity-95 rounded-2xl shadow-2xl px-8 py-10 fade-in tech-border glow mt-8">
         <h2 class="text-3xl font-extrabold text-center text-cyan-700 mb-2 tracking-tight font-mono">Incident Management</h2>
         <p class="text-center text-cyan-500 mb-1 font-mono">Manage and track IT support incidents</p>
 
@@ -234,7 +234,8 @@ $staff = $staffStmt->fetchAll();
                 </thead>
                 <tbody>
                     <?php foreach ($incidents as $index => $incident): ?>
-                        <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
+                        <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition"
+                        onclick="window.location.href='incident_view.php?id=<?= $incident['id'] ?>'">
                             <td class="p-3"><?= $start_from + $index + 1 ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['title']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['name']) ?></td>
@@ -263,7 +264,7 @@ $staff = $staffStmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($incident['fixed_date']) ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['rejection_reason']) ?? '' ?></td>
                             <td class="p-3"><?= htmlspecialchars($incident['remark']) ?></td>
-                            <td class="p-3">
+                            <td class="p-3" onclick="event.stopPropagation();">
                                 <div class="flex flex-col md:flex-row gap-2 md:items-center">
                                     <?php
                                         if (($incident['status'] !== 'fixed') && ($incident['status'] !== 'rejected') && ($incident['status'] !== 'fixed_confirmed')) {

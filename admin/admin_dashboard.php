@@ -74,16 +74,17 @@ fetch('dashboard_data.php')
     new Chart(incidentCtx, {
       type: 'bar',
       data: {
-        labels: ['Fixed', 'Pending', 'Not Fixed', 'Assigned'],
+        labels: ['Fixed', 'Pending', 'Not Fixed', 'Assigned', 'Confirmed'],
         datasets: [{
           label: 'Incidents',
           data: [
             data.incidents.fixed,
             data.incidents.pending,
-            data.incidents["not fixed"],
-            data.incidents.assigned
+            data.incidents.notFixed,
+            data.incidents.assigned,
+            data.incidents.fixed_confirmed
           ],
-          backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1']
+          backgroundColor: ['#7262cc', '#f59e0b', '#ef4444', '#6366f1', '#10b981']
         }]
       },
       options: {

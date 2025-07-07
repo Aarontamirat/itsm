@@ -312,7 +312,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         doc.text(`Date: ${dateStr}`, col1X, sigY + 20);
         doc.text(`Date: ${dateStr}`, col2X, sigY + 20);
 
-        doc.save('maintenance_request_form.pdf');
+        // doc.save('maintenance_request_form.pdf');
+const pdfBlob = doc.output('blob');
+const pdfUrl = URL.createObjectURL(pdfBlob);
+
+// Features: width=800, height=600, centered, with scrollbars but no toolbar or menubar
+const windowFeatures = 'width=800,height=600,top=100,left=100,scrollbars=yes,toolbar=no,menubar=no';
+
+// Open PDF in a small popup window
+window.open(pdfUrl, 'PDFPreview', windowFeatures);
+
+
         }
 
         // On successful submit, trigger PDF
@@ -441,7 +451,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         doc.setTextColor(255, 255, 255);
         doc.text('Lucy Insurance S.C - ITSM Incident Report', 12, pageHeight - 4);
 
-        doc.save('maintenance_request_form.pdf');
+        // doc.save('maintenance_request_form.pdf');
+const pdfBlob = doc.output('blob');
+const pdfUrl = URL.createObjectURL(pdfBlob);
+
+// Features: width=800, height=600, centered, with scrollbars but no toolbar or menubar
+const windowFeatures = 'width=800,height=600,top=100,left=100,scrollbars=yes,toolbar=no,menubar=no';
+
+// Open PDF in a small popup window
+window.open(pdfUrl, 'PDFPreview', windowFeatures);
+
+
         }
 
         // On successful submit, trigger PDF
@@ -459,7 +479,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
     </script>
 
-    
 
 </body>
 

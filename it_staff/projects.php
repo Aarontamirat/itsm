@@ -45,7 +45,9 @@ if (!empty($to_date)) {
     $params['to_date'] = $to_date;
 }
 
-$whereSQL = count($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+// where the current user is assigned to
+$whereSQL = count($where) ? 'WHERE ' . implode(' AND ', $where) . ' AND assigned_to = :user_id' : 'WHERE assigned_to = :user_id';
+$params['user_id'] = $user_id;
 
 // ----- Pagination -----
 $limit = 10;
@@ -161,6 +163,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <th class="p-3 font-bold">Status</th>
             <th class="p-3 font-bold">Remark</th>
             <th class="p-3 font-bold">Deadline</th>
+            <th class="p-3 font-bold">Estimated Cost</th>
             <th class="p-3 font-bold">Created At</th>
             <th class="p-3 font-bold">Actions</th>
           </tr>
@@ -169,7 +172,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition cursor-pointer" onclick="window.location.href='project_detail.php?id=<?= $selectedProject['id'] ?>'">
             <td class="p-3">1</td>
             <td class="p-3 font-semibold"><?= htmlspecialchars($selectedProject['title']) ?></td>
-            <td class="p-3"><?= htmlspecialchars($selectedProject['description']) ?></td>
+            <td class="p-3"><?= htmlspecialchars(strlen($selectedProject['description']) > 40 ? substr($selectedProject['description'], 0, 40) . '...' : $selectedProject['description']) ?></td>
             <td class="p-3 whitespace-nowrap">
               <span class="px-2 py-1 rounded text-xs font-medium 
                 <?= $selectedProject['status'] === 'fixed' ? 'text-green-400 font-bold' : 
@@ -201,6 +204,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <i>-</i>
               <?php } ?>
             </td>
+            <td class="p-3 whitespace-nowrap"><?= htmlspecialchars($selectedProject['estimated_cost']) ?? '<i>-</i>' ?></td>
             <td class="p-3 whitespace-nowrap"><?= date('Y-m-d', strtotime($selectedProject['created_at'])) ?></td>
             <td class="p-3" onclick="event.stopPropagation()">
               <?php if ($selectedProject['status'] !== 'confirmed fixed'): ?>
@@ -211,6 +215,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <option value="fixed">Fixed</option>
                   <option value="need_support">Need Support</option>
                 </select>
+                <input type="number" name="estimated_cost" step="0.01" min="0" class="border p-2 rounded-lg font-mono w-32 bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition" placeholder="Estimated cost">
                 <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-4 py-2 text-sm font-mono tracking-widest transform hover:scale-105 transition duration-300">Update</button>
               </form>
               <?php endif; ?>
@@ -231,6 +236,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <th class="p-3 font-bold">Status</th>
           <th class="p-3 font-bold">Remark</th>
           <th class="p-3 font-bold">Deadline</th>
+          <th class="p-3 font-bold">Estimated Cost</th>
           <th class="p-3 font-bold">Created At</th>
           <th class="p-3 font-bold">Actions</th>
         </tr>
@@ -240,7 +246,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition cursor-pointer" onclick="window.location.href='project_detail.php?id=<?= $p['id'] ?>'">
             <td class="p-3"><?= $i + 1 ?></td>
             <td class="p-3 font-semibold"><?= htmlspecialchars($p['title']) ?></td>
-            <td class="p-3"><?= nl2br(htmlspecialchars($p['description'])) ?></td>
+            <td class="p-3"><?= htmlspecialchars(strlen($p['description']) > 40 ? substr($p['description'], 0, 40) . '...' : $p['description']) ?></td>
             <td class="p-3 whitespace-nowrap">
               <span class="px-2 py-1 rounded text-xs font-medium 
                 <?= $p['status'] === 'fixed' ? 'text-green-400 font-bold' : 
@@ -254,25 +260,27 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <td class="p-3"><?= htmlspecialchars($p['remark']) ?: '<i>-</i>' ?></td>
             <td class="p-3 whitespace-nowrap">
               <?php
-              $deadline_date = $p['deadline_date'];
-              if ($deadline_date) {
-                $diff = strtotime($deadline_date) - time();
-                $days = floor($diff / (60 * 60 * 24));
-                $warning = null;
-                if ($days < 0) {
-                  $warning = 'bg-red-300 text-red-900 animate-pulse';
-                } elseif ($days < 3) {
-                  $warning = 'bg-yellow-100 text-yellow-700';
-                } else {
-                  $warning = 'bg-green-100 text-green-700';
-                }
-              ?>
-              <span class="px-2 py-1 whitespace-nowrap rounded <?= $warning ?? '' ?>"><?= htmlspecialchars($deadline_date) ?></span>
-              <?php } else { ?>
-              <i>-</i>
-              <?php } ?>
+              if ($p['status'] !== 'confirmed fixed') {
+                $deadline_date = $p['deadline_date'];
+                if ($deadline_date) {
+                  $diff = strtotime($deadline_date) - time();
+                  $days = floor($diff / (60 * 60 * 24));
+                  $warning = null;
+                  if ($days < 0) {
+                    $warning = 'bg-red-300 text-red-900 animate-pulse';
+                  } elseif ($days < 3) {
+                    $warning = 'bg-yellow-100 text-yellow-700';
+                  } else {
+                    $warning = 'bg-green-100 text-green-700';
+                  }
+                ?>
+                <span class="px-2 py-1 whitespace-nowrap rounded <?= $warning ?? '' ?>"><?= htmlspecialchars($deadline_date) ?></span>
+                <?php } else { ?>
+                <i>-</i>
+              <?php } }else { ?><i>-</i> <?php } ?>
             </td>
             <td class="p-3 whitespace-nowrap"><?= date('Y-m-d', strtotime($p['created_at'])) ?></td>
+            <td class="p-3 whitespace-nowrap"><?= htmlspecialchars($p['estimated_cost']) ?? '<i>-</i>' ?></td>
             <td class="p-3" onclick="event.stopPropagation()">
               <?php if ($p['status'] !== 'confirmed fixed'): ?>
               <form action="project_status_update.php" method="POST" class="flex gap-2 items-center">
@@ -282,6 +290,7 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   <option value="fixed">Fixed</option>
                   <option value="need_support">Need Support</option>
                 </select>
+                <input type="number" name="estimated_cost" step="0.01" min="0" class="border p-2 rounded-lg font-mono w-32 bg-cyan-50 border-cyan-200 focus:ring-2 focus:ring-cyan-300 transition" placeholder="Estimated cost">
                 <button type="submit" class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-green-300 hover:from-green-300 hover:to-cyan-400 text-white font-bold rounded-lg shadow-lg px-4 py-2 text-sm font-mono tracking-widest transform hover:scale-105 transition duration-300">Update</button>
               </form>
               <?php endif; ?>

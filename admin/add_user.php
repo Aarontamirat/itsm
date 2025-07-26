@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $role  = $_POST['role'];
     $branch_id = $_POST['branch_id'];
+    $jobPosition = $_POST['job_position'] ?? null;
     $is_active = isset($_POST['is_active']) ? 1 : 0;
 
     // Basic validation
@@ -41,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $defaultPassword = 'pass@123'; // default password
         $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
 
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, branch_id, created_at, is_active) VALUES (?, ?, ?, ?, ?, NOW(), ?)");
-        $stmt->execute([$name, $email, $hashedPassword, $role, $branch_id, $is_active]);
+        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, job_position, branch_id, created_at, is_active) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)");
+        $stmt->execute([$name, $email, $hashedPassword, $role, $jobPosition, $branch_id, $is_active]);
 
         $_SESSION['success'] = "User created successfully.";
         header("Location: users.php");
@@ -134,6 +135,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="staff" <?= (isset($_POST['role']) && $_POST['role'] == 'staff') ? 'selected' : '' ?>>IT-Staff</option>
                     <option value="user" <?= (isset($_POST['role']) && $_POST['role'] == 'user') ? 'selected' : '' ?>>User</option>
                 </select>
+            </div>
+
+            <!-- Job Position -->
+            <div>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="job_position">Job Position</label>
+                <input type="text" name="job_position" id="job_position"
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono"
+                    value="<?= isset($_POST['job_position']) ? htmlspecialchars($_POST['job_position']) : '' ?>">
             </div>
 
             <!-- is_active checkbox -->

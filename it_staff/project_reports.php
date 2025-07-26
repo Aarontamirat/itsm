@@ -47,6 +47,12 @@ foreach ($projects as $p) {
     }
 }
 
+// estimated cost 
+$totalEstimatedCost = 0;
+foreach ($projects as $p) {
+    $totalEstimatedCost += $p['estimated_cost'];
+}
+
 // summary
 $total = count($projects);
 $byStatus = []; $byStaff = []; $uncompletedProjectsByWeek = [];
@@ -291,6 +297,11 @@ foreach ($projects as $p) {
     <div class="mt-2">
       <h4 class="text-md font-bold text-cyan-700">Uncompleted Projects</h4>
       <p class="text-cyan-600">Total Uncompleted: <?= $uncompletedProjectsCount ?></p>
+    </div>
+    <!-- amount of estimated cost -->
+    <div class="mt-2">
+      <h4 class="text-md font-bold text-cyan-700">Estimated Cost</h4>
+      <p class="text-cyan-600">Total Cost: <?= $totalEstimatedCost ?></p>
     </div>
     <!-- amount of projects by status -->
     <div class="mt-2">

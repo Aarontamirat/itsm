@@ -193,6 +193,7 @@ $staffList = $stmt->fetchAll();
             <th class="p-3 font-bold">Status</th>
             <th class="p-3 font-bold">Assigned To</th>
             <th class="p-3 font-bold">Created At</th>
+            <th class="p-3 font-bold">Estimated Cost</th>
             <th class="p-3 font-bold">Actions</th>
           </tr>
         </thead>
@@ -200,7 +201,7 @@ $staffList = $stmt->fetchAll();
           <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition cursor-pointer" onclick="window.location.href='project_detail.php?id=<?= $selectedProject['id'] ?>'">
             <td class="p-3">1</td>
             <td class="p-3 font-semibold"><?= htmlspecialchars($selectedProject['title']) ?></td>
-            <td class="p-3"><?= htmlspecialchars($selectedProject['description']) ?></td>
+            <td class="p-3"><?= htmlspecialchars(strlen($selectedProject['description']) > 40 ? substr($selectedProject['description'], 0, 40) . '...' : $selectedProject['description']) ?></td>
             <td class="p-3">
               <span class="px-2 py-1 rounded text-xs font-medium <?= $selectedProject['status'] === 'fixed' ? 'bg-green-400 text-white' : ($selectedProject['status'] === 'needs redo' ? 'bg-red-400 text-white' : 'bg-yellow-300 text-cyan-900') ?>">
                 <?= ucfirst($selectedProject['status']) ?>
@@ -208,6 +209,7 @@ $staffList = $stmt->fetchAll();
             </td>
             <td class="p-3"><?= $selectedProject['assigned_name'] ?? '<i>Unassigned</i>' ?></td>
             <td class="p-3"><?= date('Y-m-d', strtotime($selectedProject['created_at'])) ?></td>
+            <td class="p-3 whitespace-nowrap"><?= htmlspecialchars($selectedProject['estimated_cost']) ?? '<i>-</i>' ?></td>
             <td class="p-3 flex flex-col md:flex-row gap-2 whitespace-nowrap">
 
               <?php if ($selectedProject['status'] !== 'confirmed fixed'): ?>
@@ -243,6 +245,7 @@ $staffList = $stmt->fetchAll();
           <th class="p-3 font-bold">Remark</th>
           <th class="p-3 font-bold">Created At</th>
           <th class="p-3 font-bold">Deadline</th>
+          <th class="p-3 font-bold">Estimated Cost</th>
           <th class="p-3 font-bold">Actions</th>
         </tr>
       </thead>
@@ -295,6 +298,8 @@ $staffList = $stmt->fetchAll();
                 <?php } ?>
                 <?php } else{ if($p['deadline_date']) echo '<span class="bg-green-100 text-green-700">' . htmlspecialchars( $p['deadline_date']) . '</span>'; } ?>
             </td>
+
+            <td class="p-3 whitespace-nowrap"><?= htmlspecialchars($p['estimated_cost']) ?? '<i>-</i>' ?></td>
 
             <td class="p-3 whitespace-nowrap">
               <?php if ($p['status'] !== 'confirmed fixed'): ?>

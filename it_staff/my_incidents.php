@@ -83,6 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
 
     if (!in_array($status, ['pending', 'fixed', 'not fixed', 'support'])) {
         $_SESSION['error'] = "Invalid status.";
+    } elseif (empty($saved_amount)) {
+            $_SESSION['error'] = "Saved amount cannot be empty.";
+    } elseif ($saved_amount < 0) {
+            $_SESSION['error'] = "Saved amount cannot be negative.";
     } else {
 
         // track update status

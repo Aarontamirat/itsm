@@ -76,6 +76,9 @@ $projects = $stmt->fetchAll();
             <th class="p-3 font-bold">Title</th>
             <th class="p-3 font-bold">Staff</th>
             <th class="p-3 font-bold">Status</th>
+            <th class="p-3 font-bold">Progress</th>
+            <th class="p-3 font-bold">Deadline</th>
+            <th class="p-3 font-bold">Estimated Cost</th>
             <th class="p-3 font-bold">Updated</th>
             <th class="p-3 font-bold">Action</th>
           </tr>
@@ -96,7 +99,14 @@ $projects = $stmt->fetchAll();
                     <?= ucfirst($p['status']) ?>
                   </span>
                 </td>
-                <td class="p-3"><?= date('Y-m-d H:i', strtotime($p['updated_at'])) ?></td>
+                <td class="p-3 font-medium">
+                  <span class="<?= $p['main_status'] === 'completed' ? 'bg-green-400 text-white px-2 rounded-lg' : 'bg-yellow-400 text-white px-2 rounded-lg' ?>">
+                    <?= ucfirst($p['main_status']) ?>
+                  </span>
+                </td>
+                <td class="p-3 whitespace-nowrap"><?= date('Y-m-d', strtotime($p['deadline_date'])) ?></td>
+                <td class="p-3 whitespace-nowrap"><?= number_format($p['estimated_cost'], 2) ?></td>
+                <td class="p-3 whitespace-nowrap"><?= date('Y-m-d H:i', strtotime($p['updated_at'])) ?></td>
                 <td class="p-3 flex flex-col md:flex-row gap-2">
                   <form action="admin_project_action.php" method="POST" class="flex gap-2">
                     <input type="hidden" name="project_id" value="<?= $p['id'] ?>">

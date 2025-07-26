@@ -41,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $branch_id = $_POST['branch_id'];
     $role  = $_POST['role'];
+    $jobPosition  = $_POST['job_position'] ?? null;
     $is_active = isset($_POST['is_active']) ? 1 : 0;
 
     // Validate inputs
@@ -67,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // if free of errors run the update function 
     if (empty($errors)) {
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, branch_id = ?, role = ?, is_active = ? WHERE id = ?");
-        $stmt->execute([$name, $email, $branch_id, $role, $is_active, $user_id]);
+        $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ?, branch_id = ?, role = ?, job_position = ?, is_active = ? WHERE id = ?");
+        $stmt->execute([$name, $email, $branch_id, $role, $jobPosition, $is_active, $user_id]);
 
         $_SESSION['success'] = "User updated successfully.";
         header("Location: users.php");
@@ -85,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 p-6">
+<body class="bg-gray-100">
     <!-- header and sidebar -->
       <?php include '../includes/sidebar.php'; ?>
   <div class="flex-1 ml-20">
@@ -159,6 +160,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="staff" <?= $current_user['role'] === 'staff' ? 'selected' : '' ?>>IT Staff</option>
                     <option value="user" <?= $current_user['role'] === 'user' ? 'selected' : '' ?>>End User</option>
                 </select>
+            </div>
+
+            <!-- job position -->
+            <div>
+                <label class="block text-cyan-700 font-semibold mb-1 font-mono" for="job_position">Job Position</label>
+                <input type="text" name="job_position" id="job_position" value="<?= htmlspecialchars($current_user['job_position']) ?>"
+                    class="w-full px-4 py-2 rounded-lg border border-cyan-200 bg-cyan-50 text-cyan-900 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition duration-200 font-mono"
+                    required>
             </div>
 
             <!-- is_active checkbox -->

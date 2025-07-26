@@ -68,7 +68,7 @@ $total_pages = ceil($total_users / $results_per_page);
 
 // Fetch users with filters and pagination
 $sql = "SELECT 
-    u.id, u.name, u.email, u.role, u.is_active, u.created_at, 
+    u.id, u.name, u.email, u.role, u.is_active, u.created_at, u.job_position, 
     b.id AS branch_id, b.name AS branch_name
     FROM users u
     LEFT JOIN branches b ON u.branch_id = b.id
@@ -232,6 +232,7 @@ $users = $stmt->fetchAll();
                         <th class="p-3 font-bold">Email</th>
                         <th class="p-3 font-bold">Branch</th>
                         <th class="p-3 font-bold">Role</th>
+                        <th class="p-3 font-bold">Job Position</th>
                         <th class="p-3 font-bold">Status</th>
                         <th class="p-3 font-bold">Created At</th>
                         <th class="p-3 font-bold">Actions</th>
@@ -246,6 +247,7 @@ $users = $stmt->fetchAll();
                             <td class="p-3"><?= htmlspecialchars($user['branch_name'] ?? 'N/A') ?></td>
                             <td class="p-3 capitalize"><?= htmlspecialchars($user['role']) ?></td>
 
+                            <td class="p-3 capitalize"><?= htmlspecialchars($user['job_position'] ?? '-') ?></td>
                             
                             <td class="p-3 capitalize">
                                 <span class="<?= htmlspecialchars($user['is_active']) == 1 ? 'bg-green-400 text-white px-1 rounded-lg' : 'bg-red-400 text-white px-1 rounded-lg' ?>"><?= htmlspecialchars($user['is_active']) == 1 ? 'active' : 'inactive' ?></span>

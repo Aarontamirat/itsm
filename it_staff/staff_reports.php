@@ -265,6 +265,7 @@ function diffMinutes($start, $end) {
         const dateGenerated = new Date().toLocaleString();
         const fromDate = <?= json_encode($filters['from_date'] ?? ''); ?>;
         const toDate = <?= json_encode($filters['to_date'] ?? ''); ?>;
+        const jobPosition = <?= json_encode($_SESSION['job_position'] ?? ''); ?>;
 
         // Modern cover design
         const pageWidth = doc.internal.pageSize.getWidth();
@@ -278,38 +279,48 @@ function diffMinutes($start, $end) {
         doc.setFillColor(59, 130, 246);
         doc.circle(pageWidth - 100, 60, 40, 'F');
 
-        // Title
+        // Add full-width image banner at the top
+        const bannerBase64 = '../uploads/letterHeader.jpg';
+        const bannerHeight = 100;
+
+        doc.addImage(bannerBase64, 'PNG', 0, 0, pageWidth, bannerHeight);
+
         doc.setFontSize(32);
-        doc.setTextColor(255, 255, 255);
-        doc.text("IT Staff Incident Report", pageWidth / 2, 55, { align: "center" });
+        doc.setFont('courier', 'bold');
+        doc.setTextColor(8, 145, 178);
+        doc.text("IT Staff Incident Report", pageWidth / 2, bannerHeight + 67, { align: "center" });
 
         // Card-like info box
+        doc.setFont('courier', 'normal');
         doc.setFillColor(236, 254, 255);
-        doc.roundedRect(60, 120, pageWidth - 120, 210, 18, 18, 'F');
+        const cardY = bannerHeight + 80;
+        doc.roundedRect(60, cardY, pageWidth - 120, 210, 18, 18, 'F');
 
         doc.setFontSize(15);
         doc.setTextColor(8, 145, 178);
-        doc.text("Employee Name:", 100, 170);
+        doc.text("Employee Name:", 100, cardY + 50);
         doc.setTextColor(30, 41, 59);
-        doc.text(employeeName, 260, 170);
+        doc.text(employeeName, 260, cardY + 50);
 
         // Job Position label and blank line
         doc.setTextColor(8, 145, 178);
-        doc.text("Job Position:", 100, 200);
+        doc.text("Job Position:", 100, cardY + 80);
         doc.setDrawColor(30, 41, 59);
         doc.setLineWidth(0.7);
-        doc.line(250, 200, 500, 200); // blank line
+        // doc.line(250, cardY + 80, 500, cardY + 80); // blank line
+        doc.setTextColor(30, 41, 59);
+        doc.text(jobPosition, 260, cardY + 80);
 
         doc.setFontSize(15);
         doc.setTextColor(8, 145, 178);
-        doc.text("Date of Report Generation:", 100, 240);
+        doc.text("Date of Report Generation:", 100, cardY + 120);
         doc.setTextColor(30, 41, 59);
-        doc.text(dateGenerated, 350, 240);
+        doc.text(dateGenerated, 350, cardY + 120);
 
         doc.setTextColor(8, 145, 178);
-        doc.text("Report Period:", 100, 280);
+        doc.text("Report Period:", 100, cardY + 160);
         doc.setTextColor(30, 41, 59);
-        doc.text(`${fromDate || '-'} to ${toDate || '-'}`, 230, 280);
+        doc.text(`${fromDate || '-'} to ${toDate || '-'}`, 230, cardY + 160);
 
         // Footer for signatures (modern, spaced)
         doc.setDrawColor(8, 145, 178);
@@ -318,12 +329,14 @@ function diffMinutes($start, $end) {
         doc.line(pageWidth - 350, pageHeight - 110, pageWidth - 100, pageHeight - 110);
 
         doc.setFontSize(13);
+        doc.setFont('courier', 'bold');
         doc.setTextColor(8, 145, 178);
         doc.text("Employee Signature", 100, pageHeight - 95);
         doc.text("Manager Signature (Mikiyas Wendimu)", pageWidth - 350, pageHeight - 95);
 
         // Add a new page for the table and summary
         doc.addPage();
+        doc.setFont('courier', 'normal');
 
         // Table headers
         const headers = [[
@@ -354,7 +367,6 @@ function diffMinutes($start, $end) {
 
         // Add summary below the table
         // Get summary values from the DOM
-        // Use a more specific selector and avoid optional chaining for compatibility
         var summaryDiv = document.querySelector('.mt-6.bg-cyan-50.flex');
         if (!summaryDiv) summaryDiv = document.querySelector('.mt-6.bg-cyan-50');
         var summaryItems = summaryDiv ? summaryDiv.querySelectorAll('div') : [];

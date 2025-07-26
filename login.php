@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['name'] = $user['name'];
             $_SESSION['branch_id'] = $user['branch_id'];
             $_SESSION['branch_name'] = $user['branch_name'];
+            $_SESSION['job_position'] = $user['job_position'] ?? '';
             $_SESSION['is_active'] = $user['is_active'];
             $_SESSION['last_activity'] = time();
 

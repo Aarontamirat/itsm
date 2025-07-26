@@ -256,50 +256,97 @@ $incidents = $stmt->fetchAll();
         ?>
 
         <div class="overflow-x-auto rounded-xl shadow-inner">
-            <?php if (empty($incidents)): ?>
-                <p class="text-center text-cyan-400 font-mono py-8">You have no incidents yet.</p>
-            <?php else: ?>
-                <table class="w-full border border-cyan-100 bg-white bg-opacity-90 font-mono text-cyan-900">
-                    <thead>
-                        <tr class="bg-cyan-50 text-cyan-700 text-left">
-                            <th class="p-3 font-bold">#</th>
-                            <th class="p-3 font-bold">Title</th>
-                            <th class="p-3 font-bold">Description</th>
-                            <th class="p-3 font-bold">Category</th>
-                            <th class="p-3 font-bold">Priority</th>
-                            <th class="p-3 font-bold">Status</th>
-                            <th class="p-3 font-bold">Created</th>
+    <?php if (empty($incidents)): ?>
+        <p class="text-center text-cyan-400 font-mono py-8">You have no incidents yet.</p>
+    <?php else: ?>
+        <form id="maintenanceForm" method="post" action="generate_request_form.php" target="_blank">
+            <table class="w-full border border-cyan-100 bg-white bg-opacity-90 font-mono text-cyan-900">
+                <thead>
+                    <tr class="bg-cyan-50 text-cyan-700 text-left">
+                        <th class="p-3 font-bold"><input type="checkbox" onclick="toggleAll(this)"></th>
+                        <th class="p-3 font-bold">#</th>
+                        <th class="p-3 font-bold">Title</th>
+                        <th class="p-3 font-bold">Description</th>
+                        <th class="p-3 font-bold">Category</th>
+                        <th class="p-3 font-bold">Priority</th>
+                        <th class="p-3 font-bold">Status</th>
+                        <th class="p-3 font-bold">Created</th>
+                        <th class="p-3 font-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($incidents as $index => $incident): ?>
+                        <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
+                            <td class="p-3">
+                                <input type="checkbox" name="selected[]" value="<?= htmlspecialchars(json_encode($incident)) ?>">
+                            </td>
+                            <td class="p-3"><?= $start_from + $index + 1 ?></td>
+                            <td class="p-3"> <?= htmlspecialchars($incident['title']) ?> </td>
+                            <td class="p-3"> <?= htmlspecialchars($incident['description']) ?> </td>
+                            <td class="p-3"> <?= htmlspecialchars($incident['name']) ?> </td>
+                            <td class="p-3"> <?= htmlspecialchars($incident['priority']) ?> </td>
+                            <td class="p-3">
+                                <?php
+                                $status_class = match ($incident['status']) {
+                                    'fixed', 'fixed_confirmed' => 'bg-green-400',
+                                    'pending' => 'bg-red-400 animate-pulse',
+                                    'not fixed' => 'bg-orange-400',
+                                    'assigned' => 'bg-yellow-400',
+                                    'rejected' => 'bg-gray-400',
+                                    default => 'bg-red-400 animate-pulse',
+                                };
+                                ?>
+                                <span class="<?= $status_class ?> rounded-lg px-1 text-white">
+                                    <?= htmlspecialchars($incident['status']) ?>
+                                </span>
+                            </td>
+                            <td class="p-3"> <?= htmlspecialchars($incident['created_at']) ?> </td>
+                            <td class="p-3" onclick="event.stopPropagation();">
+                                <?php if ($incident['status'] === 'fixed'): ?>
+                                    <div class="notifList space-x-2 flex">
+                                        <button 
+                                            type="button"
+                                            data-id="<?= $incident['id'] ?>" 
+                                            class="confirm-btn bg-gradient-to-r from-cyan-800 via-cyan-700 to-green-600 hover:from-green-700 hover:to-cyan-600 text-white font-bold rounded-lg shadow-lg px-2 py-1 transform hover:scale-105 transition duration-300 font-mono"
+                                        >
+                                            Confirm
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            data-id="<?= $incident['id'] ?>" 
+                                            class="reopen-btn bg-gradient-to-r from-yellow-700 to-red-800 hover:from-red-700 hover:to-yellow-800 text-white font-bold rounded-lg shadow-lg px-2 py-1 transform hover:scale-105 transition duration-300 font-mono"
+                                        >
+                                            Reopen
+                                        </button>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-sm text-gray-400 italic">No actions</span>
+                                <?php endif; ?>
+                            </td>
+
                         </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($incidents as $index => $incident): ?>
-                            <tr class="border-t border-cyan-100 hover:bg-cyan-50 transition">
-                                <td class="p-3"><?= $start_from + $index + 1 ?></td>
-                                <td class="p-3"><?= htmlspecialchars($incident['title']) ?></td>
-                                <td class="p-3"><?= htmlspecialchars($incident['description']) ?></td>
-                                <td class="p-3"><?= htmlspecialchars($incident['name']) ?></td>
-                                <td class="p-3"><?= htmlspecialchars($incident['priority']) ?></td>
-                                <td class="p-3">
-                                    <?php
-                                    $status_class = match ($incident['status']) {
-                                        'fixed' => 'bg-green-400 rounded-lg px-1 text-white',
-                                        'fixed_confirmed' => 'bg-green-400 rounded-lg px-1 text-white',
-                                        'pending' => 'bg-red-400 rounded-lg px-1 text-white animate-pulse',
-                                        'not fixed' => 'bg-orange-400 rounded-lg px-1 text-white',
-                                        'assigned' => 'bg-yellow-400 rounded-lg px-1 text-white',
-                                        'rejected' => 'bg-gray-400 rounded-lg px-1 text-white',
-                                        default => 'bg-red-400 rounded-lg px-1 text-white animate-pulse',
-                                    };
-                                    ?>
-                                    <span class="<?= $status_class ?>"><?= htmlspecialchars($incident['status']) ?></span>
-                                </td>
-                                <td class="p-3"><?= htmlspecialchars($incident['created_at']) ?></td>
-                            </tr>
-                        <?php endforeach ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
-        </div>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+
+            <div class="mt-4 text-right">
+                <button type="submit" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded shadow">
+                    Generate Maintenance Request Form
+                </button>
+            </div>
+        </form>
+
+        <script>
+            function toggleAll(source) {
+                checkboxes = document.querySelectorAll('input[name="selected[]"]');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = source.checked;
+                }
+            }
+        </script>
+    <?php endif; ?>
+</div>
+
 
         <!-- Pagination -->
         <div class="mt-8">
@@ -331,6 +378,55 @@ $incidents = $stmt->fetchAll();
             </nav>
         </div>
     </div>
+
+    <!-- confirm and reopen logic -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.notifList').forEach(function(container) {
+            container.addEventListener('click', function (e) {
+                if (e.target.classList.contains('confirm-btn')) {
+                    e.preventDefault();
+                    const btn = e.target;
+                    const id = btn.getAttribute('data-id');
+                    fetch('../confirm_fixed.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ incident_id: id })
+                    }).then(res => res.json()).then(resp => {
+                        if (resp.success) {
+                            btn.textContent = 'Confirmed';
+                            btn.disabled = true;
+                            btn.classList.add('opacity-60');
+                            location.reload();
+                        }
+                    });
+                }
+
+                if (e.target.classList.contains('reopen-btn')) {
+                    e.preventDefault();
+                    const btn = e.target;
+                    const id = btn.getAttribute('data-id');
+                    fetch('../reopen_incident.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ incident_id: id })
+                    }).then(res => res.json()).then(resp => {
+                        if (resp.success) {
+                            btn.textContent = 'Reopened';
+                            btn.disabled = true;
+                            btn.classList.add('opacity-60');
+                            location.reload();
+                        } else {
+                            btn.textContent = 'Error';
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+
+
 </body>
 
 </html>

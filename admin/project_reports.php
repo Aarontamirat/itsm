@@ -47,6 +47,12 @@ foreach ($projects as $p) {
     }
 }
 
+// estimated cost 
+$totalEstimatedCost = 0;
+foreach ($projects as $p) {
+    $totalEstimatedCost += $p['estimated_cost'];
+}
+
 // summary
 $total = count($projects);
 $byStatus = []; $byStaff = []; $uncompletedProjectsByWeek = [];
@@ -188,6 +194,7 @@ $staffList = $pdo->query("SELECT id,name FROM users WHERE role='staff'")->fetchA
           <th class="p-3 font-bold">Deadline</th>
           <th class="p-3 font-bold">Remark</th>
           <th class="p-3 font-bold">Created</th>
+          <th class="p-3 font-bold">Estimated Cost</th>
           <th class="p-3 font-bold">Time Taken to Complete</th>
           <th class="p-3 font-bold">Action</th>
         </tr>
@@ -228,26 +235,29 @@ $staffList = $pdo->query("SELECT id,name FROM users WHERE role='staff'")->fetchA
           <td class="p-3 whitespace-nowrap"><?= htmlspecialchars($p['staff_name'] ?: 'Unassigned') ?></td>
           <td class="p-3 whitespace-nowrap">
             <?php
-            $deadline_date = $p['deadline_date'];
-            if ($deadline_date) {
-              $diff = strtotime($deadline_date) - time();
-              $days = floor($diff / (60 * 60 * 24));
-              $warning = null;
-              if ($days < 0) {
-                $warning = 'bg-red-300 text-red-900 animate-pulse';
-              } elseif ($days < 3) {
-                $warning = 'bg-yellow-100 text-yellow-700';
-              } else {
-                $warning = 'bg-green-100 text-green-700';
-              }
-            ?>
-            <span class="px-2 py-1 whitespace-nowrap rounded <?= $warning ?? '' ?>"><?= htmlspecialchars($deadline_date) ?></span>
-            <?php } else { ?>
-            <i>-</i>
-            <?php } ?>
+            if ($p['status'] !== 'confirmed fixed') {
+              $deadline_date = $p['deadline_date'];
+              if ($deadline_date) {
+                $diff = strtotime($deadline_date) - time();
+                $days = floor($diff / (60 * 60 * 24));
+                $warning = null;
+                if ($days < 0) {
+                  $warning = 'bg-red-300 text-red-900 animate-pulse';
+                } elseif ($days < 3) {
+                  $warning = 'bg-yellow-100 text-yellow-700';
+                } else {
+                  $warning = 'bg-green-100 text-green-700';
+                }
+              ?>
+              <span class="px-2 py-1 whitespace-nowrap rounded <?= $warning ?? '' ?>"><?= htmlspecialchars($deadline_date) ?></span>
+              <?php } else { ?>
+              <i>-</i>
+              <?php } ?>
+              <?php } else{ if($p['deadline_date']) echo '<span class="px-2 py-1 rounded bg-green-900 text-white">' . htmlspecialchars( $p['deadline_date']) . '</span>'; } ?>
           </td>
           <td class="p-3"><?= htmlspecialchars($p['remark'] ?: '-') ?></td>
           <td class="p-3 whitespace-nowrap"><?= date('Y-m-d',strtotime($p['created_at'])) ?></td>
+          <td class="p-3 whitespace-nowrap"><?= number_format($p['estimated_cost'])?? '<i>-</i>' ?></td>
           <td class="p-3">
             <?php
             if ($p['status'] === 'fixed' || $p['status'] === 'confirmed fixed') {
@@ -304,6 +314,11 @@ $staffList = $pdo->query("SELECT id,name FROM users WHERE role='staff'")->fetchA
     <div class="mt-2">
       <h4 class="text-md font-bold text-cyan-700">Uncompleted Projects</h4>
       <p class="text-cyan-600">Total Uncompleted: <?= $uncompletedProjectsCount ?></p>
+    </div>
+    <!-- amount of estimated cost -->
+    <div class="mt-2">
+      <h4 class="text-md font-bold text-cyan-700">Estimated Cost</h4>
+      <p class="text-cyan-600">Total Cost: <?= $totalEstimatedCost ?></p>
     </div>
     <!-- amount of projects by status -->
     <div class="mt-2">

@@ -316,7 +316,7 @@ $staff = $staffStmt->fetchAll();
                                             </form>
                                         </div>
                                         </div>
-
+                                    
                                     <a href="incident_history.php?id=<?= $incident['id'] ?>" class="bg-blue-400 hover:bg-blue-500 text-white font-bold px-3 py-1 rounded-lg shadow transition w-full md:w-auto text-center">History</a>
                                 </div>
                             </td>

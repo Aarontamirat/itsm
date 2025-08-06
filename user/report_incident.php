@@ -63,7 +63,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Handle file upload
-        if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        if ((isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) || (isset($_FILES['maintenance_form_file']) && $_FILES['maintenance_form_file']['error'] === UPLOAD_ERR_OK)) {
+            
+            // optional incident related document
             $file_tmp = $_FILES['file']['tmp_name'];
             $file_name = basename($_FILES['file']['name']);
             $target_path = "../uploads/" . time() . "_" . $file_name;
@@ -71,6 +73,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (move_uploaded_file($file_tmp, $target_path)) {
                 $stmt = $pdo->prepare("INSERT INTO files (incident_id, filepath, uploaded_at) VALUES (?, ?, NOW())");
                 $stmt->execute([$incident_id, $target_path]);
+            }
+        }
+
+        // Handle maintenance file upload
+        if (isset($_FILES['maintenance_form_file']) && $_FILES['maintenance_form_file']['error'] === UPLOAD_ERR_OK) {
+            $maintenance_form_file_tmp = $_FILES['maintenance_form_file']['tmp_name'];
+            $maintenance_form_file_name = basename($_FILES['maintenance_form_file']['name']);
+            $maintenance_form_file_target_path = "../uploads/" . time() . "_" . $maintenance_form_file_name;
+
+            if (move_uploaded_file($maintenance_form_file_tmp, $maintenance_form_file_target_path)) {
+                $stmt2 = $pdo->prepare("INSERT INTO files (incident_id, filepath, maintenance_form, uploaded_at) VALUES (?, ?, ?, NOW())");
+                $stmt2->execute([$incident_id, $maintenance_form_file_target_path, true]);
             }
         }
 
@@ -194,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="flex flex-row gap-4 justify-center items-center mt-4">
-                <button type="button"
+                <!-- <button type="button"
                     onclick="generateMaintenanceForm({
                         title: document.querySelector('[name=title]').value,
                         description: document.querySelector('[name=description]').value,
@@ -215,7 +229,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     class="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow transition duration-200"
                 >
                     Download Letter Form PDF
+                </button> -->
+                <button type="button"
+                onclick="generatePDF({
+                    title: document.querySelector('[name=title]').value,
+                    description: document.querySelector('[name=description]').value,
+                    priority: document.querySelector('[name=priority]').value,
+                    category: document.querySelector('#category').options[document.querySelector('#category').selectedIndex].text,
+                    branch: document.querySelector('[name=branch]').value
+                })"
+                class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold rounded-lg px-6 py-2 shadow transition duration-200"
+                >
+                    Download Maintenance Form PDF
                 </button>
+            </div>
+            
+            <!-- optional file upload for maintenance form after scanned either pdf or image -->
+            <div>
+                <label for="maintenance_form_file" class="block font-bold text-cyan-700 font-mono">Upload Scanned Maintenance Form (PDF or Image):</label>
+                <input type="file" id="maintenance_form_file" name="maintenance_form_file" accept=".pdf,.jpeg,.jpg,.png" class="w-full p-2 border border-cyan-200 rounded-lg bg-cyan-50 focus:ring-2 focus:ring-cyan-300 focus:outline-none transition">
             </div>
 
             <!-- submit button -->
@@ -230,7 +262,110 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
     <!-- jsPDF CDN -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    async function generatePDF(data) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const date = new Date().toLocaleDateString('en-GB');
+      const branchName = data.branch;
+      const title = data.title;
+      const description = data.description;
+      const priority = data.priority;
+      const category = data.category;
+
+      // Add logo
+      const logo = new Image();
+      logo.src = '../uploads/letterHeader.jpg';
+      logo.onload = function () {
+        doc.addImage(logo, 'JPEG', 10, 10, 190, 30);
+        doc.setFont('helvetica', '');
+        doc.setFontSize(10);
+
+        let y = 45;
+
+        doc.text(`Date: ${date}`, 160, y, { align: 'right' });
+
+        doc.setFontSize(15);
+        doc.text('Maintenance Request Form', 105, y + 10, { align: 'center' });
+
+        doc.setFontSize(11);
+        doc.text(`Division: _____________    Department: _______________    Branch: ${branchName}`, 15, y + 20);
+
+        // // Table
+        // const rows = [
+        //   // Replace this array with your dynamic incident data
+        //   ['1', 'Computer Monitor', '', 'Screen not working', '01/08/2025', ''],
+        //   ['2', 'Printer', '', 'Paper Jam', '29/07/2025', '']
+        // ];
+        const rows = [
+            ['1', category, '', description, new Date().toLocaleDateString('en-GB'), '']
+        ];
+
+
+        doc.autoTable({
+          startY: y + 30,
+          head: [['Ser No.', 'Description of Item', 'Tag No.', 'Type of Problem', 'Date Problem Detected', 'Action Required']],
+          body: rows,
+          styles: { fontSize: 10, cellPadding: 3 },
+          headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
+          theme: 'grid',
+          margin: { left: 15, right: 15 }
+        });
+
+        const finalY = doc.lastAutoTable.finalY + 10;
+
+        // Signature section
+        doc.text('Requested by', 15, finalY);
+        doc.text('Name: ___________________________', 15, finalY + 10);
+        doc.text('Signature: _______________________', 15, finalY + 20);
+
+        doc.text('Approved by', 120, finalY);
+        doc.text('Name: ___________________________', 120, finalY + 10);
+        doc.text('Signature: _______________________', 120, finalY + 20);
+
+        // HR & Logistics Section
+        const actionY = finalY + 50;
+        doc.setFontSize(12);
+        doc.text('Action Taken by HR & Logistics Division', 105, actionY, { align: 'center' });
+        
+
+        function checkbox(x, y, length, width) {
+        doc.rect(x, y, length, width);
+        doc.line(x, y, x + length, y + width);
+        doc.line(x, y + length, x + width, y);
+        }
+        doc.setFontSize(10);
+        doc.rect(15, actionY + 7, 3, 3);
+        doc.rect(55, actionY + 7, 3, 3);
+        doc.text('Request Approved               Rejected', 21, actionY + 10);
+        doc.text('Description of Corrective Action taken:', 15, actionY + 20);
+
+        doc.setDrawColor(180);
+        doc.line(15, actionY + 25, 195, actionY + 25);
+        doc.line(15, actionY + 35, 195, actionY + 35);
+        doc.line(15, actionY + 45, 195, actionY + 45);
+
+        doc.text('Owner of Action Process', 15, actionY + 55);
+
+        // doc.save('maintenance_request_form.pdf');
+        const pdfBlob = doc.output('blob');
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        // Features: width=800, height=600, centered, with scrollbars but no toolbar or menubar
+        const windowFeatures = 'width=800,height=600,top=100,left=100,scrollbars=yes,toolbar=no,menubar=no';
+
+        // Open PDF in a small popup window
+        window.open(pdfUrl, 'PDFPreview', windowFeatures);
+      };
+    }
+  </script>
+
+
     <script>
     // function generateMaintenanceForm(data) {
     //     const { jsPDF } = window.jspdf;

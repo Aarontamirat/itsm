@@ -10,6 +10,11 @@ if ($incident_id <= 0) {
     die('<div style="color:red;text-align:center;margin-top:50px;">Invalid Incident ID.</div>');
 }
 
+//  Fetch files where incident ID matches
+$stmt = $pdo->prepare("SELECT filepath, maintenance_form FROM files WHERE incident_id = ?");
+$stmt->execute([$incident_id]);
+$files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Fetch incident details
 $stmt = $pdo->prepare(
     "SELECT 
@@ -145,14 +150,43 @@ function priorityBadge($priority) {
         </div>
 
         <div class="mb-8 text-center">
-            <?php if (!empty($incident['filepath']) && file_exists($incident['filepath'])): ?>
-                <span class="text-cyan-700 font-semibold">Attached Image</span>
-                <a href="<?= h($incident['filepath']) ?>" target="_blank">
-                    <img src="<?= h($incident['filepath']) ?>" alt="Incident Image" class="mx-auto rounded-xl shadow-lg border-4 border-cyan-100 mt-2" style="max-width: 350px; max-height: 250px; object-fit: contain;">
-                </a>
-            <?php else: ?>
-                <div class="text-rose-700 italic">No image attached.</div>
+            <!-- incident file attachment -->
+            <?php if (!empty($files)): ?>
+                <div class="mb-4">
+                    <span class="text-cyan-700 font-semibold text-lg block mb-2">
+                        <svg class="inline-block w-6 h-6 mr-1 text-cyan-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15.172 7l-6.586 6.586a2 2 0 002.828 2.828L18 9.828a4 4 0 00-5.656-5.656L5.343 11.172a6 6 0 108.485 8.485"></path></svg>
+                        Attached Files
+                    </span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-2">
+                        <?php foreach ($files as $file): ?>
+                            <?php if (!empty($file['filepath']) && file_exists($file['filepath'])): ?>
+                                <div class="bg-cyan-50 rounded-xl shadow-lg border border-cyan-200 p-4 flex flex-col items-center hover:shadow-2xl transition duration-200">
+                                    <?php if (empty($file['maintenance_form']) || $file['maintenance_form'] == 0): ?>
+                                        <span class="text-cyan-800 font-semibold mb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-1 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16V4a2 2 0 012-2h12a2 2 0 012 2v12"></path><path d="M4 16l8 5 8-5"></path></svg>
+                                            Incident File
+                                        </span>
+                                        <a href="<?= h($file['filepath']) ?>" target="_blank" class="block">
+                                            <img src="<?= h($file['filepath']) ?>" alt="Incident File" class="rounded-lg shadow-md border-2 border-cyan-100 hover:border-cyan-400 transition duration-200" style="max-width: 250px; max-height: 180px; object-fit: contain;">
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if (!empty($file['maintenance_form']) && $file['maintenance_form'] == 1): ?>
+                                        <span class="text-cyan-800 font-semibold mb-2 flex items-center">
+                                            <svg class="w-5 h-5 mr-1 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 17l4 4 4-4"></path><path d="M12 3v18"></path></svg>
+                                            Maintenance Form
+                                        </span>
+                                        <a href="<?= h($file['filepath']) ?>" target="_blank" class="text-blue-600 hover:underline font-medium">
+                                            <svg class="inline-block w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"></path></svg>
+                                            View Maintenance Form
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             <?php endif; ?>
+
         </div>
     </div>
 </body>

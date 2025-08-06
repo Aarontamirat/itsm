@@ -83,9 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
 
     if (!in_array($status, ['pending', 'fixed', 'not fixed', 'support'])) {
         $_SESSION['error'] = "Invalid status.";
-    } elseif (empty($saved_amount)) {
+    } elseif (empty($saved_amount) && $status == 'fixed') {
             $_SESSION['error'] = "Saved amount cannot be empty.";
-    } elseif ($saved_amount < 0) {
+    } elseif ($saved_amount < 0 && $status == 'fixed') {
             $_SESSION['error'] = "Saved amount cannot be negative.";
     } else {
 
@@ -394,15 +394,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['incident_id'], $_POST
 
                                         <div class="flex flex-col md:flex-row items-center gap-2">
                                             <a href="kb_list.php" class="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Solution</a>
-                                            <?php
-                                                // Fetch image path for this incident
-                                                $imgStmt = $pdo->prepare("SELECT `filepath` FROM files WHERE incident_id = ? LIMIT 1");
-                                                $imgStmt->execute([$incident['id']]);
-                                                $imgPath = $imgStmt->fetchColumn();
-                                                if ($imgPath):
-                                            ?>
-                                                <a href="<?= htmlspecialchars($imgPath) ?>" target="_blank" class="bg-cyan-700 hover:bg-cyan-800 text-white font-bold rounded-lg shadow px-4 py-2 font-mono transition">Image</a>
-                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
